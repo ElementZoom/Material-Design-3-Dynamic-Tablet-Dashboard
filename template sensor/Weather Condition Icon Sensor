@@ -1,0 +1,37 @@
+     - name: "Weather Condition Icon"
+       unique_id: weather_condition_icon
+       state: >
+        {% set condition = states('weather.forecast_home') | lower %}
+        {% if condition in ['sunny', 'clear'] %}
+          mdi:weather-sunny
+        {% elif condition == 'clear-night' %}
+          mdi:weather-night
+        {% elif condition in ['partlycloudy', 'partly cloudy'] %}
+          mdi:weather-partly-cloudy
+        {% elif condition == 'cloudy' %}
+          mdi:weather-cloudy
+        {% elif condition in ['rainy', 'rain'] %}
+          mdi:weather-rainy
+        {% elif condition == 'pouring' %}
+          mdi:weather-pouring
+        {% elif condition == 'windy' %}
+          mdi:weather-windy
+        {% elif condition in ['fog', 'foggy'] %}
+          mdi:weather-fog
+        {% elif condition in ['snow', 'snowy'] %}
+          mdi:weather-snowy
+        {% elif condition == 'snowy-rainy' %}
+          mdi:weather-snowy-rainy
+        {% elif condition == 'hail' %}
+          mdi:weather-hail
+        {% elif condition == 'lightning' %}
+          mdi:weather-lightning
+        {% elif condition == 'lightning-rainy' %}
+          mdi:weather-lightning-rainy
+        {% elif condition == 'windy-variant' %}
+          mdi:weather-windy-variant
+        {% elif condition == 'exceptional' %}
+          mdi:alert-circle-outline
+        {% else %}
+          mdi:weather-cloudy-alert
+        {% endif %}
