@@ -1,0 +1,168 @@
+- trigger:
+    - platform: time_pattern
+      minutes: /15
+    - platform: homeassistant
+      event: start
+
+  sensor:
+    - name: "Hourly Weather Data - Met Service"
+      unique_id: hourly_weather_data_met_service
+      state: >
+        {% if forecast['weather.met_service_home_forecast'].forecast is defined
+              and forecast['weather.met_service_home_forecast'].forecast | length > 0 %}
+          {{ as_local(strptime(forecast['weather.met_service_home_forecast'].forecast[0].datetime,
+                               '%Y-%m-%dT%H:%M:%S%z')) }}
+        {% else %}
+          unknown
+        {% endif %}
+      attributes:
+        forecast_data: >
+          {% if forecast['weather.met_service_home_forecast'].forecast is defined
+                and forecast['weather.met_service_home_forecast'].forecast | length > 0 %}
+            {{ forecast['weather.met_service_home_forecast'].forecast[0] }}
+          {% else %}
+            {}
+          {% endif %}
+
+    - name: "Daily Weather Data - Met Service"
+      unique_id: daily_weather_data_met_service
+      state: >
+        {% if forecast_daily['weather.met_service_home_forecast'].forecast is defined
+              and forecast_daily['weather.met_service_home_forecast'].forecast | length > 0 %}
+          {{ as_local(strptime(forecast_daily['weather.met_service_home_forecast'].forecast[0].datetime,
+                               '%Y-%m-%dT%H:%M:%S%z')) }}
+        {% else %}
+          unknown
+        {% endif %}
+      attributes:
+        forecast_data: >
+          {% if forecast_daily['weather.met_service_home_forecast'].forecast is defined
+                and forecast_daily['weather.met_service_home_forecast'].forecast | length > 0 %}
+            {{ forecast_daily['weather.met_service_home_forecast'].forecast[0] }}
+          {% else %}
+            {}
+          {% endif %}
+
+  action:
+    - action: weather.get_forecasts
+      target:
+        entity_id: weather.met_service_home_forecast
+      data:
+        type: hourly
+      response_variable: forecast
+
+    - action: weather.get_forecasts
+      target:
+        entity_id: weather.met_service_home_forecast
+      data:
+        type: daily
+      response_variable: forecast_daily
+
+- trigger:
+    - platform: time_pattern
+      minutes: /15
+    - platform: homeassistant
+      event: start
+
+  sensor:
+    - name: "Hourly Weather Data - Met.no"
+      unique_id: hourly_weather_data_met_no
+      state: >
+        {% if forecast['weather.forecast_home'].forecast is defined
+              and forecast['weather.forecast_home'].forecast | length > 0 %}
+          {{ as_local(strptime(forecast['weather.forecast_home'].forecast[0].datetime,
+                               '%Y-%m-%dT%H:%M:%S%z')) }}
+        {% else %}
+          unknown
+        {% endif %}
+      attributes:
+        forecast_data: >
+          {% if forecast['weather.forecast_home'].forecast is defined
+                and forecast['weather.forecast_home'].forecast | length > 0 %}
+            {{ forecast['weather.forecast_home'].forecast[0] }}
+          {% else %}
+            {}
+          {% endif %}
+
+    - name: "Daily Weather Data - Met.no"
+      unique_id: daily_weather_data_met_no
+      state: >
+        {% if forecast_daily['weather.forecast_home'].forecast is defined
+              and forecast_daily['weather.forecast_home'].forecast | length > 0 %}
+          {{ as_local(strptime(forecast_daily['weather.forecast_home'].forecast[0].datetime,
+                               '%Y-%m-%dT%H:%M:%S%z')) }}
+        {% else %}
+          unknown
+        {% endif %}
+      attributes:
+        forecast_data: >
+          {% if forecast_daily['weather.forecast_home'].forecast is defined
+                and forecast_daily['weather.forecast_home'].forecast | length > 0 %}
+            {{ forecast_daily['weather.forecast_home'].forecast[0] }}
+          {% else %}
+            {}
+          `{% endif %}
+
+  action:
+    - action: weather.get_forecasts
+      target:
+        entity_id: weather.forecast_home
+      data:
+        type: hourly
+      response_variable: forecast
+
+    - action: weather.get_forecasts
+      target:
+        entity_id: weather.forecast_home
+      data:
+        type: daily
+      response_variable: forecast_daily
+
+- trigger:
+    - platform: time_pattern
+      minutes: /15
+    - platform: homeassistant
+      event: start
+
+  sensor:
+    - name: "Met.no Hourly Forecasts (Full Hourly Forecast)"
+      unique_id: metno_hourly_forecasts_full_hourly_forecast
+      state: >
+        {% if forecast['weather.forecast_home'].forecast is defined
+              and forecast['weather.forecast_home'].forecast | length > 0 %}
+          {{ as_local(strptime(forecast['weather.forecast_home'].forecast[0].datetime,
+                               '%Y-%m-%dT%H:%M:%S%z')) }}
+        {% else %}
+          unknown
+        {% endif %}
+      attributes:
+        forecasts: >
+          {% if forecast['weather.forecast_home'].forecast is defined
+                and forecast['weather.forecast_home'].forecast | length > 0 %}
+            [
+            {%- for f in forecast['weather.forecast_home'].forecast %}
+              {
+                "datetime": "{{ as_local(strptime(f.datetime, '%Y-%m-%dT%H:%M:%S%z')) }}",
+                "condition": "{{ f.condition }}",
+                "temperature": {{ f.temperature }},
+                "precipitation": {{ f.precipitation }},
+                "wind_speed": {{ f.wind_speed }},
+                "wind_bearing": {{ f.wind_bearing }},
+                "humidity": {{ f.humidity if f.humidity is defined else 'null' }},
+                "cloud_coverage": {{ f.cloud_coverage if f.cloud_coverage is defined else 'null' }},
+                "uv_index": {{ f.uv_index if f.uv_index is defined else 'null' }}
+              }{{ "," if not loop.last }}
+            {%- endfor %}
+            ]
+          {% else %}
+            []
+          {% endif %}
+
+  action:
+    - action: weather.get_forecasts
+      target:
+        entity_id: weather.forecast_home
+      data:
+        type: hourly
+      response_variable: forecast
+      
