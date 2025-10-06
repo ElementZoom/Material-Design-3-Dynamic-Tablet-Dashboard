@@ -91,7 +91,7 @@ Several cards are inspired by the incredible work of others in the Home Assistan
 # 📚 Credits
 
 This project builds upon the work of:
-- Newryn – [Material You Theme](https://github.com/Nerwyn/material-you-theme) & [Material You Utilities](https://github.com/Nerwyn/material-you-utilities)
+- Nerwyn – [Material You Theme](https://github.com/Nerwyn/material-you-theme) & [Material You Utilities](https://github.com/Nerwyn/material-you-utilities)
 - [MySmartHome](https://www.youtube.com/@My_Smart_Home) - for the new tabs button, button cards styling, sliders, etc
 - Other community members who kindly shared their cards
 - [Background Creator](https://www.pexels.com/photo/a-blurry-background-7640905)
