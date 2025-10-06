@@ -1,0 +1,50 @@
+- sensor:
+    - name: "Active Notification Count"
+      state: >
+        {% set count = 0 %}
+        {% if states('sensor.soil_sensor_corner_moisture') | float(100) < 40 %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if is_state('input_boolean.rubbish', 'on') or is_state('input_boolean.recycle', 'on') %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if is_state('binary_sensor.door_sensor_grg_contact', 'on') %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if is_state('binary_sensor.all_doors', 'on') %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if is_state('timer.wash_cuddly', 'idle') %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if is_state('binary_sensor.timer_wash_cuddly_12h', 'on') %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if is_state('timer.wash_duvet', 'idle') %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if is_state('binary_sensor.timer_wash_duvet_12h', 'on') %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if is_state('timer.heated_towel_rails', 'active') %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if is_state('timer.exhaust_fan', 'active') %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if is_state('sensor.laundry_machine_state', 'Delay Run') %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if is_state('sensor.laundry_machine_state', 'Run') %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if states('sensor.washing_machine_power') | float(0) > 10 %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if states('sensor.dryer_power') | float(0) > 10 %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {% if is_state('media_player.all_speakers', 'playing') or is_state('media_player.all_speakers', 'on') %}
+          {% set count = count + 1 %}
+        {% endif %}
+        {{ count }}
