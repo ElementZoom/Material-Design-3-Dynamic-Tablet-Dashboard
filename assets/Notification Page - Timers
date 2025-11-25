@@ -1,0 +1,14 @@
+type: conditional
+conditions:
+  - condition: state
+    entity: binary_sensor.show_wash_cuddly_timer
+    state: "on"
+card:
+  type: custom:timer-bar-card
+  entity: timer.wash_cuddly
+  invert: true
+  bar_direction: ltr
+  bar_width: 60%
+  mushroom:
+    layout: vertical
+    color: "#f385bc"
