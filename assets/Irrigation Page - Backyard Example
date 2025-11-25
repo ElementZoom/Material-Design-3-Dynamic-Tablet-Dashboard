@@ -1,0 +1,211 @@
+type: vertical-stack
+cards:
+  - type: custom:streamline-card
+    template: title_subtitle_card
+    variables:
+      title: 🐌 Backyard
+      subtitle: "{{ states('sensor.backyard_water_tap_status') }}"
+  - type: custom:vertical-stack-in-card
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-template-card
+            entity: switch.backyard_water_tap
+            primary: |
+              {{ states('sensor.backyard_water_tap_flow') | round(1) }} m³/h
+            secondary: >
+              {% set flow = states('sensor.backyard_water_tap_flow') | float(0)
+              %}
+
+              {% if is_state('switch.backyard_water_tap', 'on') %}
+                {% if flow < 0.1 %} Minimal water flow
+                {% elif flow < 0.3 %} Low water flow
+                {% elif flow < 0.6 %} Moderate water flow
+                {% else %} High water flow
+                {% endif %}
+              {% else %}
+                Water Flow
+              {% endif %}
+            icon: m3of:sprinkler
+            tap_action:
+              action: toggle
+            color: |
+              {% set flow = states('sensor.backyard_water_tap_flow') | float %}
+              {% if flow < 0.1 %} #A9A9A9
+              {% elif flow < 0.3 %} #ffd34f
+              {% elif flow < 0.6 %} #9fe7e8
+              {% else %} #36a9e2
+              {% endif %}
+            features_position: bottom
+          - type: conditional
+            conditions:
+              - condition: state
+                entity: timer.backyard_sprinkler_timer
+                state: active
+            card:
+              type: custom:timer-bar-card
+              entity: timer.backyard_sprinkler_timer
+              name: Sprinkler
+              invert: true
+              bar_direction: ltr
+              bar_width: 60%
+              mushroom:
+                layout: horizontal
+                color: "#4CBB17"
+      - type: custom:config-template-card
+        entities:
+          - sensor.backyard_water_tap_flow
+        variables:
+          - states['sensor.backyard_water_tap_flow'].state
+        card:
+          type: custom:mini-graph-card
+          entities:
+            - entity: sensor.backyard_water_tap_flow
+              name: Backyard Water Flow
+              color: |-
+                ${vars[0] < 0.1 ? '#a9a9a9' :     
+                  (vars[0] < 0.3 ? '#ffd34f' :
+                  (vars[0] < 0.6 ? '#9fe7e8' :
+                  '#36a9e2'))}
+          hours_to_show: 24
+          line_width: 3
+          font_size: 50
+          animate: true
+          height: 150
+          show:
+            name: false
+            icon: false
+            state: false
+            legend: false
+            fill: fade
+      - type: horizontal-stack
+        cards:
+          - type: custom:mushroom-template-card
+            entity: sensor.average_backyard_soil_humidity
+            icon: m3of:water-drop
+            primary: >
+              {% set moisture = states('sensor.average_backyard_soil_humidity')
+              | float(0) %} Moisture: {{ moisture | round(1) }} %
+            secondary: >
+              {% set moisture = states('sensor.average_backyard_soil_humidity')
+              | float(0) %}
+
+              {% if moisture < 15 %}
+                Very Dry
+              {% elif moisture < 25 %}
+                Dry
+              {% elif moisture < 45 %}
+                Moist
+              {% else %}
+                Wet
+              {% endif %}
+            color: >
+              {% set moisture = states('sensor.average_backyard_soil_humidity')
+              | float(0) %} {% if moisture < 15 %}
+                #A9A9A9
+              {% elif moisture < 25 %}
+                #ffd34f
+              {% elif moisture < 45 %}
+                #9fe7e8
+              {% else %}
+                #36a9e2
+              {% endif %}
+            features_position: bottom
+            multiline_secondary: true
+          - type: custom:mushroom-template-card
+            entity: sensor.average_backyard_soil_temperature
+            icon: m3of:thermometer
+            primary: >
+              {% set temp = states('sensor.average_backyard_soil_temperature') |
+              float(0) %} Temp: {{ temp | round(1) }} {{      
+              state_attr('weather.forecast_home', 'temperature_unit') }}
+            secondary: >
+              {% set temp = states('sensor.average_backyard_soil_temperature') |
+              float(0) %}
+
+              {% if temp < 16 %}
+                Very Cold
+              {% elif temp < 18 %}
+                Cool
+              {% elif temp < 22 %}
+                Mild
+              {% elif temp < 24 %}
+                Warm
+              {% elif temp < 27 %}
+                Hot
+              {% else %}
+                Very Hot
+              {% endif %}
+            color: >
+              {% set temp = states('sensor.average_backyard_soil_temperature') |
+              float(0) %} {% if temp < 16 %}
+                #CEB2F5
+              {% elif temp < 18 %}
+                #5EBDEE
+              {% elif temp < 22 %}
+                #9cc8b8
+              {% elif temp < 24 %}
+                #e7b562
+              {% elif temp < 27 %}
+                #FF564B
+              {% else %}
+                #99332d
+              {% endif %}
+            features_position: bottom
+            multiline_secondary: true
+  - type: custom:streamline-card
+    template: title_card
+    variables:
+      - title: Irrigation Control
+  - type: horizontal-stack
+    cards:
+      - type: custom:mushroom-template-card
+        icon: mdi:timer-outline
+        primary: 5 min
+        tap_action:
+          action: call-service
+          service: script.start_backyard_timer
+          data:
+            duration: "00:05:00"
+        vertical: true
+        color: var(--primary-text-color)
+      - type: custom:mushroom-template-card
+        icon: mdi:timer-outline
+        primary: 15 min
+        tap_action:
+          action: call-service
+          service: script.start_backyard_timer
+          data:
+            duration: "00:15:00"
+        layout: vertical
+        color: var(--primary-text-color)
+      - type: custom:mushroom-template-card
+        icon: mdi:timer-outline
+        primary: 30 min
+        tap_action:
+          action: call-service
+          service: script.start_backyard_timer
+          data:
+            duration: "00:30:00"
+        layout: vertical
+        color: var(--primary-text-color)
+      - type: custom:mushroom-template-card
+        icon: mdi:timer-outline
+        primary: 1 hr
+        tap_action:
+          action: call-service
+          service: script.start_backyard_timer
+          data:
+            duration: "01:00:00"
+        layout: vertical
+        color: var(--primary-text-color)
+      - type: custom:mushroom-template-card
+        icon: mdi:timer-outline
+        primary: 2 hr
+        tap_action:
+          action: call-service
+          service: script.start_backyard_timer
+          data:
+            duration: "02:00:00"
+        layout: vertical
+        color: var(--primary-text-color)
