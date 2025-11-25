@@ -1,0 +1,5 @@
+type: custom:streamline-card
+template: curtain_card
+variables:
+        entity: cover.erker_groot
+        name: Erker Groot
