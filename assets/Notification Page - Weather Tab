@@ -1,0 +1,678 @@
+type: custom:simple-tabs
+pre-load: true
+active-background: var(--md-sys-color-tertiary)
+active-text-color: var(--md-sys-color-on-tertiary)
+text-color: var(--primary-text-color)
+tabs:
+  - title: Forecast
+    icon: mdi:weather-partly-cloudy
+    card:
+      type: vertical-stack
+      cards:
+        - type: custom:streamline-card
+          template: title_subtitle_card
+          variables:
+            - title: Weather Forecast
+            - subtitle: >-
+                {% set forecasts =
+                state_attr('sensor.met_no_hourly_forecasts_full_hourly_forecast','forecasts')
+                %}{% if forecasts %}{% set rain_forecasts = forecasts |
+                selectattr('precipitation','defined') |
+                selectattr('precipitation','gt',0) | list %}{% if rain_forecasts
+                | count > 0 %}{% set next_rain = rain_forecasts | first %}{% set
+                val = next_rain.precipitation | float %}{% if val < 2.5 %}🌦️
+                Light · {{ val | round(1) }} {{
+                state_attr('weather.forecast_home', 'precipitation_unit') }} ·
+                {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
+                %p') }}{% elif val < 7.6 %}🌧️ Moderate · {{ val | round(1) }}
+                {{ state_attr('weather.forecast_home', 'precipitation_unit') }}
+                · {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at
+                %I:%M %p') }}{% elif val < 35 %}⛈️ Heavy · {{ val | round(1) }}
+                {{ state_attr('weather.forecast_home', 'precipitation_unit') }}
+                · {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at
+                %I:%M %p') }}{% else %}⛈️ Very heavy · {{ val | round(1) }} {{
+                state_attr('weather.forecast_home', 'precipitation_unit') }} ·
+                {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
+                %p') }}{% endif %}{% else %}🌤️ No rain today{% endif %}{% else
+                %}🌤️ N/A{% endif %}
+        - type: vertical-stack
+          cards:
+            - type: custom:weather-forecast-extended-card
+              entity: weather.forecast_home
+        - type: horizontal-stack
+          cards:
+            - type: custom:mushroom-template-card
+              entity: sensor.daily_weather_data_met_no
+              icon: mdi:thermometer
+              primary: >
+                {% set current = state_attr('weather.forecast_home',
+                'temperature') %}
+
+                Temp: {{ current }} {{       state_attr('weather.forecast_home',
+                'temperature_unit') }}
+              secondary: >
+                {% set forecast = state_attr('sensor.daily_weather_data_met_no',
+                'forecast_data') %} {% if forecast is defined %}
+                  {% set low = forecast.templow if forecast.templow is defined else 'N/A' %}
+                  {% set high = forecast.temperature if forecast.temperature is defined else 'N/A' %}
+                  Low: {{ low }} {{       state_attr('weather.forecast_home', 'temperature_unit') }} - High: {{ high }} {{       state_attr('weather.forecast_home', 'temperature_unit') }}
+                {% else %}
+                  Low: N/A - High: N/A
+                {% endif %}
+              color: >
+                {% set current = state_attr('weather.forecast_home',
+                'temperature') | float(0) %} {% if current < 16 %}
+                  #CEB2F5
+                {% elif current < 18 %}
+                  #5EBDEE
+                {% elif current < 22 %}
+                  #9cc8b8
+                {% elif current < 24 %}
+                  #e7b562
+                {% elif current < 27 %}
+                  #FF564B      
+                {% else %}
+                  #99332d
+                {% endif %}
+              features_position: bottom
+              multiline_secondary: true
+            - type: custom:mushroom-template-card
+              entity: sensor.your_city_college_new_zealand_air_quality_index
+              icon: mdi:leaf
+              primary: Air Quality
+              secondary: >-
+                {% set aqi =
+                states('sensor.your_city_college_new_zealand_air_quality_index')
+                %} {% set pollutant =
+                states('sensor.your_city_college_new_zealand_dominant_pollutant')
+                %} {% if aqi not in ['unknown','unavailable','none',''] %}
+                  {% set aqi = aqi | int %}
+                  {% set level = ('Good' if aqi <= 50 else 'Moderate' if aqi <= 100 else 'Unhealthy' if aqi <= 150 else 'Very Unhealthy' if aqi <= 200 else 'Hazardous') %}
+                  {{ level }} - AQI {{ aqi }} - {{ pollutant }}
+                {% else %}
+                  Data unavailable
+                {% endif %}
+              color: >
+                {% set aqi =
+                states('sensor.your_city_college_new_zealand_air_quality_index')
+                %} {% if aqi not in ['unknown','unavailable','none',''] %}
+                  {% set aqi = aqi | int %}
+                  {% if aqi <= 50 %} green
+                  {% elif aqi <= 100 %} yellow
+                  {% elif aqi <= 150 %} orange
+                  {% elif aqi <= 200 %} red
+                  {% elif aqi <= 300 %} purple
+                  {% else %} brown
+                  {% endif %}
+                {% else %}
+                  grey
+                {% endif %}
+              features_position: bottom
+              multiline_secondary: true
+  - title: Rainfall
+    icon: m3of:rainy
+    card:
+      type: vertical-stack
+      cards:
+        - type: custom:streamline-card
+          template: title_subtitle_card
+          variables:
+            - title: Rainfall & Temperature Forecast
+            - subtitle: >-
+                {% set forecasts =
+                state_attr('sensor.met_no_hourly_forecasts_full_hourly_forecast','forecasts')
+                %}{% if forecasts %}{% set values = forecasts |
+                map(attribute='precipitation') | map('float') | list %}{% set
+                total = values | sum %}{% set peak = values | max %}{% set
+                peak_entry = forecasts | selectattr('precipitation','eq', peak)
+                | list | first %}{% if total == 0 %}🌤️ Rainfall: None expected
+                in the next 24 hours{% else %}{% if total < 2.5 %}{% set
+                category = 'Light' %}{% set emoji = '🌦️' %}{% elif total < 7.6
+                %}{% set category = 'Moderate' %}{% set emoji = '🌧️' %}{% elif
+                total < 35 %}{% set category = 'Heavy' %}{% set emoji = '⛈️'
+                %}{% else %}{% set category = 'Very heavy' %}{% set emoji = '🌊'
+                %}{% endif %}{{ emoji }} Rainfall: {{ total | round(1) }} {{
+                state_attr('weather.forecast_home', 'precipitation_unit') }} ({{
+                category }}), peaking {{ peak | round(1) }} {{
+                state_attr('weather.forecast_home', 'precipitation_unit') }}/hr
+                on {{ as_datetime(peak_entry.datetime).strftime('%a, %b %d at
+                %I:%M %p') }}.{% endif %}{% else %}🌤️ Rainfall: N/A{% endif %}
+        - type: vertical-stack
+          cards:
+            - type: custom:apexcharts-card
+              header:
+                show: true
+              graph_span: 24h
+              span:
+                start: hour
+              now:
+                show: true
+              apex_config:
+                chart:
+                  height: 240
+                legend:
+                  show: true
+                grid:
+                  yaxis:
+                    lines:
+                      show: false
+                xaxis:
+                  crosshairs:
+                    show: false
+                  tooltip:
+                    enabled: false
+                yaxis:
+                  - id: rain
+                    title:
+                      text: Rain (mm)
+                    opposite: false
+                  - id: temp
+                    title:
+                      text: Temp (°C)
+                    opposite: true
+                    decimalsInFloat: 0
+              series:
+                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                  name: Rain
+                  type: column
+                  yaxis_id: rain
+                  data_generator: |
+                    return entity.attributes.forecasts.map(f => {
+                      let val = f.precipitation;
+                      let color = '#9e9e9e';
+                      if (val > 0 && val < 2.5) {
+                        color = '#4FC3F7';
+                      } else if (val < 7.6) {
+                        color = '#0288D1';
+                      } else if (val < 35) {
+                        color = '#01579B';
+                      } else {
+                        color = '#311B92';
+                      }
+                      return {
+                        x: new Date(f.datetime).getTime(),
+                        y: val,
+                        fillColor: color
+                      };
+                    });
+                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                  name: Temp
+                  type: line
+                  curve: smooth
+                  yaxis_id: temp
+                  stroke_width: 2
+                  color: "#E53935"
+                  data_generator: |
+                    return entity.attributes.forecasts.map(f => {
+                      return {
+                        x: new Date(f.datetime).getTime(),
+                        y: f.temperature
+                      };
+                    });
+            - type: horizontal-stack
+              cards:
+                - type: custom:mushroom-template-card
+                  entity: sensor.forecast_rainfall
+                  icon: mdi:weather-rainy
+                  primary: >
+                    {% set r = states('sensor.forecast_rainfall') %} {% if r in
+                    ['unknown', 'unavailable', None] %}
+                      Rainfall: None
+                    {% else %}
+                      Rainfall: {{ r }} mm
+                    {% endif %}
+                  secondary: >
+                    {% set r = states('sensor.forecast_rainfall') | float(0) %}
+                    {% if r == 0 %}
+                      None - Dry conditions
+                    {% elif r < 1 %}
+                      Light - Possible drizzle
+                    {% elif r < 5 %}
+                      Moderate - Bring umbrella
+                    {% elif r < 20 %}
+                      Heavy - Wet outdoors
+                    {% else %}
+                      Intense - Flood risk
+                    {% endif %}
+                  color: >
+                    {% set r = states('sensor.forecast_rainfall') | float(0) %}
+                    {% if r == 0 %}
+                      blue
+                    {% elif r < 1 %}
+                      lightblue
+                    {% elif r < 5 %}
+                      cyan
+                    {% elif r < 20 %}
+                      orange
+                    {% else %}
+                      red
+                    {% endif %}
+                  features_position: bottom
+                  multiline_secondary: true
+                - type: custom:mushroom-template-card
+                  entity: sensor.forecast_temperature
+                  icon: mdi:thermometer
+                  primary: >
+                    Temp: {{ states('sensor.forecast_temperature') }} {{      
+                    state_attr('weather.forecast_home', 'temperature_unit') }}
+                  secondary: >
+                    {% set t = states('sensor.forecast_temperature') | float(0)
+                    %} {% if t < 5 %}
+                      Cold - Bundle up
+                    {% elif t < 15 %}
+                      Cool - Light jacket
+                    {% elif t < 25 %}
+                      Mild - Comfortable
+                    {% elif t < 32 %}
+                      Warm - Stay hydrated
+                    {% else %}
+                      Hot - Avoid heat
+                    {% endif %}
+                  color: >
+                    {% set current = state_attr('weather.forecast_home',
+                    'temperature') | float(0) %} {% if current < 16 %}
+                      #CEB2F5
+                    {% elif current < 18 %}
+                      #5EBDEE
+                    {% elif current < 22 %}
+                      #9cc8b8
+                    {% elif current < 24 %}
+                      #e7b562
+                    {% elif current < 27 %}
+                      #FF564B      
+                    {% else %}
+                      #99332d
+                    {% endif %}
+                  features_position: bottom
+                  multiline_secondary: true
+  - title: UV
+    icon: m3of:sunny
+    card:
+      type: vertical-stack
+      cards:
+        - type: custom:streamline-card
+          template: title_subtitle_card
+          variables:
+            - title: UV Index & Cloud Coverage Forecast
+            - subtitle: >-
+                {% set forecasts =
+                state_attr('sensor.met_no_hourly_forecasts_full_hourly_forecast','forecasts')
+                %}{% if forecasts %}{% set uv_values = forecasts |
+                map(attribute='uv_index') | map('float') | list %}{% set peak_uv
+                = uv_values | max %}{% set peak_entry = forecasts |
+                selectattr('uv_index','eq', peak_uv) | list | first %}{% set
+                cloud_values = forecasts | map(attribute='cloud_coverage') |
+                map('float') | list %}{% set avg_cloud = (cloud_values | sum /
+                cloud_values | length) %}{% if peak_uv < 3 %}{% set uv_category
+                = 'Low' %}{% set uv_emoji = '🟢' %}{% elif peak_uv < 6 %}{% set
+                uv_category = 'Moderate' %}{% set uv_emoji = '🟡' %}{% elif
+                peak_uv < 8 %}{% set uv_category = 'High' %}{% set uv_emoji =
+                '🟠' %}{% elif peak_uv < 11 %}{% set uv_category = 'Very High'
+                %}{% set uv_emoji = '🔴' %}{% else %}{% set uv_category =
+                'Extreme' %}{% set uv_emoji = '🟣' %}{% endif %}{% if avg_cloud
+                <= 25 %}{% set cloud_category = 'Clear' %}{% set cloud_emoji =
+                '☀️' %}{% elif avg_cloud <= 50 %}{% set cloud_category = 'Partly
+                Cloudy' %}{% set cloud_emoji = '🌤️' %}{% elif avg_cloud <= 75
+                %}{% set cloud_category = 'Mostly Cloudy' %}{% set cloud_emoji =
+                '⛅' %}{% else %}{% set cloud_category = 'Overcast' %}{% set
+                cloud_emoji = '☁️' %}{% endif %}{{ uv_emoji }} Peak UV: {{
+                peak_uv | round(1) }} ({{ uv_category }}), {{ cloud_emoji }} Avg
+                Cloud: {{ avg_cloud | round(0) }}% ({{ cloud_category }}),
+                peaking at {{ as_datetime(peak_entry.datetime).strftime('%a, %b
+                %d at %I:%M %p') }}.{% else %}🌤️ UV & Cloud Forecast: N/A{%
+                endif %}
+        - type: vertical-stack
+          cards:
+            - type: custom:apexcharts-card
+              graph_span: 24h
+              span:
+                start: hour
+              now:
+                show: true
+              apex_config:
+                chart:
+                  height: 240
+                legend:
+                  show: true
+                grid:
+                  yaxis:
+                    lines:
+                      show: false
+                xaxis:
+                  crosshairs:
+                    show: false
+                  tooltip:
+                    enabled: false
+                yaxis:
+                  - id: uv
+                    title:
+                      text: UV Index
+                    opposite: false
+                    min: 0
+                    max: 11
+                  - id: cloud
+                    title:
+                      text: Cloud Coverage (%)
+                    opposite: true
+                    min: 0
+                    max: 100
+              series:
+                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                  name: UV Index
+                  type: line
+                  curve: smooth
+                  yaxis_id: uv
+                  color: "#F9A825"
+                  stroke_width: 2
+                  data_generator: |
+                    return entity.attributes.forecasts.map(f => {
+                      if (f.uv_index == null) return null;
+                      return { x: new Date(f.datetime).getTime(), y: f.uv_index };
+                    }).filter(x => x !== null);
+                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                  name: Cloud Coverage
+                  type: area
+                  yaxis_id: cloud
+                  color: "#90CAF9"
+                  stroke_width: 1
+                  opacity: 0.3
+                  data_generator: |
+                    return entity.attributes.forecasts.map(f => {
+                      if (f.cloud_coverage == null) return null;
+                      return { x: new Date(f.datetime).getTime(), y: f.cloud_coverage };
+                    }).filter(x => x !== null);
+            - type: horizontal-stack
+              cards:
+                - type: custom:mushroom-template-card
+                  entity: sensor.forecast_uv_index
+                  icon: mdi:weather-sunny-alert
+                  primary: |
+                    UV Index: {{ states('sensor.forecast_uv_index') }}
+                  secondary: >
+                    {% set uv = states('sensor.forecast_uv_index') | float(0) %}
+                    {% if uv < 3 %}
+                      Low - Safe outdoors
+                    {% elif uv < 6 %}
+                      Moderate - Use hat & sunglasses
+                    {% elif uv < 8 %}
+                      High - Apply sunscreen
+                    {% elif uv < 11 %}
+                      Very High - Seek shade
+                    {% else %}
+                      Extreme - Stay indoors
+                    {% endif %}
+                  color: >
+                    {% set uv = states('sensor.forecast_uv_index') | float(0) %}
+                    {% if uv < 3 %}
+                      green
+                    {% elif uv < 6 %}
+                      yellow
+                    {% elif uv < 8 %}
+                      orange
+                    {% elif uv < 11 %}
+                      red
+                    {% else %}
+                      purple
+                    {% endif %}
+                  features_position: bottom
+                  multiline_secondary: true
+                - type: custom:mushroom-template-card
+                  entity: sensor.forecast_cloud_coverage
+                  icon: mdi:weather-cloudy
+                  primary: |
+                    Cloud: {{ states('sensor.forecast_cloud_coverage') }}%
+                  secondary: >
+                    {% set c = states('sensor.forecast_cloud_coverage') |
+                    float(0) %} {% if c <= 25 %}
+                      Clear skies - ideal visibility
+                    {% elif c <= 50 %}
+                      Partly cloudy - some sun breaks
+                    {% elif c <= 75 %}
+                      Mostly cloudy - limited sunshine
+                    {% else %}
+                      Overcast - likely dull conditions
+                    {% endif %}
+                  color: >
+                    {% set c = states('sensor.forecast_cloud_coverage') |
+                    float(0) %} {% if c <= 25 %}
+                      blue
+                    {% elif c <= 50 %}
+                      light-blue
+                    {% elif c <= 75 %}
+                      grey
+                    {% else %}
+                      blue-grey
+                    {% endif %}
+                  features_position: bottom
+                  multiline_secondary: true
+  - title: Wind
+    icon: m3of:storm
+    card:
+      type: vertical-stack
+      cards:
+        - type: custom:streamline-card
+          template: title_subtitle_card
+          variables:
+            - title: Wind Speed & Direction Forecast
+            - subtitle: >-
+                {% set forecasts =
+                state_attr('sensor.met_no_hourly_forecasts_full_hourly_forecast','forecasts')
+                %}{% if forecasts %}{% set speeds = forecasts |
+                map(attribute='wind_speed') | map('float') | list %}{% set peak
+                = speeds | max %}{% set peak_entry = forecasts |
+                selectattr('wind_speed','eq', peak) | list | first %}{% set
+                avg_bearing = (forecasts | map(attribute='wind_bearing') | list
+                | sum / forecasts | length) %}{% set direction =
+                ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'][(avg_bearing
+                / 22.5) | round(0) % 16] %}{% if peak < 2 %}{% set category =
+                'Calm' %}{% set emoji = '🌫️' %}{% elif peak < 6 %}{% set
+                category = 'Light breeze' %}{% set emoji = '🍃' %}{% elif peak <
+                12 %}{% set category = 'Gentle breeze' %}{% set emoji = '🌿'
+                %}{% elif peak < 20 %}{% set category = 'Moderate breeze' %}{%
+                set emoji = '🌬️' %}{% elif peak < 29 %}{% set category = 'Fresh
+                breeze' %}{% set emoji = '💨' %}{% elif peak < 39 %}{% set
+                category = 'Strong breeze' %}{% set emoji = '💨' %}{% elif peak
+                < 50 %}{% set category = 'Near gale' %}{% set emoji = '🌪️' %}{%
+                elif peak < 62 %}{% set category = 'Gale' %}{% set emoji = '🌪️'
+                %}{% elif peak < 75 %}{% set category = 'Strong gale' %}{% set
+                emoji = '🌪️' %}{% else %}{% set category = 'Storm' %}{% set
+                emoji = '🌀' %}{% endif %}{{ emoji }} Winds: {{ peak | round(1)
+                }} {{ state_attr('weather.forecast_home', 'wind_speed_unit') }}
+                ({{ category }}), mostly from {{ direction }}, peaking {{
+                as_datetime(peak_entry.datetime).strftime('%a, %b %d at %I:%M
+                %p') }}.{% else %}🌤️ Winds: N/A{% endif %}
+        - type: vertical-stack
+          cards:
+            - type: custom:apexcharts-card
+              graph_span: 24h
+              span:
+                start: hour
+              now:
+                show: true
+              apex_config:
+                chart:
+                  height: 240
+                legend:
+                  show: true
+                grid:
+                  yaxis:
+                    lines:
+                      show: false
+                xaxis:
+                  crosshairs:
+                    show: false
+                  tooltip:
+                    enabled: false
+                yaxis:
+                  - id: speed
+                    title:
+                      text: Wind Speed (km/h)
+                    opposite: false
+                  - id: direction
+                    title:
+                      text: Direction (°)
+                    opposite: true
+                    min: 0
+                    max: 360
+              series:
+                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                  name: Speed
+                  type: line
+                  curve: smooth
+                  yaxis_id: speed
+                  color: "#0288D1"
+                  stroke_width: 2
+                  data_generator: |
+                    return entity.attributes.forecasts.map(f => {
+                      let speed = f.wind_speed;
+                      speed = Math.round(speed * 10) / 10; // round to 1 decimal place
+                      return { x: new Date(f.datetime).getTime(), y: speed };
+                    });
+                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                  name: Direction
+                  type: line
+                  curve: smooth
+                  yaxis_id: direction
+                  color: "#8E24AA"
+                  stroke_width: 1
+                  data_generator: |
+                    return entity.attributes.forecasts.map(f => {
+                      let direction = Math.round(f.wind_bearing); // round to nearest integer
+                      return { x: new Date(f.datetime).getTime(), y: direction };
+                    });
+            - type: horizontal-stack
+              cards:
+                - type: custom:mushroom-template-card
+                  entity: sensor.forecast_wind_speed
+                  icon: mdi:weather-windy
+                  primary: >
+                    Wind: {{ states('sensor.forecast_wind_speed') }} {{
+                    state_attr('weather.forecast_home', 'wind_speed_unit') }}
+                  secondary: >
+                    {% set s = states('sensor.forecast_wind_speed') | float(0)
+                    %} {% set d = states('sensor.forecast_wind_direction') |
+                    float(0) %} {% if s < 5 %}
+                      Calm - Smooth air
+                    {% elif s < 20 %}
+                      Breezy - Light gusts
+                    {% elif s < 40 %}
+                      Windy - Secure items
+                    {% elif s < 60 %}
+                      Strong - Use caution
+                    {% else %}
+                      Gale - Stay indoors
+                    {% endif %} ({{ d | round(0) }}°)
+                  color: >
+                    {% set s = states('sensor.forecast_wind_speed') | float(0)
+                    %} {% if s < 5 %}
+                      green
+                    {% elif s < 20 %}
+                      yellow
+                    {% elif s < 40 %}
+                      orange
+                    {% elif s < 60 %}
+                      red
+                    {% else %}
+                      purple
+                    {% endif %}
+                  features_position: bottom
+  - title: Lunar
+    icon: m3of:moon-stars
+    card:
+      type: vertical-stack
+      cards:
+        - type: custom:streamline-card
+          template: title_subtitle_card
+          variables:
+            - title: Lunar Cycle & Visibility
+            - subtitle: >-
+                {% set rise = states('sensor.your_city_moon_rise') %}{% set
+                set_ = states('sensor.your_city_moon_set') %}{% set next_full
+                = states('sensor.your_city_next_full_moon') %}{% set phase =
+                states('sensor.your_city_moon_phase') or 'Unknown' %}{% set
+                phase_emoji = {'New Moon':'🌑','Waxing Crescent':'🌒','First
+                Quarter':'🌓','Waxing Gibbous':'🌔','Full Moon':'🌕','Waning
+                Gibbous':'🌖','Last Quarter':'🌗','Waning Crescent':'🌘'} %}{%
+                set emoji = phase_emoji.get(phase,'🌙') %}{% if rise not in
+                ['unknown','unavailable','none',''] and set_ not in
+                ['unknown','unavailable','none',''] %}{{ emoji }} {{ phase |
+                title }} – rises {{ as_local(as_datetime(rise)).strftime('%I:%M
+                %p') }}, sets {{ as_local(as_datetime(set_)).strftime('%I:%M
+                %p') }}, next 🌕 {{
+                as_local(as_datetime(next_full)).strftime('%a, %b %d') }}.{%
+                else %}🌙 Moon data unavailable{% endif %}
+        - type: custom:lunar-phase-card
+          entity: ""
+          12hr_format: true
+          calendar_modal: false
+          compact_view: true
+          default_card: base
+          hide_buttons: false
+          mile_unit: false
+          moon_position: left
+          number_decimals: 2
+          selected_language: en
+          show_background: false
+          southern_hemisphere: false
+          use_custom: false
+          use_default: true
+          use_entity: false
+          graph_config:
+            graph_type: default
+            y_ticks: false
+            x_ticks: false
+            show_time: true
+            show_Temp: true
+            show_highest: true
+            y_ticks_position: left
+            y_ticks_step_size: 30
+            time_step_size: 30
+          font_customize:
+            header_font_size: medium
+            header_font_style: capitalize
+            label_font_size: small
+            label_font_style: none
+            label_font_color: ""
+            hide_label: false
+          latitude: xxx
+          longitude: yyy
+          location:
+            city: ""
+            country: New Zealand
+          custom_background: >-
+            https://cdn.jsdelivr.net/gh/ngocjohn/lunar-phase-card@1.7.3/background/moon_bg_2.png
+  - title: Radar
+    icon: mdi:radar
+    card:
+      type: vertical-stack
+      cards:
+        - type: custom:streamline-card
+          template: title_subtitle_card
+          variables:
+            - title: Radar
+            - subtitle: >-
+                {% set weather = states.weather.forecast_home.attributes %}{%
+                set temp = weather.temperature %}{% set temp_unit =
+                weather.temperature_unit %}{% set humidity = weather.humidity
+                %}{% set cloud = weather.cloud_coverage %}{% set uv =
+                weather.uv_index %}{% set pressure = weather.pressure %}{% set
+                wind_speed = weather.wind_speed %}{% set wind_unit =
+                weather.wind_speed_unit %}🌡️ {{ temp }}{{ temp_unit }} 💧
+                Humidity: {{ humidity }}% ☁️ Clouds: {{ cloud | round }}% 💨
+                Wind: {{ wind_speed }} {{ wind_unit }} 🌤️ UV index: {{ uv }}
+        - type: custom:mod-card
+          card:
+            type: iframe
+            url: >-
+              https://embed.windy.com/embed2.html?lat=xxx&lon=yyy&width=800&height=600
+          style: |
+            ha-card {
+              padding: 0;
+              height: 600px !important;   /* fix height */
+              width: 100% !important;
+              overflow: hidden;
+            }
+            iframe {
+              width: 100% !important;
+              height: 100% !important;
+            }
