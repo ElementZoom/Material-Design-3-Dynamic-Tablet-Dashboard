@@ -1,0 +1,273 @@
+type: vertical-stack
+cards:
+  - type: custom:streamline-card
+    template: spacer_card
+    variables:
+      padding: 4px
+  - type: custom:simple-tabs
+    pre-load: true
+    alignment: start
+    active-background: var(--md-sys-color-tertiary)
+    active-text-color: var(--md-sys-color-on-tertiary)
+    text-color: var(--primary-text-color)
+    tabs:
+      - title: Climate
+        icon: m3of:heat-pump
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:vertical-stack-in-card
+              cards:
+                - type: grid
+                  square: false
+                  columns: 2
+                  cards:
+                    - type: custom:mushroom-template-card
+                      entity: sensor.house_average_temperature
+                      primary: >
+                        {{ states(entity) | round(1) }} {{
+                        state_attr('weather.forecast_home', 'temperature_unit')
+                        }}
+                      secondary: |
+                        Indoor
+                      icon: |
+                        {% set hvac_mode = states('climate.heat_pump') %}
+                        {% if hvac_mode == 'heat' %} mdi:fire
+                        {% elif hvac_mode == 'cool' %} mdi:snowflake
+                        {% elif hvac_mode == 'fan_only' %} mdi:fan
+                        {% else %} m3of:thermometer
+                        {% endif %}
+                      icon_color: |
+                        {% set hvac_mode = states('climate.heat_pump') %}
+                        {% if hvac_mode == 'heat' %} #FF6F22
+                        {% elif hvac_mode == 'cool' %} #2196F3
+                        {% elif hvac_mode == 'fan_only' %} #029688
+                        {% else %}
+                          {% set temp = states('sensor.house_average_temperature') | float %}
+                          {% if temp < 13 %}
+                            #B4A5B7
+                          {% elif temp < 16 %}          
+                            #DBC9DE
+                          {% elif temp < 19 %}
+                            #ACDCF6
+                          {% elif temp < 22 %}
+                            #D2E5DE
+                          {% elif temp < 24 %}
+                            #FFE7A3
+                          {% elif temp < 27 %}
+                            #F7C48D
+                          {% else %}
+                            #E37575
+                          {% endif %}
+                        {% endif %}
+                      tap_action:
+                        action: more-info
+                    - type: custom:mushroom-template-card
+                      entity: sensor.outdoor_temperature
+                      primary: >
+                        {{ states(entity) | round(1) }} {{
+                        state_attr('weather.forecast_home', 'temperature_unit')
+                        }}
+                      secondary: |
+                        Outdoor
+                      icon: "{{ states('sensor.weather_condition_icon') }}"
+                      icon_color: >
+                        {% set temp = state_attr('weather.forecast_home',
+                        'temperature') | float %}  {% if temp < 13 %}
+                          #AC9CAF
+                        {% elif temp < 16 %}          
+                          #D7C4DB
+                        {% elif temp < 19 %}
+                          #A3D9F5
+                        {% elif temp < 22 %}
+                          #CDE3DB
+                        {% elif temp < 24 %}
+                          #FFE599
+                        {% elif temp < 27 %}
+                          #F7BE81
+                        {% else %}
+                          #E48F7B
+                        {% endif %}
+                      tap_action:
+                        action: navigate
+                        navigation_path: "#weather"
+                - type: custom:config-template-card
+                  entities:
+                    - sensor.house_average_temperature
+                    - sensor.outdoor_temperature
+                    - climate.heat_pump
+                  variables:
+                    - states['climate.heat_pump'].state
+                    - states['sensor.house_average_temperature'].state
+                    - states['sensor.outdoor_temperature'].state
+                  card:
+                    type: custom:mini-graph-card
+                    entities:
+                      - entity: sensor.house_average_temperature
+                        name: Indoor
+                        color: |-
+                          ${vars[0] === 'heat' ? '#FF6F22' : 
+                            (vars[0] === 'cool' ? '#2196F3' : 
+                            (vars[0] === 'fan_only' ? '#029688' : 
+                            (vars[1] < 13 ? '#B4A5B7' :
+                            (vars[1] < 16 ? '#DBC9DE' :
+                            (vars[1] < 19 ? '#ACDCF6' :
+                            (vars[1] < 22 ? '#D2E5DE' :
+                            (vars[1] < 24 ? '#FFE7A3' :
+                            (vars[1] < 27 ? '#F7C48D' : '#E37575'))))))))}
+                      - entity: sensor.outdoor_temperature
+                        name: Outdoor
+                        color: |-
+                          ${vars[2] < 13 ? '#AC9CAF' :
+                            (vars[2] < 16 ? '#D7C4DB' :        
+                            (vars[2] < 19 ? '#A3D9F5' :
+                            (vars[2] < 22 ? '#CDE3DB' :
+                            (vars[2] < 24 ? '#FFE599' :
+                            (vars[2] < 27 ? '#F7BE81' :'#E48F7B')))))}
+                        y_axis: secondary
+                    hours_to_show: 24
+                    line_width: 3
+                    font_size: 50
+                    animate: true
+                    show:
+                      name: false
+                      icon: false
+                      state: false
+                      legend: false
+                      fill: fade
+                - type: horizontal-stack
+                  cards:
+                    - type: custom:mushroom-climate-card
+                      entity: climate.heat_pump
+                      primary_info: none
+                      secondary_info: none
+                      icon_type: none
+                      show_temperature_control: true
+                    - type: custom:mushroom-climate-card
+                      entity: climate.heat_pump
+                      primary_info: none
+                      secondary_info: none
+                      icon_type: none
+                      hvac_modes:
+                        - cool
+                        - heat
+                        - fan_only
+                        - "off"
+      - title: Irrigation
+        icon: m3of:sprinkler
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:vertical-stack-in-card
+              cards:
+                - type: grid
+                  square: false
+                  columns: 2
+                  cards:
+                    - type: custom:mushroom-template-card
+                      entity: switch.driveway_water_tap
+                      primary: >
+                        {{ states('sensor.driveway_water_tap_flow') | round(1)
+                        }} m³/h
+                      secondary: >
+                        {% set flow = states('sensor.driveway_water_tap_flow') |
+                        float(0) %} {% if is_state('switch.driveway_water_tap',
+                        'on') %}
+                          {% if flow < 0.1 %} Minimal Water flow
+                          {% elif flow < 0.3 %} Low Water flow
+                          {% elif flow < 0.6 %} Moderate Water flow
+                          {% else %} High Water flow
+                          {% endif %}
+                        {% else %}
+                          Water Flow
+                        {% endif %}
+                      icon: mdi:car
+                      tap_action:
+                        action: navigate
+                        navigation_path: /tablet-dashboard/irrigation
+                      color: >
+                        {% set flow = states('sensor.driveway_water_tap_flow') |
+                        float %}
+
+                        {% if flow < 0.1 %} #A9A9A9
+
+                        {% elif flow < 0.3 %} #ffd34f
+
+                        {% elif flow < 0.6 %} #9fe7e8
+
+                        {% else %} #36a9e2
+
+                        {% endif %}
+                      features_position: bottom
+                    - type: custom:mushroom-template-card
+                      entity: switch.backyard_water_tap
+                      primary: >
+                        {{ states('sensor.backyard_water_tap_flow') | round(1)
+                        }} m³/h
+                      secondary: >
+                        {% set flow = states('sensor.backyard_water_tap_flow') |
+                        float(0) %} {% if is_state('switch.backyard_water_tap',
+                        'on') %}
+                          {% if flow < 0.1 %} Minimal Water flow
+                          {% elif flow < 0.3 %} Low Water flow
+                          {% elif flow < 0.6 %} Moderate Water flow
+                          {% else %} High Water flow
+                          {% endif %}
+                        {% else %}
+                          Water Flow
+                        {% endif %}
+                      icon: mdi:flower
+                      tap_action:
+                        action: navigate
+                        navigation_path: /tablet-dashboard/irrigation
+                      color: >
+                        {% set flow = states('sensor.backyard_water_tap_flow') |
+                        float %}
+
+                        {% if flow < 0.1 %} #A9A9A9
+
+                        {% elif flow < 0.3 %} #ffd34f
+
+                        {% elif flow < 0.6 %} #9fe7e8
+
+                        {% else %} #36a9e2
+
+                        {% endif %}
+                      features_position: bottom
+                - type: custom:config-template-card
+                  entities:
+                    - sensor.driveway_water_tap_flow
+                    - sensor.backyard_water_tap_flow
+                  variables:
+                    - states['sensor.driveway_water_tap_flow'].state
+                    - states['sensor.backyard_water_tap_flow'].state
+                  card:
+                    type: custom:mini-graph-card
+                    entities:
+                      - entity: sensor.driveway_water_tap_flow
+                        name: Driveway Water Flow
+                        color: |-
+                          ${vars[0] < 0.1 ? '#a9a9a9' :     
+                            (vars[0] < 0.3 ? '#ffd34f' :
+                            (vars[0] < 0.6 ? '#9fe7e8' :
+                            '#36a9e2'))}
+                      - entity: sensor.backyard_water_tap_flow
+                        name: Backyard Water Flow
+                        color: |-
+                          ${vars[1] < 0.1 ? '#a9a9a9' :     
+                            (vars[1] < 0.3 ? '#ffd34f' :
+                            (vars[1] < 0.6 ? '#9fe7e8' :
+                            '#36a9e2'))}
+                        y_axis: secondary
+                    hours_to_show: 24
+                    line_width: 3
+                    font_size: 50
+                    animate: true
+                    show:
+                      name: false
+                      icon: false
+                      state: false
+                      legend: false
+                      fill: fade
+view_layout:
+  grid-area: simple_tab
