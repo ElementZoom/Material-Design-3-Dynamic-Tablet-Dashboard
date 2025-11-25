@@ -1,0 +1,29 @@
+type: custom:week-planner-card
+calendars:
+  - entity: calendar.calendar_1
+    color: "#ff6a6a"
+  - entity: calendar.calendar_2
+    color: "#71c8fe"
+  - entity: calendar.calendar_3
+    color: "#d3f37f"
+  - entity: calendar.calendar_4
+    color: "#f9da4e"
+days: "1"
+startingDay: today
+startingDayOffset: 0
+hideWeekend: false
+noCardBackground: true
+compact: false
+weather:
+  showCondition: true
+  showTemperature: true
+  showLowTemperature: true
+  useTwiceDaily: false
+  entity: weather.forecast_home
+locale: nz
+showLocation: false
+hidePastEvents: false
+hideDaysWithoutEvents: false
+hideTodayWithoutEvents: false
+combineSimilarEvents: false
+showLegend: false
