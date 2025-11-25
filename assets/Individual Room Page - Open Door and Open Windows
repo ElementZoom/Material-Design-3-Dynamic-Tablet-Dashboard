@@ -1,0 +1,15 @@
+type: vertical-stack
+cards:
+  - type: custom:streamline-card
+    template: open_doors_card
+    variables:
+      title: Doors
+      door_1: binary_sensor.sliding_door_sensor_mbr_contact
+      door_2: binary_sensor.door_sensor_mbr_contact
+  - type: custom:streamline-card
+    template: open_windows_card
+    variables:
+      - title: Windows
+      - window_1: binary_sensor.left_window_sensor_mbr_contact
+      - window_2: binary_sensor.right_window_sensor_mbr_contact
+      - window_3: binary_sensor.window_sensor_mbrt_contact
