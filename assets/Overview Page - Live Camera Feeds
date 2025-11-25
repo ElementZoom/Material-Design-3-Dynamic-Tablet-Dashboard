@@ -1,0 +1,15 @@
+type: vertical-stack
+cards:
+  - type: custom:streamline-card
+    template: title_navigation_card
+    variables:
+      title: Left Walkway
+      navigation_path: /tablet-dashboard/camera
+  - type: custom:streamline-card
+    template: camera_generic_with_chips_card
+    variables:
+      camera_entity: camera.left_walkway_camera_fluent
+      entity_id_light_one: switch.outdoor_light_switch_lr
+      light_one_icon: mdi:outdoor-lamp
+      entity_id_light_two: switch.rear_light_switch_grg
+      light_two_icon: mdi:outdoor-lamp
