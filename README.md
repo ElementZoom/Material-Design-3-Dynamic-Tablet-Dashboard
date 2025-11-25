@@ -3,7 +3,7 @@ A modern Home Assistant dashboard built on Material Design 3 (MD3) principles, f
 
 This comprehensive dashboard unifies control and monitoring for **lights, switches, temperature and humidity sensors, rainfall, wind, UV index, radar, weather forecasts, alarms, Hue scenes, cameras, heat pumps, door and window sensors, and irrigation control** - all presented in one cohesive, visually refined interface designed for both functionality and aesthetic harmony.
 
-[v2.0.0](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/releases/tag/v.2.0.0) marks a major update focused on usability, clarity, and performance. This release introduces a guided dashboard walkthrough, refreshed visuals, and several new pages - including irrigation, server, alarmo with camera integration, and a calendar overview. Alongside these additions, the notification center has been reworked for better visibility, and system performance has been optimized for a smoother experience throughout.
+[_The v4.0.0_](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/releases/tag/v.4.0.0) major update introduces a significantly more modular system across most cards, making customization far easier than before. Previously, I had to manually adjust large portions of the dashboard to fit their setup. Thanks to the new streamline card architecture, much of the backend complexity has been consolidated. You can now map your entities directly through the UI, reducing setup time and improving flexibility. In addition to this core upgrade, the update also includes several quality-of-life improvements: a new media player on the overview page, refined layout adjustments for cleaner organization, and expanded use of pop-up cards to keep the interface tidy and intuitive.
 
 # ✨ Features
 
@@ -23,64 +23,66 @@ Several cards are inspired by the incredible work of others in the Home Assistan
 
 **Overview Page**
 
-<img width="1920" height="762" alt="4" src="https://github.com/user-attachments/assets/eb6f0c36-d535-4b06-83d3-7b9a91954747" />
+<img width="1920" height="1080" alt="1" src="https://github.com/user-attachments/assets/45b0ceda-b78d-4c0c-81a0-81f8b9952b8a" />
 
 
 **Page Description**
 
-The Overview page serves as the central hub for monitoring and controlling most of my smart devices. At the top, it displays a personalized greeting along with the current time, weather conditions, wind speed, and the day’s high and low temperatures.
+The Overview page serves as the central hub for monitoring and controlling most of my smart devices. At the top, it displays a [personalized greeting](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Overview%20Page%20-%20greeting) along with the current time, weather conditions, wind speed, and the day’s high and low temperatures.
 
-To the right, there are dedicated Climate and Irrigation tabs for managing the thermostat and sprinkler systems. Below them, I have a Media Card, Calendar, and Alarmo (alarm system) components, along with a Notification Chip for quick alerts. When no media is playing, the Media Card automatically switches to display the weather forecast instead.
+To the right, there are dedicated [Climate and Irrigation tabs](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Overview%20Page%20-%20Climate%20and%20Irrigation%20Tabs) for managing the thermostat and sprinkler systems. Below them, I have a [Media Card](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Overview%20Page%20-%20Media%20Card), [Calendar](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Overview%20Page%20-%20Calendar), and [Alarmo, with a notification chip for quick alerts](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Overview%20Page%20-%20Alarmo%20%26%20Notificaton%20Chip). When no media is playing, the media card switches back to calendar and backyard camera.
 
-Next, the dashboard features Room Cards that provide quick access to thermostat controls, lighting toggles, and the current count of open doors or windows.
+Next, the dashboard features [Room Cards](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Overview%20Page%20-%20Room%20Cards) that provide quick access to thermostat controls, lighting toggles, and the current count of open doors or windows.
 
-Finally, the main page includes four live camera feeds, streaming in real time for immediate visual monitoring.
+Finally, the main page includes four [live camera feeds](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Overview%20Page%20-%20Live%20Camera%20Feeds), streaming in real time for immediate visual monitoring.
 
 ***
 
-**Individual Room Page -  Weather Forecast and Notifications Page**
+**Weather Forecast and Notifications Page - Individual Room Page**
 
-<img width="1920" height="748" alt="5" src="https://github.com/user-attachments/assets/69c2ec66-c0bd-48c6-8634-e5e2028fc74d" />
-
-
-**Individual room page** provides detailed controls and status information specific to that space. At the top, it displays the current temperature, room presence, and the last seen timestamp from the occupancy sensor.
-
-Below that, there are light controls, including both slider and button cards, allowing for easy brightness adjustment and quick toggling.
-
-Next to the lighting section, there’s a Climate Control panel that lets me manage the room’s temperature settings, select operation modes, and view the thermostat’s daily runtime. It also shows the current humidity level for that room.
-
-On the right side, two conditional cards appear only when a door or window is open, helping highlight important changes at a glance.
-
-Finally, a Media Card sits below the light controls, providing quick access to audio or video playback within the room.
+<img width="1920" height="1080" alt="2" src="https://github.com/user-attachments/assets/35f12305-9d79-4747-ab69-60cb0b27c3d7" />
 
 
 **Weather - Notification page** combines all my weather information and notifications in one place for quick status updates and alerts.
 
-On the notifications side, I use a variety of conditional cards powered by timers and booleans to make alerts appear only when needed - for example, reminders like “wash duvet”, notifications when the sprinklers are running, or warnings about an open door. Alongside these, I’ve included light and button controls, making it easy to take action directly from the same page.
+On the notifications side, I use a variety of conditional cards powered by [timers](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Notification%20Page%20-%20Timers) and booleans to make alerts appear only when needed - for example, reminders like “wash duvet”, notifications when the sprinklers are running, or warnings about an open door.
 
-The weather section is designed to be clean and informative. Certain cards - like weather warnings, earthquake alerts, and volcano warnings - remain hidden unless there’s an active event. The rest of the display includes detailed weather data, rainfall, UV index, wind conditions, lunar information, and a live radar map, giving me a complete view of current and upcoming conditions.
+The weather section is designed to be clean and informative. Certain cards - like weather warnings, earthquake alerts, and volcano warnings - remain hidden unless there’s an active event (depending on your local integration). The rest of the display includes [detailed weather data](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Notification%20Page%20-%20Weather%20Tab), rainfall, UV index, wind conditions, lunar information, and a live radar map, giving me a complete view of current and upcoming conditions.
+
+
+**Individual room page** provides detailed controls and status information specific to that space. At the top, it displays the [current temperature, room presence, and the last seen timestamp](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Individual%20Room%20Page%20-%20Room%20Summary) from the occupancy sensor.
+
+Below that, there are [light controls](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Individual%20Room%20Page%20-%20Lights%20%26%20Switch%2C%20including%20navigation%20and%20script), including both slider and button cards, allowing for easy brightness adjustment and quick toggling.
+
+Next to the lighting section, there’s a [Climate Control panel](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Individual%20Room%20Page%20-%20Climate%20Card) that lets me manage the room’s temperature settings, select operation modes, and view the thermostat’s daily runtime. It also shows the current humidity level for that room, including how long the runtime of the climate for the day.
+
+On the right side, two conditional cards appear only when a [door or window is open](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Individual%20Room%20Page%20-%20Open%20Door%20and%20Open%20Windows), helping highlight important changes at a glance.
+
+Finally, a [Media Card](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Individual%20Room%20Page%20-%20Media%20Card) sits inside the pop up card, providing quick access to audio or video playback within the room.
 
 ***
 
 **Hue Scene Page**
 
-<img width="1920" height="708" alt="6" src="https://github.com/user-attachments/assets/068869f4-06ed-45db-ae99-ddd1c4ed5a0f" />
+<img width="1920" height="1080" alt="3" src="https://github.com/user-attachments/assets/df5296e1-696a-4a5a-ad3f-8f7fe9a9030f" />
 
 **Page Description**
 
-I’ve always loved Philips Hue, but instead of using their bridge, I connect my lights directly through Zigbee2MQTT (Z2M). To recreate the familiar Philips Hue app experience, I use the Hue [Scene Preset](https://github.com/Hypfer/hass-scene_presets) integration from HACS, which lets me simulate Hue’s scene controls and build my own room selector.
+I’ve always loved Philips Hue, but instead of using their bridge, I connect my lights directly through Zigbee2MQTT (Z2M). To recreate the familiar Philips Hue app experience, I use the [hass-scene_preset](https://github.com/Hypfer/hass-scene_presets) integration from HACS, which lets me simulate [Hue’s scene](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Hue%20Page%20-%20Scene%20Example) controls and build my own [room selector](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Hue%20Page%20-%20Room%20Selector).
 
-All of this comes together thanks to the incredible work of the HACS maintainers, along with a combination of automations, scripts, input_selects, and booleans that make the whole setup seamless.
+All of this comes together thanks to the incredible work of the Hypfer - the mainainer of hass-scene_preset, along with a combination of automations, scripts, input_selects, and booleans that make the whole setup seamless.
 
 ***
 
 **Camera Page - Timeline and Alarm Page**
 
-<img width="1920" height="785" alt="7" src="https://github.com/user-attachments/assets/e507554f-13ab-4e07-87d1-b723ec8e5c2f" />
+<img width="1920" height="1080" alt="4" src="https://github.com/user-attachments/assets/6ced1fc1-1bb9-4073-8480-547aef091ded" />
+
+
 
 **Page Description**
 
-I like having all my cameras displayed together on a dedicated page. There are six cameras around the house, and this page gives me a complete live view of them all in one place.
+I like having all my [cameras](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Camera%20Page%20-%20Example) displayed together on a dedicated page. There are six cameras around the house, and this page gives me a complete live view of them all in one place.
 
 At the top, there are buttons that let me toggle vehicle and person detection automations. Beneath each camera feed, I’ve added light controls, allowing quick adjustments to the nearby lighting directly from the same view.
 
@@ -89,28 +91,27 @@ I also have my Alarmo integration panel, which can be accessed by clicking the A
 ***
 **Server - Irrigation Page**
 
-<img width="1920" height="764" alt="8" src="https://github.com/user-attachments/assets/6be92ad4-1f4c-4030-8c45-ceb2d2151572" />
+<img width="1920" height="1080" alt="5" src="https://github.com/user-attachments/assets/08631740-15f4-4fdd-adb3-905a8aa52721" />
 
-**Page Description**
 
 The **Server Page** is where I monitor the health and performance of my smart home system. I’m running Home Assistant OS (HAOS) on a mini PC through Proxmox, which is fully integrated into Home Assistant for live monitoring.
 
-This page tracks key system metrics such as memory usage, CPU temperature, network activity, and device battery levels (highlighting any that drop below 60%). It gives me a quick overview of my server’s status and connected devices at a glance.
+This page tracks key [system metrics](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Server%20Page%20-%20Proxmox%20and%20HAOS%20overview) such as memory usage, CPU temperature, network activity, and [device battery levels](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Server%20Page%20-%20Battery%20Overview) (highlighting any that drop below 60%). It gives me a quick overview of my server’s status and connected devices at a glance.
 
 The **Irrigation Page** manages my sprinkler system and garden monitoring. I use two Sonoff Smart Valves to control water flow to the sprinklers, supported by several soil sensors that track both temperature and moisture levels.
 
-To visualize performance, I’ve built a custom graph showing water flow trends, and I’ve automated irrigation timers through a combination of automations and scripts, making the watering system efficient and fully autonomous.
+To visualize performance, I’ve built a [custom graph](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Irrigation%20Page%20-%20Backyard%20Example) showing water flow trends, and I’ve automated irrigation timers through a combination of automations and scripts, making the watering system efficient and fully autonomous.
 
 
 ***
 
 **Calendar Page**
 
-<img width="1920" height="756" alt="9" src="https://github.com/user-attachments/assets/f9e1d119-ea56-49ba-a13e-8c217909bc5d" />
+<img width="1920" height="1080" alt="6" src="https://github.com/user-attachments/assets/c7df07f5-3d4a-410b-b20d-372e65216a9e" />
 
 **Page Description**
 
-The Calendar Page provides a full view of my appointments, events, and schedules in one place. It’s a dedicated page that pulls in data from my linked calendars, giving me an easy way to stay on top of upcoming tasks and daily plans right within Home Assistant.
+The [Calendar Page](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Calendar%20Page%20-%20Day%20offset%200%20example) provides a full view of my appointments, events, and schedules in one place. It’s a dedicated page that pulls in data from my linked calendars, giving me an easy way to stay on top of upcoming tasks and daily plans right within Home Assistant.
 
 
 # 🚀 Requirements / Dependencies
@@ -118,11 +119,10 @@ The Calendar Page provides a full view of my appointments, events, and schedules
 Card Related Stuffs:
 - [Alarmo Card](https://github.com/nielsfaber/alarmo-card)
 - [Apex Charts Card](https://github.com/RomRider/apexcharts-card?tab=readme-ov-file#series-options)
-- [Clock Weather Card HUI Icons](https://github.com/pkissling/clock-weather-card)
+
 - [Bubble Card](https://github.com/Clooos/Bubble-Card)
 - [Button-Card](https://github.com/custom-cards/button-card)
 - [Calendar Card Pro](https://github.com/alexpfau/calendar-card-pro)
-- [Expander-Card](https://github.com/MelleD/lovelace-expander-card)
 - [LLM Vision Card](https://github.com/valentinfrlch/llmvision-card)
 - [Mini-Graph-Card](https://github.com/kalkih/mini-graph-card)
 - [Mushroomn](https://github.com/piitaya/lovelace-mushroom)
@@ -133,11 +133,17 @@ Card Related Stuffs:
 - [Web RTC Camera](https://github.com/AlexxIT/WebRTC)
 - [Week Planner Card](https://github.com/FamousWolf/week-planner-card)
 
+Weather Related:
+- [Lunar Phase Card](https://github.com/ngocjohn/lunar-phase-card)
+- [Lunar Phase Integration](https://github.com/ngocjohn/lunar-phase)
+- [World's Air Quality Index](https://www.home-assistant.io/integrations/waqi/)
+- [Weather Card Extended](https://github.com/Thyraz/weather-forecast-extended) - new in v3.3.0
+- [Clock Weather Card HUI Icons](https://github.com/pkissling/clock-weather-card)
+
 Theming / ETC:
 - [Auto-Entities](https://github.com/thomasloven/lovelace-auto-entities)
 - [Card-Mod](https://github.com/thomasloven/lovelace-card-mod)
 - [Config Template Card](https://github.com/iantrich/config-template-card)
-- [Decluttering Card](https://github.com/custom-cards/decluttering-card)
 - [Kiosk Mode](https://github.com/maykar/kiosk-mode)
 - [Layout-Card](https://github.com/thomasloven/lovelace-layout-card)
 - [Lovelace Material Components](https://github.com/giovannilamarmora/lovelace-material-components)
@@ -148,18 +154,13 @@ Theming / ETC:
 - [Paper Buttons Row](https://github.com/jcwillox/lovelace-paper-buttons-row)
 - [Stack In Card](https://github.com/custom-cards/stack-in-card)
 - [Scene Presets](https://github.com/Hypfer/hass-scene_presets)
+- [Streamline Card](https://github.com/brunosabot/streamline-card)
 - [Vertical Stack In Card](https://github.com/ofekashery/vertical-stack-in-card)
-
-Weather Related:
-- [Lunar Phase Card](https://github.com/ngocjohn/lunar-phase-card)
-- [Lunar Phase Integration](https://github.com/ngocjohn/lunar-phase) - new in v3.2.0
-- [World's Air Quality Index](https://www.home-assistant.io/integrations/waqi/)
 
 # Installation
 
-- Create a blank dashboard to start fresh (optional) or copy some part of the codes or full codes from  [full_YAML](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/full_yaml) into your Home Assistant dashboard.
+- Choose which card that you want to adapt to your installation by clicking the hyperlink provided in the description above.
 - Install the required HACS components (such as simple swipe card, stack-in-card, popup-card, etc. - see your setup for what’s needed).
-- You need to adjust the navbar card directory to suit your current dashboard (if you don't start fresh).
 - To unlock the full functionality (like weather icons, notification counts, and more), you’ll need to add the corresponding [sensors](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/tree/main/template%20sensor) to your config.
 - For the Hue scene, you'll need to have the automation, scripts, input boolean, input text, and input number in your system that you can find in [hue asset folder](https://github.com/ElementZoom/Material-Design-3-Dynamic-Mobile-Dashboard/tree/main/hue%20asset). For the images, you can get them from [here](https://github.com/Hypfer/hass-scene_presets/blob/master/custom_components/scene_presets/assets/Readme.md).
 - Apply the MD3 theme and select your preferred colors. It is accessible from Overview page > More > Theme Icon
