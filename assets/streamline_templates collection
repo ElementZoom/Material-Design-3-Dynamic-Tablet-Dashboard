@@ -1,0 +1,1111 @@
+streamline_templates:
+  title_card:
+    variables:
+      title: ''
+    card:
+      type: custom:mushroom-title-card
+      title: '[[title]]'
+      card_mod:
+        style: |
+          ha-card {
+            --title-font-size: 20px !important;
+          }
+  title_subtitle_card:
+    variables:
+      title: ''
+      subtitle: ''
+    card:
+      type: custom:mushroom-title-card
+      title: '[[title]]'
+      subtitle: '[[subtitle]]'
+      card_mod:
+        style: |
+          ha-card {
+            --title-font-size: 20px !important;
+            --subtitle-font-size: 14px !important;
+          }
+  title_subtitle_navigation_card:
+    variables:
+      title: ''
+      subtitle: ''
+      navigation_path: ''
+    card:
+      type: custom:mushroom-title-card
+      title: '[[title]]'
+      subtitle: '[[subtitle]]'
+      title_tap_action:
+        action: navigate
+        navigation_path: '[[navigation_path]]'
+      card_mod:
+        style: |
+          ha-card {
+            --title-font-size: 20px !important;
+            --subtitle-font-size: 14px !important;
+          }
+  room_title_card:
+    variables:
+      title: ''
+    card:
+      type: custom:mushroom-title-card
+      title: '[[title]]'
+      card_mod:
+        style: |
+          ha-card {
+            --title-font-size: 30px !important;
+          }
+  title_navigation_card:
+    variables:
+      title: ''
+      navigation_path: ''
+    card:
+      type: custom:mushroom-title-card
+      title: '[[title]]'
+      title_tap_action:
+        action: navigate
+        navigation_path: '[[navigation_path]]'
+      card_mod:
+        style: |
+          ha-card {
+            --title-font-size: 20px !important;
+          }
+  navigation_button_card:
+    variables:
+      navigation_path: /tablet-dashboard/overview
+      icon: m3of:arrow-left-alt
+      color: var(--md-sys-color-on-primary)
+      chip_background: var(--md-sys-color-primary)
+      margin_top: 0.7em
+    card:
+      type: custom:mushroom-chips-card
+      chips:
+        - type: template
+          tap_action:
+            action: navigate
+            navigation_path: '[[navigation_path]]'
+          icon: '[[icon]]'
+          card_mod:
+            style:
+              .: |
+                ha-card {
+                  --color: [[color]];
+                  --chip-background: [[chip_background]];
+                  margin-top: [[margin_top]];
+                }
+  room_card:
+    default:
+      - name: ''
+      - icon: ''
+      - navigation_path: ''
+      - entity_id_temperature: ''
+      - entity_id_humidity: ''
+      - entity_id_ac: ''
+      - entity_id_ac_main: ''
+      - entity_id_lights: ''
+      - lights_icon: ''
+      - entity_id_fans: ''
+      - entity_id_doors: ''
+      - entity_id_windows: ''
+      - room_background: ''
+    card:
+      type: custom:stack-in-card
+      mode: horizontal
+      cards:
+        - type: vertical-stack
+          cards:
+            - type: custom:mushroom-template-card
+              primary: '[[name]]'
+              secondary: >
+                {% set temp = states('[[entity_id_temperature]]') %} {% set hum 
+                = states('[[entity_id_humidity]]') %}
+
+                {% set temp_ok = temp not in ['unavailable', 'unknown'] %} {%
+                set hum_ok  = hum not in ['unavailable', 'unknown'] %}
+
+                {% if temp_ok or hum_ok %}
+                  {%- if temp_ok -%}
+                    {{ temp | round(1) }} {{ state_attr('weather.forecast_home', 'temperature_unit') }}
+                  {%- endif -%}
+
+                  {%- if temp_ok and hum_ok %} / {% endif -%}
+
+                  {%- if hum_ok -%}
+                    {{ hum | round(1) }}%
+                  {%- endif -%}
+                {% endif %}
+              tap_action:
+                action: navigate
+                navigation_path: '[[navigation_path]]'
+              card_mod:
+                style:
+                  .: |
+                    ha-card {
+                      --primary-text-color: black;
+                      border: 0px;
+                      padding-left: 5px;
+                      padding-top: 5px;
+                      width: 500px;
+                    }
+            - type: custom:mushroom-template-card
+              entity: '[[entity_id_lights]]'
+              layout: horizontal
+              icon: '[[icon]]'
+              icon_color: |-
+                {% if is_state('[[entity_id_lights]]', 'on') %}
+                  #fcf2d4
+                {% else %}
+                  #5b5b5b
+                {% endif %}
+              primary_info: none
+              secondary_info: none
+              tap_action:
+                action: navigate
+                navigation_path: '[[navigation_path]]'
+              card_mod:
+                style:
+                  ha-tile-icon$: |
+                    .container {
+                      border: 0px;
+                      width: 120px !important;
+                      height: 120px !important;
+                      border-radius: 50% !important;
+                        }   
+                  .: |
+                    ha-tile-icon {
+                      --mdc-icon-size: 90px !important;
+                       }
+                    ha-card {
+                      border: none;
+                      margin-top: -8px !important;
+                      margin-left: -24px !important;
+                       }
+        - type: custom:mushroom-chips-card
+          chips:
+            - type: conditional
+              conditions:
+                - condition: state
+                  entity: '[[entity_id_ac_main]]'
+                  state_not: unknown
+                - condition: state
+                  entity: '[[entity_id_ac_main]]'
+                  state_not: unavailable
+              chip:
+                type: template
+                entity: '[[entity_id_ac]]'
+                tap_action:
+                  action: toggle
+                icon: |
+                  {% if is_state('[[entity_id_ac_main]]', 'off') %}
+                    m3o:heat-pump
+                  {% else %}
+                    m3of:heat-pump
+                  {% endif %}
+                card_mod:
+                  style: |
+                    ha-card {
+                      --chip-background:
+                        {% if is_state('[[entity_id_ac_main]]', 'cool') and is_state('[[entity_id_ac]]', 'heat_cool') %}
+                          #b5e0f7
+                        {% elif is_state('[[entity_id_ac_main]]', 'heat') and is_state('[[entity_id_ac]]', 'heat_cool') %}
+                          #fa6f66
+                        {% elif is_state('[[entity_id_ac_main]]', 'fan_only') and is_state('[[entity_id_ac]]', 'heat_cool') %}
+                          #c3fae8
+                        {% else %}
+                          #353535
+                        {% endif %};
+                      --color:
+                        {% if is_state('[[entity_id_ac_main]]', 'cool') and is_state('[[entity_id_ac]]', 'heat_cool') %}
+                          #575757
+                        {% elif is_state('[[entity_id_ac_main]]', 'heat') and is_state('[[entity_id_ac]]', 'heat_cool') %}
+                          #575757
+                        {% elif is_state('[[entity_id_ac_main]]', 'fan_only') and is_state('[[entity_id_ac]]', 'heat_cool') %}
+                          #575757
+                        {% else %}
+                          #dbdbdb
+                        {% endif %};
+                      justify-content: center;
+                      height: 35px !important;
+                      width: 35px !important;
+                      border: 0 !important;
+                      box-shadow: none !important;
+                      border-radius: 22px !important;
+                    }
+            - type: conditional
+              conditions:
+                - condition: state
+                  entity: '[[entity_id_lights]]'
+                  state_not: unknown
+                - condition: state
+                  entity: '[[entity_id_lights]]'
+                  state_not: unavailable
+              chip:
+                type: template
+                entity: '[[entity_id_lights]]'
+                tap_action:
+                  action: toggle
+                icon: '[[lights_icon]]'
+                card_mod:
+                  style: |
+                    ha-card {
+                      --chip-background:
+                        {% if is_state('[[entity_id_lights]]', 'on') %}
+                          #fcf2d4
+                        {% else %}
+                          #353535
+                        {% endif %};
+                      --color:
+                        {% if is_state('[[entity_id_lights]]', 'on') %}
+                          #5b5326
+                        {% else %}
+                          #dbdbdb
+                        {% endif %};
+                      justify-content: center;
+                      height: 35px !important;
+                      width: 35px !important;
+                      border: 0 !important;
+                      box-shadow: none !important;
+                      border-radius: 22px !important;
+                    }
+            - type: conditional
+              conditions:
+                - condition: state
+                  entity: '[[entity_id_fans]]'
+                  state_not: unknown
+                - condition: state
+                  entity: '[[entity_id_fans]]'
+                  state_not: unavailable
+              chip:
+                type: template
+                entity: '[[entity_id_fans]]'
+                tap_action:
+                  action: toggle
+                icon: mdi:fan
+                card_mod:
+                  style: |
+                    ha-card {
+                      --chip-background:
+                        {% if is_state('[[entity_id_fans]]', 'on') %}
+                          #89CFF0
+                        {% else %}
+                          #353535
+                        {% endif %};
+                      --color:
+                        {% if is_state('[[entity_id_fans]]', 'on') %}
+                          #000000
+                        {% else %}
+                          #dbdbdb
+                        {% endif %};
+                      justify-content: center;
+                      height: 35px !important;
+                      width: 35px !important;
+                      border: 0 !important;
+                      box-shadow: none !important;
+                      border-radius: 22px !important;
+                    }
+            - type: conditional
+              conditions:
+                - condition: state
+                  entity: '[[entity_id_windows]]'
+                  state_not: unknown
+                - condition: state
+                  entity: '[[entity_id_windows]]'
+                  state_not: unavailable
+              chip:
+                type: template
+                entity: '[[entity_id_windows]]'
+                tap_action:
+                  action: navigate
+                  navigation_path: '[[navigation_path]]'
+                icon: |
+                  {% if is_state('[[entity_id_windows]]', 'on') %}
+                    mdi:window-open
+                  {% else %}
+                    mdi:window-closed
+                  {% endif %}
+                card_mod:
+                  style: |
+                    ha-card {
+                      --chip-background:
+                        {% if is_state('[[entity_id_windows]]', 'on') %}
+                          #ffaa00
+                        {% else %}
+                          #353535
+                        {% endif %};
+                      --color:
+                        {% if is_state('[[entity_id_windows]]', 'on') %}
+                          #694300
+                        {% else %}
+                          #dbdbdb
+                        {% endif %};
+                      justify-content: center;
+                      height: 35px !important;
+                      width: 35px !important;
+                      border: 0 !important;
+                      box-shadow: none !important;
+                      border-radius: 22px !important;
+                    }
+                    ha-card:after {
+                      {% if (expand(states['[[entity_id_windows]]']) | selectattr('state', 'eq', 'on') | list | count) == 0 %}
+                        content: '';
+                      {% else %}
+                        content: '{{ expand(states['[[entity_id_windows]]']) | selectattr('state', 'eq', 'on') | list | count }}';
+                      {% endif %}
+                      position: absolute;
+                      top: -10%;
+                      right: -10%;
+                      display:
+                        {% if is_state('[[entity_id_windows]]', 'on') %}
+                          flex
+                        {% else %}
+                          none
+                        {% endif %};
+                      justify-content: center;
+                      align-items: center;
+                      width: 14px;
+                      height: 14px;
+                      font-size: 9px;
+                      font-weight: 700;
+                      border-radius: 50%;
+                      background:
+                        {% if is_state('[[entity_id_windows]]', 'on') %}
+                          #fdcc8b
+                        {% else %}
+                          transparent
+                        {% endif %};
+                      color: #78551f;
+                      text-align: center;
+                    }
+            - type: conditional
+              conditions:
+                - condition: state
+                  entity: '[[entity_id_doors]]'
+                  state_not: unknown
+                - condition: state
+                  entity: '[[entity_id_doors]]'
+                  state_not: unavailable
+              chip:
+                type: template
+                entity: '[[entity_id_doors]]'
+                tap_action:
+                  action: navigate
+                  navigation_path: '[[navigation_path]]'
+                icon: |
+                  {% if is_state('[[entity_id_doors]]', 'on') %}
+                    m3o:door-open
+                  {% else %}
+                    m3of:door-front
+                  {% endif %}
+                card_mod:
+                  style: |
+                    ha-card {
+                      --chip-background:
+                        {% if is_state('[[entity_id_doors]]', 'on') %}
+                          #bc000a
+                        {% else %}
+                          #353535
+                        {% endif %};
+                      --color:
+                        {% if is_state('[[entity_id_doors]]', 'on') %}
+                          #fff
+                        {% else %}
+                          #dbdbdb
+                        {% endif %};
+                      justify-content: center;
+                      height: 35px !important;
+                      width: 35px !important;
+                      border: 0 !important;
+                      box-shadow: none !important;
+                      border-radius: 22px !important;
+                    }
+                    ha-card:after {
+                      {% if (expand(states['[[entity_id_doors]]']) | selectattr('state', 'eq', 'on') | list | count) == 0 %}
+                        content: '';
+                      {% else %}
+                        content: '{{ expand(states['[[entity_id_doors]]']) | selectattr('state', 'eq', 'on') | list | count }}';
+                      {% endif %}
+                      position: absolute;
+                      top: -10%;
+                      right: -10%;
+                      display:
+                        {% if is_state('[[entity_id_doors]]', 'on') %}
+                          flex
+                        {% else %}
+                          none
+                        {% endif %};
+                      justify-content: center;
+                      align-items: center;
+                      width: 14px;
+                      height: 14px;
+                      font-size: 9px;
+                      font-weight: 700;
+                      border-radius: 50%;
+                      background:
+                        {% if is_state('[[entity_id_doors]]', 'on') %}
+                          #ffffff
+                        {% else %}
+                          transparent
+                        {% endif %};
+                      color: #b02e25;
+                    }
+          card_mod:
+            style: |
+              .chip-container {
+                flex-flow: column wrap-reverse !important;
+                display: flex !important;
+                --chip-spacing: 8px;
+                margin: 12px;
+              }
+      card_mod:
+        style: |
+          ha-card {
+            {% set temp_raw = states('[[entity_id_temperature]]') %}
+            {% set temp_ok = temp_raw not in ['unavailable', 'unknown', None] %}
+
+            background:
+            {% if temp_ok %}
+              {% set temp = temp_raw | float %}
+              
+              {% if temp < 13 %}
+                #AC9CAF
+              {% elif temp < 16 %}
+                #D7C4DB
+              {% elif temp < 19 %}
+                #A3D9F5
+              {% elif temp < 22 %}
+                #CDE3DB
+              {% elif temp < 24 %}
+                #FFE599
+              {% elif temp < 27 %}
+                #F7BE81
+              {% else %}
+                #E48F7B
+              {% endif %}
+            {% else %}
+              [[room_background]]
+            {% endif %};
+
+            min-width: 50%;
+            max-width: 100%;
+            height: 186px;
+          }
+  room_description_card:
+    default:
+      - room_temperature_sensor: ''
+      - room_motion_sensor: ''
+    variables:
+      - name: room_temperature_sensor
+        selector:
+          entity:
+            domain: sensor
+      - name: room_motion_sensor
+        selector:
+          entity:
+            domain: binary_sensor
+    card:
+      type: custom:paper-buttons-row
+      styles:
+        justify-content: flex-start
+        flex-wrap: wrap
+        font-size: 0.9em
+        line-height: 1.2em
+        margin: 0 0 0 6px
+        width: 100%
+      buttons:
+        - layout: name
+          name: Room is
+          styles:
+            button:
+              flex-basis: 1
+              flex-shrink: 0
+            name:
+              color: var(--primary-text-color)
+        - layout: name
+          entity: '[[room_temperature_sensor]]'
+          name: >
+            {{ states('[[room_temperature_sensor]]') | float | round(1) }} {{
+            state_attr('weather.forecast_home', 'temperature_unit') }}
+          tap_action:
+            action: more-info
+          styles:
+            name:
+              color: var(--md-sys-color-on-primary)
+              font-weight: bold
+            button:
+              padding: 2px 8px
+              background-color: var(--md-sys-color-primary)
+              border-radius: 24px
+              flex-basis: 1
+              flex-shrink: 0
+              display: flex
+        - layout: name
+          name: ·
+          styles:
+            button:
+              flex-basis: 1
+              flex-shrink: 0
+            name:
+              color: var(--primary-text-color)
+        - layout: name
+          entity: '[[room_motion_sensor]]'
+          name: |
+            {% if is_state('[[room_motion_sensor]]', 'off') %}
+              clear
+            {% else %}
+              occupied
+            {% endif %}
+          tap_action:
+            action: more-info
+          styles:
+            name:
+              color: var(--md-sys-color-on-primary)
+              font-weight: bold
+            button:
+              padding: 2px 8px
+              background-color: var(--md-sys-color-primary)
+              border-radius: 24px
+              flex-basis: 1
+              flex-shrink: 0
+              display: flex
+        - layout: name
+          name: since
+          styles:
+            button:
+              flex-basis: 1
+              flex-shrink: 0
+            name:
+              color: var(--primary-text-color)
+        - layout: name
+          entity: '[[room_motion_sensor]]'
+          name: '{{ relative_time(states[''[[room_motion_sensor]]''].last_updated) }}'
+          tap_action:
+            action: more-info
+          styles:
+            name:
+              color: var(--md-sys-color-on-primary)
+              font-weight: bold
+            button:
+              padding: 2px 8px
+              background-color: var(--md-sys-color-primary)
+              border-radius: 24px
+              flex-basis: 1
+              flex-shrink: 0
+              display: flex
+        - layout: name
+          name: ago.
+          styles:
+            button:
+              flex-basis: 1
+              flex-shrink: 0
+            name:
+              color: var(--primary-text-color)
+  open_windows_card:
+    variables:
+      title: ''
+      window_1: ''
+      window_2: ''
+      window_3: ''
+      window_4: ''
+    card:
+      type: conditional
+      conditions:
+        - condition: or
+          conditions:
+            - condition: state
+              entity: '[[window_1]]'
+              state: 'on'
+            - condition: state
+              entity: '[[window_2]]'
+              state: 'on'
+            - condition: state
+              entity: '[[window_3]]'
+              state: 'on'
+            - condition: state
+              entity: '[[window_4]]'
+              state: 'on'
+      card:
+        type: vertical-stack
+        cards:
+          - type: custom:streamline-card
+            template: title_card
+            variables:
+              title: '[[title]]'
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: '[[window_1]]'
+                    state: 'on'
+                card:
+                  type: custom:material-button-card
+                  use_default_icon: false
+                  use_default_toggle: true
+                  use_default_text: false
+                  se_default_text: true
+                  entity: '[[window_1]]'
+                  height: 97
+                  control_type: generic
+                  icon: m3of:window-open
+                  text_on: Open
+                  text_off: Closed
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: '[[window_2]]'
+                    state: 'on'
+                card:
+                  type: custom:material-button-card
+                  use_default_icon: false
+                  use_default_toggle: true
+                  use_default_text: false
+                  se_default_text: true
+                  entity: '[[window_2]]'
+                  height: 97
+                  control_type: generic
+                  icon: m3of:window-open
+                  text_on: Open
+                  text_off: Closed
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: '[[window_3]]'
+                    state: 'on'
+                card:
+                  type: custom:material-button-card
+                  use_default_icon: false
+                  use_default_toggle: true
+                  use_default_text: false
+                  se_default_text: true
+                  entity: '[[window_3]]'
+                  height: 97
+                  control_type: generic
+                  icon: m3of:window-open
+                  text_on: Open
+                  text_off: Closed
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: '[[window_4]]'
+                    state: 'on'
+                card:
+                  type: custom:material-button-card
+                  use_default_icon: false
+                  use_default_toggle: true
+                  use_default_text: false
+                  se_default_text: true
+                  entity: '[[window_4]]'
+                  height: 97
+                  control_type: generic
+                  icon: m3of:window-open
+                  text_on: Open
+                  text_off: Closed
+  open_doors_card:
+    variables:
+      title: ''
+      door_1: ''
+      door_2: ''
+      door_3: ''
+      door_4: ''
+    card:
+      type: conditional
+      conditions:
+        - condition: or
+          conditions:
+            - condition: state
+              entity: '[[door_1]]'
+              state: 'on'
+            - condition: state
+              entity: '[[door_2]]'
+              state: 'on'
+            - condition: state
+              entity: '[[door_3]]'
+              state: 'on'
+            - condition: state
+              entity: '[[door_4]]'
+              state: 'on'
+      card:
+        type: vertical-stack
+        cards:
+          - type: custom:streamline-card
+            template: title_card
+            variables:
+              title: '[[title]]'
+          - type: grid
+            columns: 2
+            square: false
+            cards:
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: '[[door_1]]'
+                    state: 'on'
+                card:
+                  type: custom:material-button-card
+                  use_default_icon: false
+                  use_default_toggle: true
+                  use_default_text: false
+                  se_default_text: true
+                  entity: '[[door_1]]'
+                  height: 97
+                  control_type: generic
+                  icon: m3of:door-open
+                  text_on: Open
+                  text_off: Closed
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: '[[door_2]]'
+                    state: 'on'
+                card:
+                  type: custom:material-button-card
+                  use_default_icon: false
+                  use_default_toggle: true
+                  use_default_text: false
+                  se_default_text: true
+                  entity: '[[door_2]]'
+                  height: 97
+                  control_type: generic
+                  icon: m3of:door-open
+                  text_on: Open
+                  text_off: Closed
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: '[[door_3]]'
+                    state: 'on'
+                card:
+                  type: custom:material-button-card
+                  use_default_icon: false
+                  use_default_toggle: true
+                  use_default_text: false
+                  se_default_text: true
+                  entity: '[[door_3]]'
+                  height: 97
+                  control_type: generic
+                  icon: m3of:door-open
+                  text_on: Open
+                  text_off: Closed
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: '[[door_4]]'
+                    state: 'on'
+                card:
+                  type: custom:material-button-card
+                  use_default_icon: false
+                  use_default_toggle: true
+                  use_default_text: false
+                  se_default_text: true
+                  entity: '[[door_4]]'
+                  height: 97
+                  control_type: generic
+                  icon: m3of:door-open
+                  text_on: Open
+                  text_off: Closed
+  energy_usage_chart_card:
+    variables:
+      title: ''
+      graph_span: ''
+      entity: ''
+      color_energy: ''
+      color_cost: ''
+      duration: ''
+      transform: ''
+      unit: ''
+    card:
+      type: vertical-stack
+      cards:
+        - type: custom:streamline-card
+          template: title_card
+          variables:
+            - title: '[[title]]'
+        - type: custom:apexcharts-card
+          graph_span: '[[graph_span]]'
+          apex_config:
+            chart:
+              type: area
+              height: 250
+            stroke:
+              show: true
+              width: 1
+              curve: smooth
+            legend:
+              show: true
+            xaxis:
+              crosshairs:
+                show: false
+              tooltip:
+                enabled: false
+            fill:
+              type: gradient
+              gradient:
+                shadeIntensity: 0.1
+                opacityFrom: 0.25
+                opacityTo: 1
+                inverseColors: true
+                stops:
+                  - 0
+                  - 90
+                  - 100
+          series:
+            - entity: '[[entity]]'
+              name: '[[title]] Energy'
+              type: column
+              color: '[[color_energy]]'
+              group_by:
+                func: diff
+                duration: '[[duration]]'
+              show:
+                datalabels: true
+            - entity: '[[entity]]'
+              name: '[[title]] Cost'
+              type: column
+              color: '[[color_cost]]'
+              group_by:
+                func: diff
+                duration: '[[duration]]'
+              transform: '[[transform]]'
+              unit: '[[unit]]'
+              show:
+                datalabels: true
+  entity_count_card:
+    variables:
+      entity: light.all_lights
+      title: Lights
+      icon: mdi:lightbulb-on
+      color: '#FFBF00'
+    card:
+      type: conditional
+      conditions:
+        - condition: state
+          entity: '[[entity]]'
+          state: 'on'
+      card:
+        type: horizontal-stack
+        cards:
+          - type: custom:streamline-card
+            template: title_card
+            variables:
+              - title: '[[title]]'
+          - type: custom:mushroom-chips-card
+            alignment: end
+            chips:
+              - type: template
+                content: >
+                  {{ expand('[[entity]]') | selectattr('state', 'eq', 'on') |
+                  list | count }}
+                icon: '[[icon]]'
+                icon_color: '[[color]]'
+                tap_action:
+                  action: none
+            card_mod:
+              style: |
+                ha-card {
+                  margin-top: 1.6em;
+                }
+  camera_generic_with_chips_card:
+    default:
+      - camera_entity: ''
+      - camera_height: ''
+      - entity_id_light_one: ''
+      - entity_id_light_two: ''
+      - light_one_icon: ''
+      - light_two_icon: ''
+    variables:
+      - camera_entity
+      - camera_height
+      - entity_id_light_one
+      - entity_id_light_two
+      - light_one_icon
+      - light_two_icon
+    card:
+      type: vertical-stack
+      cards:
+        - type: custom:webrtc-camera
+          streams:
+            - entity: '[[camera_entity]]'
+          muted: true
+          card_mod:
+            style: |
+              ha-card {
+                height: [[camera_height]];
+                overflow: hidden;
+              }
+        - type: custom:mushroom-chips-card
+          alignment: start
+          chips:
+            - type: conditional
+              conditions:
+                - condition: state
+                  entity: '[[entity_id_light_one]]'
+                  state_not: unknown
+                - condition: state
+                  entity: '[[entity_id_light_one]]'
+                  state_not: unavailable
+              chip:
+                type: template
+                entity: '[[entity_id_light_one]]'
+                icon: '[[light_one_icon]]'
+                tap_action:
+                  action: toggle
+                content: |
+                  {{ states['[[entity_id_light_one]]'].name }}
+                card_mod:
+                  style:
+                    .: |
+                      ha-card {
+                        --text-color: {{ 'var(--primary-background-color)' if is_state('[[entity_id_light_one]]', 'on') else 'none' }};
+                        --color: {{ 'var(--primary-background-color)' if is_state('[[entity_id_light_one]]', 'on') else 'none' }};
+                        --chip-background: {{ 'var(--md-sys-color-primary)' if is_state('[[entity_id_light_one]]', 'on') else 'color-mix(in srgb, var(--md-sys-color-surface-variant) 40%, transparent)' }};
+                      }
+            - type: conditional
+              conditions:
+                - condition: state
+                  entity: '[[entity_id_light_two]]'
+                  state_not: unknown
+                - condition: state
+                  entity: '[[entity_id_light_two]]'
+                  state_not: unavailable
+              chip:
+                type: template
+                entity: '[[entity_id_light_two]]'
+                icon: '[[light_two_icon]]'
+                tap_action:
+                  action: toggle
+                content: |
+                  {{ states['[[entity_id_light_two]]'].name }}
+                card_mod:
+                  style:
+                    .: |
+                      ha-card {
+                        --text-color: {{ 'var(--primary-background-color)' if is_state('[[entity_id_light_two]]', 'on') else 'none' }};
+                        --color: {{ 'var(--primary-background-color)' if is_state('[[entity_id_light_two]]', 'on') else 'none' }};
+                        --chip-background: {{ 'var(--md-sys-color-primary)' if is_state('[[entity_id_light_two]]', 'on') else 'color-mix(in srgb, var(--md-sys-color-surface-variant) 40%, transparent)' }};
+                      }
+  camera_rtsp_with_chips_card:
+    default:
+      - camera_url: ''
+      - camera_height: ''
+      - entity_id_light_one: ''
+      - entity_id_light_two: ''
+      - light_one_icon: ''
+      - light_two_icon: ''
+    variables:
+      - camera_url
+      - camera_height
+      - entity_id_light_one
+      - entity_id_light_two
+      - light_one_icon
+      - light_two_icon
+    card:
+      type: vertical-stack
+      cards:
+        - type: custom:webrtc-camera
+          url: '[[camera_url]]'
+          card_mod:
+            style: |
+              ha-card {
+                height: [[camera_height]];
+                overflow: hidden;
+              }
+        - type: custom:mushroom-chips-card
+          alignment: start
+          chips:
+            - type: conditional
+              conditions:
+                - condition: state
+                  entity: '[[entity_id_light_one]]'
+                  state_not: unknown
+                - condition: state
+                  entity: '[[entity_id_light_one]]'
+                  state_not: unavailable
+              chip:
+                type: template
+                entity: '[[entity_id_light_one]]'
+                icon: '[[light_one_icon]]'
+                tap_action:
+                  action: toggle
+                content: |
+                  {{ states['[[entity_id_light_one]]'].name }}
+                card_mod:
+                  style:
+                    .: |
+                      ha-card {
+                        --text-color: {{ 'var(--primary-background-color)' if is_state('[[entity_id_light_one]]', 'on') else 'none' }};
+                        --color: {{ 'var(--primary-background-color)' if is_state('[[entity_id_light_one]]', 'on') else 'none' }};
+                        --chip-background: {{ 'var(--md-sys-color-primary)' if is_state('[[entity_id_light_one]]', 'on') else 'color-mix(in srgb, var(--md-sys-color-surface-variant) 40%, transparent)' }};
+                      }
+            - type: conditional
+              conditions:
+                - condition: state
+                  entity: '[[entity_id_light_two]]'
+                  state_not: unknown
+                - condition: state
+                  entity: '[[entity_id_light_two]]'
+                  state_not: unavailable
+              chip:
+                type: template
+                entity: '[[entity_id_light_two]]'
+                icon: '[[light_two_icon]]'
+                tap_action:
+                  action: toggle
+                content: |
+                  {{ states['[[entity_id_light_two]]'].name }}
+                card_mod:
+                  style:
+                    .: |
+                      ha-card {
+                        --text-color: {{ 'var(--primary-background-color)' if is_state('[[entity_id_light_two]]', 'on') else 'none' }};
+                        --color: {{ 'var(--primary-background-color)' if is_state('[[entity_id_light_two]]', 'on') else 'none' }};
+                        --chip-background: {{ 'var(--md-sys-color-primary)' if is_state('[[entity_id_light_two]]', 'on') else 'color-mix(in srgb, var(--md-sys-color-surface-variant) 40%, transparent)' }};
+                      }
+  media_player_card:
+    variables:
+      entity: ''
+      name: ''
+    card:
+      type: custom:mushroom-media-player-card
+      entity: '[[entity]]'
+      name: '[[name]]'
+      fill_container: true
+      use_media_info: true
+      show_volume_level: true
+      layout: vertical
+      collapsible_controls: true
+      volume_controls:
+        - volume_buttons
+        - volume_set
+      media_controls:
+        - on_off
+      grid_options:
+        columns: full
+      card_mod:
+        style:
+          .: |
+            ha-state-icon {
+              color: var(--md-sys-color-secondary);
+            }
+          mushroom-shape-icon$: |
+            .shape {
+              --shape-color: var(--md-sys-color-on-secondary) !important;
+            }
+          mushroom-media-player-volume-control$: |
+            mushroom-slider {
+              --main-color: var(--md-sys-color-on-secondary) !important;
+              --bg-color: var(--md-sys-color-secondary) !important;
+            }
+  spacer_card:
+    variables:
+      padding: ''
+    card:
+      type: custom:button-card
+      show_name: false
+      show_icon: false
+      tap_action:
+        action: none
+      styles:
+        card:
+          - background: none
+          - box-shadow: none
+          - padding: '[[padding]]'
