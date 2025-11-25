@@ -1,0 +1,105 @@
+type: custom:mushroom-chips-card
+chips:
+  - type: conditional
+    conditions:
+      - entity: alarm_control_panel.alarmo
+        state: triggered
+    chip:
+      type: template
+      entity: alarm_control_panel.alarmo
+      content: Triggered
+      tap_action:
+        action: navigate
+        navigation_path: /tablet-dashboard/alarmo
+      icon: mdi:bell-ring
+      icon_color: "#d14f3a"
+  - type: conditional
+    conditions:
+      - entity: alarm_control_panel.alarmo
+        state: armed_away
+    chip:
+      type: template
+      entity: alarm_control_panel.alarmo
+      content: Armed away
+      tap_action:
+        action: navigate
+        navigation_path: /tablet-dashboard/alarmo
+      icon: mdi:shield-lock
+      icon_color: "#69ac5a"
+  - type: conditional
+    conditions:
+      - entity: alarm_control_panel.alarmo
+        state: arming
+    chip:
+      type: template
+      entity: alarm_control_panel.alarmo
+      content: Arming
+      tap_action:
+        action: navigate
+        navigation_path: /tablet-dashboard/alarmo
+      icon: mdi:shield
+      icon_color: "#efa340"
+  - type: conditional
+    conditions:
+      - entity: alarm_control_panel.alarmo
+        state: pending
+    chip:
+      type: template
+      entity: alarm_control_panel.alarmo
+      content: Pending
+      tap_action:
+        action: navigate
+        navigation_path: /tablet-dashboard/alarmo
+      icon: mdi:shield-outline
+      icon_color: "#efa340"
+  - type: conditional
+    conditions:
+      - entity: alarm_control_panel.alarmo
+        state: disarmed
+    chip:
+      type: template
+      entity: alarm_control_panel.alarmo
+      tap_action:
+        action: navigate
+        navigation_path: /tablet-dashboard/alarmo
+      icon: mdi:shield-off
+ 
+  - type: template
+    entity: sensor.active_notification_count
+    icon: mdi:bell
+    tap_action:
+      action: navigate
+      navigation_path: /tablet-dashboard/notifications
+    hold_action:
+      action: none
+    card_mod:
+      style: >
+        ha-card {
+          position: relative;
+        } {% set notifications = states('sensor.active_notification_count') |
+        int %}
+
+        {% if notifications > 0 %}
+
+        ha-card:after {
+          content: "{{ notifications }}";
+          position: absolute;
+          top: -2px;
+          right: 0px;
+          background-color: var(--md-sys-color-primary);
+          color: var(--md-sys-color-surface-variant);
+          border-radius: 50%;
+          width: 16px;
+          height: 16px;
+          font-size: 10px;
+          line-height: 16px;
+          text-align: center;
+          display: inline-block;
+          font-weight: bold;
+        } {% endif %}
+alignment: end
+card_mod:
+  style: |
+    ha-card {
+      margin-top: 1.7em
+    }
