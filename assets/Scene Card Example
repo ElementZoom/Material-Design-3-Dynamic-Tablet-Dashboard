@@ -1,0 +1,5 @@
+type: custom:streamline-card
+template: scene_card
+variables:
+            entity: scene.luxaflex_naar_70
+            name: (Nieuw) Luxaflex beneden naar 70
