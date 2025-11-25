@@ -1,0 +1,18 @@
+type: horizontal-stack
+cards:
+  - type: picture
+    image: /local/hue/raw/Blossom.png
+    tap_action:
+      action: call-service
+      service: input_text.set_value
+      data:
+        entity_id: input_text.dynamic_scene_selected
+        value: blossom
+  - type: picture
+    image: /local/hue/raw/Crocus.png
+    tap_action:
+      action: call-service
+      service: input_text.set_value
+      data:
+        entity_id: input_text.dynamic_scene_selected
+        value: crocus
