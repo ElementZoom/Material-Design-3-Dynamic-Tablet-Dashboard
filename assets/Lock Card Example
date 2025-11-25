@@ -1,0 +1,5 @@
+type: custom:streamline-card
+template: lock_card
+variables:
+            entity: lock.nuki_bijkeuken_lock
+            name: Nuki bijkeuken
