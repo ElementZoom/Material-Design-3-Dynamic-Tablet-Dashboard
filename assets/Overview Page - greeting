@@ -1,0 +1,149 @@
+type: vertical-stack
+cards:
+  - type: custom:mushroom-title-card
+    title: |
+      {% set time = now().hour %} {% if time >= 18 %}
+        🌙 Good Evening,
+      {% elif time >= 12 %}
+        ☀️ Good Afternoon,
+      {% elif time >= 5 %}
+        🌅 Good Morning !
+      {% else %}
+        🌌 Welcome !
+      {% endif %}
+    alignment: start
+    subtitle: |
+      Today is {{ now().strftime('%a %b %-d - %-I:%M %p') }}
+  - type: custom:paper-buttons-row
+    styles:
+      justify-content: flex-start
+      flex-wrap: wrap
+      font-size: 0.9em
+      line-height: 1.2em
+      margin: 6px 0 12px 0
+      width: 100%
+    buttons:
+      - layout: name
+        name: Outside is
+        styles:
+          button:
+            flex-basis: 1
+            flex-shrink: 0
+          name:
+            color: var(--primary-text-color)
+      - layout: name|icon
+        entity: weather.forecast_home
+        name: >-
+          {{ state_attr('weather.forecast_home', 'temperature') }} {{
+          state_attr('weather.forecast_home', 'temperature_unit') }}, {{
+          states('weather.forecast_home') | title }}
+        icon: "{{ states('sensor.weather_condition_icon') }}"
+        tap_action:
+          action: navigate
+          navigation_path: /tablet-dashboard/notifications
+        styles:
+          icon:
+            color: var(--md-sys-color-on-primary)
+          name:
+            color: var(--md-sys-color-on-primary)
+            font-weight: bold
+          button:
+            padding: 2px 8px
+            background-color: var(--md-sys-color-primary)
+            border-radius: 24px
+            flex-basis: 1
+            flex-shrink: 0
+            display: flex
+      - layout: name
+        name: · Wind
+        styles:
+          button:
+            flex-basis: 1
+            flex-shrink: 0
+          name:
+            color: var(--primary-text-color)
+      - layout: name
+        entity: weather.forecast_home
+        name: >-
+          {{ state_attr('weather.forecast_home', 'wind_speed') }} {{
+          state_attr('weather.forecast_home', 'wind_speed_unit') }}
+        tap_action:
+          action: navigate
+          navigation_path: /tablet-dashboard/notifications
+        styles:
+          name:
+            color: var(--md-sys-color-on-primary)
+            font-weight: bold
+          button:
+            padding: 2px 8px
+            background-color: var(--md-sys-color-primary)
+            border-radius: 24px
+            flex-basis: 1
+            flex-shrink: 0
+            display: flex
+      - layout: name
+        name: · High
+        styles:
+          button:
+            flex-basis: 1
+            flex-shrink: 0
+          name:
+            color: var(--primary-text-color)
+      - layout: name
+        entity: weather.forecast_home
+        name: >-
+          {% set forecast = state_attr('sensor.daily_weather_data_met_no',
+          'forecast_data') %} {% if forecast is defined and forecast.temperature
+          is defined %}
+            {{ forecast.temperature }} {{ state_attr('weather.forecast_home', 'temperature_unit') }}🔺
+          {% else %}
+            N/A {{ state_attr('weather.forecast_home', 'temperature_unit') }}🔺
+          {% endif %}
+        tap_action:
+          action: navigate
+          navigation_path: /tablet-dashboard/notifications
+        styles:
+          name:
+            color: var(--md-sys-color-on-primary)
+            font-weight: bold
+          button:
+            padding: 2px 8px
+            background-color: var(--md-sys-color-primary)
+            border-radius: 24px
+            flex-basis: 1
+            flex-shrink: 0
+            display: flex
+      - layout: name
+        name: Low
+        styles:
+          button:
+            flex-basis: 1
+            flex-shrink: 0
+          name:
+            color: var(--primary-text-color)
+      - layout: name
+        entity: weather.forecast_home
+        name: >-
+          {% set forecast = state_attr('sensor.daily_weather_data_met_no',
+          'forecast_data') %} {% if forecast is defined and forecast.temperature
+          is defined %}
+            {{ forecast.templow }} {{ state_attr('weather.forecast_home', 'temperature_unit') }}🔻
+          {% else %}
+            N/A {{ state_attr('weather.forecast_home', 'temperature_unit') }}🔻
+          {% endif %}
+        tap_action:
+          action: navigate
+          navigation_path: /tablet-dashboard/notifications
+        styles:
+          name:
+            color: var(--md-sys-color-on-primary)
+            font-weight: bold
+          button:
+            padding: 2px 8px
+            background-color: var(--md-sys-color-primary)
+            border-radius: 24px
+            flex-basis: 1
+            flex-shrink: 0
+            display: flex
+view_layout:
+  grid-area: greeting
