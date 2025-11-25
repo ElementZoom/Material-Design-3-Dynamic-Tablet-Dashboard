@@ -1,0 +1,57 @@
+type: vertical-stack
+cards:
+  - type: custom:streamline-card
+    template: title_card
+    variables:
+      title: Devices
+  - type: custom:auto-entities
+    card:
+      type: grid
+      square: false
+      columns: 1
+    card_param: cards
+    filter:
+      include:
+        - options:
+            type: custom:mushroom-template-card
+            icon: |
+              {% set v = states(entity) | default(0) | int %}
+              {% if v < 10 %}
+                mdi:battery-alert-variant-outline
+              {% elif v < 25 %}
+                mdi:battery-10
+              {% elif v < 40 %}
+                mdi:battery-30
+              {% elif v < 60 %}
+                mdi:battery-50
+              {% endif %}
+            primary: |
+              {{ states(entity) }}%
+            secondary: |
+              {{ state_attr(entity, 'friendly_name') }} -
+                    updated: {{ relative_time(states[entity].last_updated) }} ago
+            icon_color: |
+              {% set v = states(entity) | default(0) | int %}
+              {% if v < 25 %}
+                red
+              {% elif v < 60 %}
+                yellow
+              {% endif %}
+            card_mod:
+              style:
+                mushroom-shape-icon$: |
+                  .shape {
+                    --shape-color: transparent !important;
+                  }
+          entity_id: "*battery*"
+          state: < 60
+      exclude:
+        - options: {}
+          state: "*AAA*"
+        - options: {}
+          state: "*AA*"
+        - options: {}
+          state: "*.0%*"
+    show_empty: false
+    sort:
+      method: friendly_name
