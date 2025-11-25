@@ -1,0 +1,57 @@
+type: vertical-stack
+cards:
+  - type: horizontal-stack
+    cards:
+      - type: custom:material-slider-card
+        entity: light.lights_ktc
+        icon: m3of:lightbulb
+        show_percentage: true
+        bold_text: false
+        control_type: light
+      - type: custom:material-slider-card
+        entity: light.lights_dt
+        icon: m3of:lightbulb
+        show_percentage: true
+        bold_text: false
+        control_type: light
+  - type: horizontal-stack
+    cards:
+      - type: custom:material-button-card
+        use_default_icon: false
+        use_default_toggle: true
+        use_default_text: true
+        entity: switch.kitchen_cabinet_led
+        height: 97
+        control_type: generic
+        dual_icon: true
+        icon_on: mdi:led-strip-variant
+        icon_off: mdi:led-strip-variant-off
+      - type: custom:material-button-card
+        use_default_icon: false
+        use_default_toggle: true
+        use_default_text: true
+        entity: switch.table_top_light
+        height: 97
+        control_type: generic
+        icon: m3of:countertops
+        dual_icon: true
+        icon_on: mdi:countertop
+        icon_off: mdi:countertop-outline
+  - type: horizontal-stack
+    cards:
+      - type: custom:material-button-card
+        use_default_icon: false
+        use_default_toggle: true
+        use_default_text: true
+        entity: switch.table_top_led
+        height: 97
+        control_type: generic
+        dual_icon: true
+        icon_on: mdi:led-strip-variant
+        icon_off: mdi:led-strip-variant-off
+      - type: custom:material-slider-card
+        entity: light.lights_sofa
+        icon: m3of:lightbulb
+        show_percentage: true
+        bold_text: false
+        control_type: light
