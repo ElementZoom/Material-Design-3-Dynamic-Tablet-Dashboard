@@ -1,0 +1,15 @@
+type: custom:mediocre-massive-media-player-card
+entity_id: media_player.your_media
+mode: card
+action: {}
+speaker_group:
+  entities:
+    - entity: media_player.living_area_soundbar
+      name: Living Area Soundbar
+    - entity: media_player.nestmini8699
+      name: Master Bedroom
+search:
+  enabled: true
+  show_favorites: false
+card_mod:
+  class: filled
