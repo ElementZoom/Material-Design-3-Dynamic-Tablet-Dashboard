@@ -1,0 +1,49 @@
+entities:
+  - entity: calendar.calendar_1
+    accent_color: "#ff6a6a"
+  - entity: calendar.calendar_2
+    accent_color: "#71c8fe"
+  - entity: calendar.calendar_3
+    accent_color: "#d3f37f"
+  - entity: calendar.calendar_4
+    accent_color: "#f9da4e"
+days_to_show: 6
+compact_events_to_show: 6
+background_color: transparent
+vertical_line_width: 5px
+event_spacing: 6px
+first_day_of_week: monday
+show_week_numbers: iso
+week_number_color: var(--md-sys-color-on-primary)
+week_number_background_color: var(--md-sys-color-primary)
+month_separator_width: 1px
+month_separator_color: var(--md-sys-color-tertiary)
+today_indicator: pulse
+today_indicator_position: 10% 50%
+today_indicator_color: var(--md-sys-color-primary)
+weekday_font_size: 12px
+month_font_size: 10px
+show_countdown: true
+show_progress_bar: true
+progress_bar_color: var(--md-sys-color-primary)
+weather:
+  position: event
+  date:
+    show_conditions: true
+    show_high_temp: true
+    show_low_temp: false
+    icon_size: 14px
+    font_size: 12px
+    color: var(--primary-text-color)
+  event:
+    show_conditions: true
+    show_temp: true
+    icon_size: 14px
+    font_size: 12px
+    color: var(--primary-text-color)
+  entity: weather.forecast_home
+tap_action:
+  action: navigate
+  navigation_path: /tablet-dashboard/calendar
+type: custom:calendar-card-pro
+height: 435px
