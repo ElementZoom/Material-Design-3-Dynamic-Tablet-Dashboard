@@ -1109,3 +1109,81 @@ streamline_templates:
           - background: none
           - box-shadow: none
           - padding: '[[padding]]'
+  automation_card:
+    variables:
+      entity: ''
+      name: ''
+    card:
+      type: custom:mushroom-entity-card
+      entity: '[[entity]]'
+      name: '[[name]]'
+      vertical: true
+      card_mod:
+        style:
+          .: |
+            ha-state-icon {
+                  color: {{ 'var(--md-sys-color-primary)' if is_state('[[entity]]', 'on') else none }};
+                }
+          mushroom-shape-icon$: |
+            .shape {
+              --shape-color: none;
+            }     
+  scene_card:
+    variables:
+      entity: ''
+      name: ''
+    card:
+      type: custom:mushroom-entity-card
+      entity: '[[entity]]'
+      name: '[[name]]'
+      vertical: true
+      card_mod:
+        style:
+          .: |
+            ha-state-icon {
+              color: {{ 'var(--md-sys-color-primary)' }};
+            }
+          mushroom-shape-icon$: |
+            .shape {
+              --shape-color: none;
+            }     
+  curtain_card:
+    variables:
+      entity: ''
+      name: ''
+    card:
+      type: custom:mushroom-cover-card
+      entity: '[[entity]]'
+      name: '[[name]]'
+      show_position_control: false
+      show_buttons_control: true
+      show_tilt_position_control: false
+      card_mod:
+        style:
+          .: |
+            ha-state-icon {
+              color: {{ 'var(--md-sys-color-primary)' if is_state('[[entity]]', 'closed') else 'var(--primary-background-color)' }};
+            }
+          mushroom-shape-icon$: |
+            .shape {
+              --shape-color: {{ none if is_state('[[entity]]', 'closed') else 'var(--md-sys-color-error)' }};
+            }
+  lock_card:
+    variables:
+      entity: ''
+      name: ''
+    card:
+      type: custom:mushroom-lock-card
+      entity: '[[entity]]'
+      name: '[[name]]'
+      card_mod:
+        style:
+          .: |
+            ha-state-icon {
+              color: {{ 'var(--md-sys-color-primary)' if is_state('[[entity]]', 'locked')
+                        else 'var(--md-sys-color-error)' }};
+            }
+          mushroom-shape-icon$: |
+            .shape {
+              --shape-color: none;
+            }
