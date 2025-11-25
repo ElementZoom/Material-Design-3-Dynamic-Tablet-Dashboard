@@ -114,15 +114,15 @@ The [Calendar Page](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tab
 
 <img width="575" height="268" alt="Lock Example" src="https://github.com/user-attachments/assets/e60d4530-c2da-470d-a95c-23bda4c0ade9" />
 
-Above is an example of lock card - borrowed from one
+Above is an example of [lock card](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Lock%20Card%20Example).
 
 <img width="511" height="372" alt="Scene Example" src="https://github.com/user-attachments/assets/75f01d54-5aad-4bdb-8402-3d389e2ed49d" />
 
-The above is scene example with mushroom entity card
+The above is [scene example](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Scene%20Card%20Example) card with mushroom entity card.
 
 <img width="574" height="450" alt="Cover Example" src="https://github.com/user-attachments/assets/3b7a1a29-b637-4307-8250-c5971fa0be59" />
 
-And last one, is a cover card example
+And last one, is a [cover card](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Curtain%20Card%20Example) example.
 
 # 🚀 Requirements / Dependencies
 
