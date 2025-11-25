@@ -1,0 +1,72 @@
+type: vertical-stack
+cards:
+  - type: custom:streamline-card
+    template: title_subtitle_card
+    variables:
+      title: Proxmox
+      subtitle: >-
+        {% set cpu = states('sensor.node_pve_cpu_used') | float(0) %}{% set mem
+        = states('sensor.node_pve_memory_used_percentage') | float(0) %}{% set
+        temp = states('sensor.disk_pve_bc511_nvme_sk_hynix_256gb_temperature') |
+        float(0) %}{% if cpu > 75 or mem > 75 or temp > 70 %}🟥 CPU: {{ cpu |
+        round(1) }}% • Memory: {{ mem | round(1) }}% • NVMe: {{ temp | round(1)
+        }}{{       state_attr('weather.forecast_home', 'temperature_unit') }}{%
+        elif cpu > 50 or mem > 50 or temp > 55 %}🟧 CPU: {{ cpu | round(1) }}% •
+        Memory: {{ mem | round(1) }}% • NVMe: {{ temp | round(1) }}{{      
+        state_attr('weather.forecast_home', 'temperature_unit') }}{% else %}🟩
+        CPU: {{ cpu | round(1) }}% • Memory: {{ mem | round(1) }}% • NVMe: {{
+        temp | round(1) }}{{       state_attr('weather.forecast_home',
+        'temperature_unit') }}{% endif %}
+  - type: horizontal-stack
+    cards:
+      - type: gauge
+        entity: sensor.disk_pve_bc511_nvme_sk_hynix_256gb_temperature
+        name: SSD Temperature
+        min: 20
+        max: 80
+        severity:
+          green: 40
+          yellow: 55
+          red: 70
+        unit: °C
+      - type: gauge
+        entity: sensor.node_pve_memory_used
+        name: Memory Used
+        max: 16.57
+        severity:
+          green: 6
+          yellow: 8
+          red: 12
+  - type: custom:streamline-card
+    template: title_subtitle_card
+    variables:
+      - title: HA OS
+      - subtitle: >-
+          {% set cpu = states('sensor.qemu_haos14_2_100_cpu_used') | float(0)
+          %}{% set mem = states('sensor.qemu_haos14_2_100_memory_used') |
+          float(0) %}{% set health =
+          states('binary_sensor.qemu_haos14_2_100_health') %}{% set boot =
+          states('sensor.qemu_haos14_2_100_last_boot') %}{% if cpu > 75 or mem >
+          75 or health == 'on' %}🟥{% elif cpu > 50 or mem > 50 %}🟧{% else
+          %}🟩{% endif %} CPU: {{ cpu | round(1) }}% • MEM: {{ mem | round(1)
+          }}%                                                                                      
+          Health: {{ 'OK' if health == 'off' else '❌'}} • Last Boot: {{
+          as_timestamp(boot) | timestamp_custom('%d %b %H:%M') }}
+  - type: horizontal-stack
+    cards:
+      - type: gauge
+        entity: sensor.qemu_haos14_2_100_memory_free
+        name: Memory Free
+        max: 8.59
+        severity:
+          green: 6
+          yellow: 3
+          red: 0
+      - type: gauge
+        entity: sensor.qemu_haos14_2_100_memory_used
+        name: Memory Used
+        max: 8.59
+        severity:
+          green: 3
+          yellow: 4
+          red: 6
