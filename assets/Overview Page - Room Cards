@@ -1,0 +1,14 @@
+type: custom:streamline-card
+template: room_card
+variables:
+  name: Master
+  icon: m3of:bed
+  entity_id_temperature: sensor.master_bedroom_temperature
+  entity_id_humidity: sensor.master_bedroom_humidity
+  entity_id_ac: climate.master_bedroom
+  entity_id_ac_main: climate.heat_pump
+  entity_id_lights: light.lights_mbr
+  lights_icon: mdi:light-recessed
+  entity_id_windows: group.windows_mbr
+  entity_id_doors: group.doors_mbr
+  navigation_path: /tablet-dashboard/master
