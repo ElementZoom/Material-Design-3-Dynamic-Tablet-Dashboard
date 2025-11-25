@@ -3,7 +3,9 @@ A modern Home Assistant dashboard built on Material Design 3 (MD3) principles, f
 
 This comprehensive dashboard unifies control and monitoring for **lights, switches, temperature and humidity sensors, rainfall, wind, UV index, radar, weather forecasts, alarms, Hue scenes, cameras, heat pumps, door and window sensors, and irrigation control** - all presented in one cohesive, visually refined interface designed for both functionality and aesthetic harmony.
 
-[_The v4.0.0_](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/releases/tag/v.4.0.0) major update introduces a significantly more modular system across most cards, making customization far easier than before. Previously, I had to manually adjust large portions of the dashboard to fit their setup. Thanks to the new streamline card architecture, much of the backend complexity has been consolidated. You can now map your entities directly through the UI, reducing setup time and improving flexibility. In addition to this core upgrade, the update also includes several quality-of-life improvements: a new media player on the overview page, refined layout adjustments for cleaner organization, and expanded use of pop-up cards to keep the interface tidy and intuitive.
+[_The v4.0.0_](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/releases/tag/v.4.0.0) major update introduces a significantly more modular system across most cards, making customization far easier than before. Previously, I had to manually adjust large portions of the dashboard to fit their setup. Thanks to the new streamline card architecture, much of the backend complexity has been consolidated. You can now map your entities directly through the UI, reducing setup time and improving flexibility. You can check all the [streamline_templates](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/streamline_templates%20collection) I've used in the dashboard.
+
+In addition to this core upgrade, the update also includes several quality-of-life improvements: a new media player on the overview page, refined layout adjustments for cleaner organization, and expanded use of pop-up cards to keep the interface tidy and intuitive.
 
 # ✨ Features
 
@@ -23,8 +25,7 @@ Several cards are inspired by the incredible work of others in the Home Assistan
 
 **Overview Page**
 
-<img width="1920" height="1080" alt="1" src="https://github.com/user-attachments/assets/45b0ceda-b78d-4c0c-81a0-81f8b9952b8a" />
-
+<img width="1920" height="785" alt="1" src="https://github.com/user-attachments/assets/abcd92ff-6d16-4d35-8858-5db24731aa07" />
 
 **Page Description**
 
@@ -40,8 +41,7 @@ Finally, the main page includes four [live camera feeds](https://github.com/Elem
 
 **Weather Forecast and Notifications Page - Individual Room Page**
 
-<img width="1920" height="1080" alt="2" src="https://github.com/user-attachments/assets/35f12305-9d79-4747-ab69-60cb0b27c3d7" />
-
+<img width="1920" height="782" alt="2" src="https://github.com/user-attachments/assets/55bd537a-e4e4-43d5-bf9b-5b26c210539a" />
 
 **Weather - Notification page** combines all my weather information and notifications in one place for quick status updates and alerts.
 
@@ -64,7 +64,7 @@ Finally, a [Media Card](https://github.com/ElementZoom/Material-Design-3-Dynamic
 
 **Hue Scene Page**
 
-<img width="1920" height="1080" alt="3" src="https://github.com/user-attachments/assets/df5296e1-696a-4a5a-ad3f-8f7fe9a9030f" />
+<img width="1920" height="688" alt="3" src="https://github.com/user-attachments/assets/756ed1c8-b223-40ce-8fb6-965961c785f8" />
 
 **Page Description**
 
@@ -76,9 +76,7 @@ All of this comes together thanks to the incredible work of the Hypfer - the mai
 
 **Camera Page - Timeline and Alarm Page**
 
-<img width="1920" height="1080" alt="4" src="https://github.com/user-attachments/assets/6ced1fc1-1bb9-4073-8480-547aef091ded" />
-
-
+<img width="1920" height="710" alt="4" src="https://github.com/user-attachments/assets/39c4442e-7669-4ce0-bbbd-e45829868649" />
 
 **Page Description**
 
@@ -91,8 +89,7 @@ I also have my Alarmo integration panel, which can be accessed by clicking the A
 ***
 **Server - Irrigation Page**
 
-<img width="1920" height="1080" alt="5" src="https://github.com/user-attachments/assets/08631740-15f4-4fdd-adb3-905a8aa52721" />
-
+<img width="1920" height="692" alt="5" src="https://github.com/user-attachments/assets/fe3d8e1e-c3cd-40b2-a29d-c83c776d5743" />
 
 The **Server Page** is where I monitor the health and performance of my smart home system. I’m running Home Assistant OS (HAOS) on a mini PC through Proxmox, which is fully integrated into Home Assistant for live monitoring.
 
@@ -107,19 +104,31 @@ To visualize performance, I’ve built a [custom graph](https://github.com/Eleme
 
 **Calendar Page**
 
-<img width="1920" height="1080" alt="6" src="https://github.com/user-attachments/assets/c7df07f5-3d4a-410b-b20d-372e65216a9e" />
+<img width="1920" height="685" alt="6" src="https://github.com/user-attachments/assets/2ff962e8-c1b1-44b6-bb53-45479d7ec79e" />
 
 **Page Description**
 
 The [Calendar Page](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Calendar%20Page%20-%20Day%20offset%200%20example) provides a full view of my appointments, events, and schedules in one place. It’s a dedicated page that pulls in data from my linked calendars, giving me an easy way to stay on top of upcoming tasks and daily plans right within Home Assistant.
 
+**Extra Cards**
+
+<img width="575" height="268" alt="Lock Example" src="https://github.com/user-attachments/assets/e60d4530-c2da-470d-a95c-23bda4c0ade9" />
+
+Above is an example of lock card - borrowed from one
+
+<img width="511" height="372" alt="Scene Example" src="https://github.com/user-attachments/assets/75f01d54-5aad-4bdb-8402-3d389e2ed49d" />
+
+The above is scene example with mushroom entity card
+
+<img width="574" height="450" alt="Cover Example" src="https://github.com/user-attachments/assets/3b7a1a29-b637-4307-8250-c5971fa0be59" />
+
+And last one, is a cover card example
 
 # 🚀 Requirements / Dependencies
 
 Card Related Stuffs:
 - [Alarmo Card](https://github.com/nielsfaber/alarmo-card)
 - [Apex Charts Card](https://github.com/RomRider/apexcharts-card?tab=readme-ov-file#series-options)
-
 - [Bubble Card](https://github.com/Clooos/Bubble-Card)
 - [Button-Card](https://github.com/custom-cards/button-card)
 - [Calendar Card Pro](https://github.com/alexpfau/calendar-card-pro)
@@ -159,6 +168,7 @@ Theming / ETC:
 
 # Installation
 
+- I recommend you to save all of the [streamline_templates](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/streamline_templates%20collection) I've created and to remove the one you don't end up using.
 - Choose which card that you want to adapt to your installation by clicking the hyperlink provided in the description above.
 - Install the required HACS components (such as simple swipe card, stack-in-card, popup-card, etc. - see your setup for what’s needed).
 - To unlock the full functionality (like weather icons, notification counts, and more), you’ll need to add the corresponding [sensors](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/tree/main/template%20sensor) to your config.
