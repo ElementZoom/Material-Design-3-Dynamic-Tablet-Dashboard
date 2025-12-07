@@ -15,26 +15,28 @@ tabs:
             - title: Weather Forecast
             - subtitle: >-
                 {% set forecasts =
-                state_attr('sensor.met_no_hourly_forecasts_full_hourly_forecast','forecasts')
+                state_attr('sensor.hourly_forecasts_full_hourly_forecast','forecasts')
                 %}{% if forecasts %}{% set rain_forecasts = forecasts |
                 selectattr('precipitation','defined') |
-                selectattr('precipitation','gt',0) | list %}{% if rain_forecasts
-                | count > 0 %}{% set next_rain = rain_forecasts | first %}{% set
-                val = next_rain.precipitation | float %}{% if val < 2.5 %}🌦️
-                Light · {{ val | round(1) }} {{
-                state_attr('weather.forecast_home', 'precipitation_unit') }} ·
-                {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
-                %p') }}{% elif val < 7.6 %}🌧️ Moderate · {{ val | round(1) }}
-                {{ state_attr('weather.forecast_home', 'precipitation_unit') }}
-                · {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at
-                %I:%M %p') }}{% elif val < 35 %}⛈️ Heavy · {{ val | round(1) }}
-                {{ state_attr('weather.forecast_home', 'precipitation_unit') }}
-                · {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at
-                %I:%M %p') }}{% else %}⛈️ Very heavy · {{ val | round(1) }} {{
-                state_attr('weather.forecast_home', 'precipitation_unit') }} ·
-                {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
-                %p') }}{% endif %}{% else %}🌤️ No rain today{% endif %}{% else
-                %}🌤️ N/A{% endif %}
+                selectattr('precipitation','gt',0) | list %}{% if
+                rain_forecasts | count > 0 %}{% set next_rain =
+                rain_forecasts | first %}{% set val =
+                next_rain.precipitation | float %}{% set limits =
+                states.sensor.precipitation_limits.attributes %}{% set unit
+                = state_attr('weather.forecast_home','precipitation_unit')
+                %}{% if val < limits.light %}🌦️ Light · {{ val | round(1)
+                }} {{ unit }} · {{
+                as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
+                %p') }}{% elif val < limits.moderate %}🌧️ Moderate · {{ val
+                | round(1) }} {{ unit }} · {{
+                as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
+                %p') }}{% elif val < limits.heavy %}⛈️ Heavy · {{ val |
+                round(1) }} {{ unit }} · {{
+                as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
+                %p') }}{% else %}⛈️ Very heavy · {{ val | round(1) }} {{
+                unit }} · {{ as_datetime(next_rain.datetime).strftime('%a,
+                %b %d at %I:%M %p') }}{% endif %}{% else %}🌤️ No rain
+                today{% endif %}{% else %}🌤️ N/A{% endif %}
         - type: vertical-stack
           cards:
             - type: custom:weather-forecast-extended-card
@@ -61,15 +63,17 @@ tabs:
                 {% endif %}
               color: >
                 {% set current = state_attr('weather.forecast_home',
-                'temperature') | float(0) %} {% if current < 16 %}
+                'temperature') | float(0) %}  {% set L =
+                states.sensor.temperature_limits.attributes %} {% if current
+                < L.color_1 %}
                   #CEB2F5
-                {% elif current < 18 %}
+                {% elif current < L.color_2 %}
                   #5EBDEE
-                {% elif current < 22 %}
+                {% elif current < L.color_3 %}
                   #9cc8b8
-                {% elif current < 24 %}
+                {% elif current < L.color_4 %}
                   #e7b562
-                {% elif current < 27 %}
+                {% elif current < L.color_5 %}
                   #FF564B      
                 {% else %}
                   #99332d
@@ -81,32 +85,15 @@ tabs:
               icon: mdi:leaf
               primary: Air Quality
               secondary: >-
-                {% set aqi =
-                states('sensor.your_city_college_new_zealand_air_quality_index')
-                %} {% set pollutant =
-                states('sensor.your_city_college_new_zealand_dominant_pollutant')
-                %} {% if aqi not in ['unknown','unavailable','none',''] %}
-                  {% set aqi = aqi | int %}
-                  {% set level = ('Good' if aqi <= 50 else 'Moderate' if aqi <= 100 else 'Unhealthy' if aqi <= 150 else 'Very Unhealthy' if aqi <= 200 else 'Hazardous') %}
-                  {{ level }} - AQI {{ aqi }} - {{ pollutant }}
-                {% else %}
-                  Data unavailable
-                {% endif %}
-              color: >
-                {% set aqi =
-                states('sensor.your_city_college_new_zealand_air_quality_index')
-                %} {% if aqi not in ['unknown','unavailable','none',''] %}
-                  {% set aqi = aqi | int %}
-                  {% if aqi <= 50 %} green
-                  {% elif aqi <= 100 %} yellow
-                  {% elif aqi <= 150 %} orange
-                  {% elif aqi <= 200 %} red
-                  {% elif aqi <= 300 %} purple
-                  {% else %} brown
-                  {% endif %}
-                {% else %}
-                  grey
-                {% endif %}
+                {% set aqi = state_attr('sensor.air_quality_level', 'aqi')
+                    %} {% set pollutant = state_attr('sensor.air_quality_level',
+                    'pollutant') %} {% if states('sensor.air_quality_level') not
+                    in ['unavailable','unknown'] and aqi is not none %}
+                      {{ states('sensor.air_quality_level') }} - AQI {{ aqi }} - {{ pollutant }}
+                    {% else %}
+                      Data unavailable
+                    {% endif %}
+                  color: "{{ states('sensor.air_quality_color') }}"
               features_position: bottom
               multiline_secondary: true
   - title: Rainfall
@@ -164,127 +151,250 @@ tabs:
                 yaxis:
                   - id: rain
                     title:
-                      text: Rain (mm)
+                      text: Rain
                     opposite: false
                   - id: temp
                     title:
-                      text: Temp (°C)
+                      text: Temp
                     opposite: true
-                    decimalsInFloat: 0
+                  - id: humidity
+                    title:
+                      text: Humidity (%)
+                    opposite: false
               series:
-                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                - entity: sensor.hourly_forecasts_full_hourly_forecast
                   name: Rain
                   type: column
                   yaxis_id: rain
-                  data_generator: |
-                    return entity.attributes.forecasts.map(f => {
-                      let val = f.precipitation;
-                      let color = '#9e9e9e';
-                      if (val > 0 && val < 2.5) {
-                        color = '#4FC3F7';
-                      } else if (val < 7.6) {
-                        color = '#0288D1';
-                      } else if (val < 35) {
-                        color = '#01579B';
-                      } else {
-                        color = '#311B92';
-                      }
-                      return {
-                        x: new Date(f.datetime).getTime(),
-                        y: val,
-                        fillColor: color
-                      };
-                    });
-                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                  data_generator: >
+                    const
+                    forecasts=(entity.attributes&&entity.attributes.forecasts)||[];
+
+                    const plEnt=hass.states['sensor.precipitation_limits'];
+
+                    const pl=plEnt?plEnt.attributes||{}:{};
+
+                    let light=Number(pl.light);let
+                    moderate=Number(pl.moderate);let heavy=Number(pl.heavy);
+
+                    if(!isFinite(light))light=2.5;if(!isFinite(moderate))moderate=7.6;if(!isFinite(heavy))heavy=35;
+
+                    const data=[];
+
+                    for(const f of forecasts){
+                      const val=Number(f.precipitation||0);
+                      let color='#9e9e9e';
+                      if(val>0&&val<light){color='#4FC3F7';}
+                      else if(val<moderate){color='#0288D1';}
+                      else if(val<heavy){color='#01579B';}
+                      else if(val>0){color='#311B92';}
+                      data.push({x:new Date(f.datetime).getTime(),y:val,fillColor:color});
+                    }
+
+                    return data;
+                - entity: sensor.hourly_forecasts_full_hourly_forecast
                   name: Temp
                   type: line
                   curve: smooth
                   yaxis_id: temp
                   stroke_width: 2
                   color: "#E53935"
-                  data_generator: |
-                    return entity.attributes.forecasts.map(f => {
-                      return {
-                        x: new Date(f.datetime).getTime(),
-                        y: f.temperature
-                      };
-                    });
+                  data_generator: >
+                    const
+                    forecasts=(entity.attributes&&entity.attributes.forecasts)||[];
+
+                    const data=[];
+
+                    for(const f of forecasts){
+                      data.push({x:new Date(f.datetime).getTime(),y:f.temperature});
+                    }
+
+                    return data;
+                - entity: sensor.hourly_forecasts_full_hourly_forecast
+                  name: Humidity
+                  type: line
+                  curve: smooth
+                  yaxis_id: humidity
+                  stroke_width: 2
+                  color: "#42A5F5"
+                  data_generator: >
+                    const
+                    forecasts=(entity.attributes&&entity.attributes.forecasts)||[];
+
+                    const data=[];
+
+                    for(const f of forecasts){
+                      const val=(f.humidity!==undefined&&f.humidity!==null)?Number(f.humidity):null;
+                      data.push({x:new Date(f.datetime).getTime(),y:val});
+                    }
+
+                    return data;
             - type: horizontal-stack
               cards:
                 - type: custom:mushroom-template-card
                   entity: sensor.forecast_rainfall
                   icon: mdi:weather-rainy
                   primary: >
-                    {% set r = states('sensor.forecast_rainfall') %} {% if r in
-                    ['unknown', 'unavailable', None] %}
+                    {% set r_raw = states('sensor.forecast_rainfall') %} {%
+                    set invalid = ['unknown', 'unavailable', 'none', ''] %}
+                    {% set unit = state_attr('weather.forecast_home',
+                    'precipitation_unit') %} {% if r_raw in invalid %}
                       Rainfall: None
                     {% else %}
-                      Rainfall: {{ r }} mm
+                      {% set r = r_raw | float(none) %}
+                      {% if r is none %}
+                        Rainfall: N/A
+                      {% else %}
+                        Rainfall: {{ r | round(1) }} {{ unit }}
+                      {% endif %}
                     {% endif %}
                   secondary: >
-                    {% set r = states('sensor.forecast_rainfall') | float(0) %}
-                    {% if r == 0 %}
+                    {% set r_raw = states('sensor.forecast_rainfall') %} {%
+                    set invalid = ['unknown', 'unavailable', 'none', ''] %}
+                    {% set L = states.sensor.precipitation_limits.attributes
+                    %} {% if r_raw in invalid or not L %}
                       None - Dry conditions
-                    {% elif r < 1 %}
-                      Light - Possible drizzle
-                    {% elif r < 5 %}
-                      Moderate - Bring umbrella
-                    {% elif r < 20 %}
-                      Heavy - Wet outdoors
                     {% else %}
-                      Intense - Flood risk
+                      {% set r = r_raw | float(none) %}
+                      {% if r is none %}
+                        None - Dry conditions
+                      {% else %}
+                        {% set drizzle = L.desc_drizzle | float(none) %}
+                        {% set moderate = L.desc_moderate | float(none) %}
+                        {% set heavy = L.desc_heavy | float(none) %}
+                        {% if drizzle is none or moderate is none or heavy is none %}
+                          None - Dry conditions
+                        {% else %}
+                          {% if r == 0 %}
+                            None - Dry conditions
+                          {% elif r < drizzle %}
+                            Light - Possible drizzle
+                          {% elif r < moderate %}
+                            Moderate - Bring umbrella
+                          {% elif r < heavy %}
+                            Heavy - Wet outdoors
+                          {% else %}
+                            Intense - Flood risk
+                          {% endif %}
+                        {% endif %}
+                      {% endif %}
                     {% endif %}
                   color: >
-                    {% set r = states('sensor.forecast_rainfall') | float(0) %}
-                    {% if r == 0 %}
+                    {% set r_raw = states('sensor.forecast_rainfall') %} {%
+                    set invalid = ['unknown', 'unavailable', 'none', ''] %}
+                    {% set L = states.sensor.precipitation_limits.attributes
+                    %} {% if r_raw in invalid or not L %}
                       blue
-                    {% elif r < 1 %}
-                      lightblue
-                    {% elif r < 5 %}
-                      cyan
-                    {% elif r < 20 %}
-                      orange
                     {% else %}
-                      red
+                      {% set r = r_raw | float(none) %}
+                      {% if r is none %}
+                        blue
+                      {% else %}
+                        {% set drizzle = L.desc_drizzle | float(none) %}
+                        {% set moderate = L.desc_moderate | float(none) %}
+                        {% set heavy = L.desc_heavy | float(none) %}
+                        {% if drizzle is none or moderate is none or heavy is none %}
+                          blue
+                        {% else %}
+                          {% if r == 0 %}
+                            blue
+                          {% elif r < drizzle %}
+                            lightblue
+                          {% elif r < moderate %}
+                            cyan
+                          {% elif r < heavy %}
+                            orange
+                          {% else %}
+                            red
+                          {% endif %}
+                        {% endif %}
+                      {% endif %}
                     {% endif %}
                   features_position: bottom
                   multiline_secondary: true
                 - type: custom:mushroom-template-card
-                  entity: sensor.forecast_temperature
+                  entity: sensor.daily_weather_data
                   icon: mdi:thermometer
                   primary: >
-                    Temp: {{ states('sensor.forecast_temperature') }} {{      
-                    state_attr('weather.forecast_home', 'temperature_unit') }}
+                    {% set current = state_attr('weather.forecast_home',
+                    'temperature') %}
+
+                    {% set unit = state_attr('weather.forecast_home',
+                    'temperature_unit') %}
+
+                    Temp: {{ current }} {{ unit }}
                   secondary: >
-                    {% set t = states('sensor.forecast_temperature') | float(0)
-                    %} {% if t < 5 %}
-                      Cold - Bundle up
-                    {% elif t < 15 %}
-                      Cool - Light jacket
-                    {% elif t < 25 %}
-                      Mild - Comfortable
-                    {% elif t < 32 %}
-                      Warm - Stay hydrated
+                    {% set unit = state_attr('weather.forecast_home',
+                    'temperature_unit') %} {% set forecast =
+                    state_attr('sensor.daily_weather_data', 'forecast_data')
+                    %} {% if forecast is defined %}
+                      {% set low = forecast.templow if forecast.templow is defined else 'N/A' %}
+                      {% set high = forecast.temperature if forecast.temperature is defined else 'N/A' %}
+                      Low: {{ low }} {{ unit }} - High: {{ high }} {{ unit }}
                     {% else %}
-                      Hot - Avoid heat
+                      Low: N/A - High: N/A
                     {% endif %}
                   color: >
                     {% set current = state_attr('weather.forecast_home',
-                    'temperature') | float(0) %} {% if current < 16 %}
+                    'temperature') | float(0) %}  {% set L =
+                    states.sensor.temperature_limits.attributes %} {% if
+                    current < L.color_1 %}
                       #CEB2F5
-                    {% elif current < 18 %}
+                    {% elif current < L.color_2 %}
                       #5EBDEE
-                    {% elif current < 22 %}
+                    {% elif current < L.color_3 %}
                       #9cc8b8
-                    {% elif current < 24 %}
+                    {% elif current < L.color_4 %}
                       #e7b562
-                    {% elif current < 27 %}
+                    {% elif current < L.color_5 %}
                       #FF564B      
                     {% else %}
                       #99332d
                     {% endif %}
                   features_position: bottom
                   multiline_secondary: true
+        - type: custom:mushroom-template-card
+          entity: weather.forecast_home
+          icon: mdi:water-percent
+          primary: >
+            {% set current = state_attr('weather.forecast_home', 'humidity')
+            %} {% if current is not none %}
+              Humidity: {{ current }}%
+            {% else %}
+              Humidity: N/A
+            {% endif %}
+          secondary: >
+            {% set forecasts =
+            state_attr('sensor.hourly_forecasts_full_hourly_forecast',
+            'forecasts') %} {% if forecasts %}
+              {% set hum_list = forecasts
+                   | selectattr('humidity', 'defined')
+                   | map(attribute='humidity')
+                   | map('float')
+                   | list %}
+              {% if hum_list | count > 0 %}
+                {% set min_h = hum_list | min %}
+                {% set max_h = hum_list | max %}
+                Next 24h range: {{ min_h | round(0) }}–{{ max_h | round(0) }}%
+              {% else %}
+                Next 24h range: N/A
+              {% endif %}
+            {% else %}
+              Next 24h range: N/A
+            {% endif %}
+          color: >
+            {% set current = state_attr('weather.forecast_home', 'humidity')
+            | float(none) %} {% if current is none %}
+              grey
+            {% elif current < 30 %}
+              orange      {# Dry #}
+            {% elif current < 60 %}
+              green       {# Comfortable #}
+            {% else %}
+              blue        {# Humid / muggy #}
+            {% endif %}
+          features_position: bottom
+          multiline_secondary: true
   - title: UV
     icon: m3of:sunny
     card:
@@ -450,37 +560,41 @@ tabs:
     card:
       type: vertical-stack
       cards:
-        - type: custom:streamline-card
-          template: title_subtitle_card
+        - type: custom:decluttering-card
+          template: mushroom_title_subtitle_card
           variables:
             - title: Wind Speed & Direction Forecast
             - subtitle: >-
                 {% set forecasts =
-                state_attr('sensor.met_no_hourly_forecasts_full_hourly_forecast','forecasts')
+                state_attr('sensor.hourly_forecasts_full_hourly_forecast','forecasts')
                 %}{% if forecasts %}{% set speeds = forecasts |
-                map(attribute='wind_speed') | map('float') | list %}{% set peak
-                = speeds | max %}{% set peak_entry = forecasts |
+                map(attribute='wind_speed') | map('float') | list %}{% set
+                peak = speeds | max %}{% set peak_entry = forecasts |
                 selectattr('wind_speed','eq', peak) | list | first %}{% set
-                avg_bearing = (forecasts | map(attribute='wind_bearing') | list
-                | sum / forecasts | length) %}{% set direction =
-                ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'][(avg_bearing
-                / 22.5) | round(0) % 16] %}{% if peak < 2 %}{% set category =
-                'Calm' %}{% set emoji = '🌫️' %}{% elif peak < 6 %}{% set
-                category = 'Light breeze' %}{% set emoji = '🍃' %}{% elif peak <
-                12 %}{% set category = 'Gentle breeze' %}{% set emoji = '🌿'
-                %}{% elif peak < 20 %}{% set category = 'Moderate breeze' %}{%
-                set emoji = '🌬️' %}{% elif peak < 29 %}{% set category = 'Fresh
-                breeze' %}{% set emoji = '💨' %}{% elif peak < 39 %}{% set
-                category = 'Strong breeze' %}{% set emoji = '💨' %}{% elif peak
-                < 50 %}{% set category = 'Near gale' %}{% set emoji = '🌪️' %}{%
-                elif peak < 62 %}{% set category = 'Gale' %}{% set emoji = '🌪️'
-                %}{% elif peak < 75 %}{% set category = 'Strong gale' %}{% set
-                emoji = '🌪️' %}{% else %}{% set category = 'Storm' %}{% set
-                emoji = '🌀' %}{% endif %}{{ emoji }} Winds: {{ peak | round(1)
-                }} {{ state_attr('weather.forecast_home', 'wind_speed_unit') }}
-                ({{ category }}), mostly from {{ direction }}, peaking {{
-                as_datetime(peak_entry.datetime).strftime('%a, %b %d at %I:%M
-                %p') }}.{% else %}🌤️ Winds: N/A{% endif %}
+                avg_bearing = (forecasts | map(attribute='wind_bearing') |
+                list | sum / (forecasts | length)) %}{% set dirs =
+                ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW']
+                %}{% set direction = dirs[((avg_bearing + 11.25) / 22.5) |
+                int % 16] %}{% set unit =
+                state_attr('weather.forecast_home', 'wind_speed_unit') %}{%
+                set L = states.sensor.wind_speed_limits.attributes %}{% if
+                not L %}{% set category = 'Unknown' %}{% set emoji = '❓'
+                %}{% else %}{% set calm = L.calm | float(none) %}{% set
+                breezy = L.breezy | float(none) %}{% set windy = L.windy |
+                float(none) %}{% set strong = L.strong | float(none) %}{% if
+                calm is none or breezy is none or windy is none or strong is
+                none %}{% set category = 'Unknown' %}{% set emoji = '❓' %}{%
+                else %}{% if peak < calm %}{% set category = 'Calm' %}{% set
+                emoji = '🌫️' %}{% elif peak < breezy %}{% set category =
+                'Breezy' %}{% set emoji = '🍃' %}{% elif peak < windy %}{%
+                set category = 'Windy' %}{% set emoji = '🌿' %}{% elif peak
+                < strong %}{% set category = 'Strong' %}{% set emoji = '🌬️'
+                %}{% else %}{% set category = 'Gale' %}{% set emoji = '🌀'
+                %}{% endif %}{% endif %}{% endif %}{{ emoji }} Winds: {{
+                peak | round(1) }} {{ unit }} ({{ category }}), mostly from
+                {{ direction }}, peaking {{
+                as_datetime(peak_entry.datetime).strftime('%a, %b %d at
+                %I:%M %p') }}.{% else %}🌤️ Winds: N/A{% endif %}
         - type: vertical-stack
           cards:
             - type: custom:apexcharts-card
@@ -506,7 +620,7 @@ tabs:
                 yaxis:
                   - id: speed
                     title:
-                      text: Wind Speed (km/h)
+                      text: Wind Speed
                     opposite: false
                   - id: direction
                     title:
@@ -515,132 +629,137 @@ tabs:
                     min: 0
                     max: 360
               series:
-                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                - entity: sensor.hourly_forecasts_full_hourly_forecast
                   name: Speed
                   type: line
                   curve: smooth
                   yaxis_id: speed
                   color: "#0288D1"
                   stroke_width: 2
-                  data_generator: |
-                    return entity.attributes.forecasts.map(f => {
-                      let speed = f.wind_speed;
-                      speed = Math.round(speed * 10) / 10; // round to 1 decimal place
-                      return { x: new Date(f.datetime).getTime(), y: speed };
-                    });
-                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                  data_generator: >
+                    const
+                    forecasts=(entity.attributes&&entity.attributes.forecasts)||[];
+
+                    const data=[];
+
+                    for(const f of forecasts){
+                      let speed=Number(f.wind_speed||0);
+                      speed=Math.round(speed*10)/10;
+                      data.push({x:new Date(f.datetime).getTime(),y:speed});
+                    }
+
+                    return data;
+                - entity: sensor.hourly_forecasts_full_hourly_forecast
                   name: Direction
                   type: line
                   curve: smooth
                   yaxis_id: direction
                   color: "#8E24AA"
                   stroke_width: 1
-                  data_generator: |
-                    return entity.attributes.forecasts.map(f => {
-                      let direction = Math.round(f.wind_bearing); // round to nearest integer
-                      return { x: new Date(f.datetime).getTime(), y: direction };
-                    });
+                  data_generator: >
+                    const
+                    forecasts=(entity.attributes&&entity.attributes.forecasts)||[];
+
+                    const data=[];
+
+                    for(const f of forecasts){
+                      const direction=Math.round(Number(f.wind_bearing||0));
+                      data.push({x:new Date(f.datetime).getTime(),y:direction});
+                    }
+
+                    return data;
             - type: horizontal-stack
               cards:
                 - type: custom:mushroom-template-card
-                  entity: sensor.forecast_wind_speed
+                  entity: sensor.wind_speed_level
                   icon: mdi:weather-windy
                   primary: >
-                    Wind: {{ states('sensor.forecast_wind_speed') }} {{
-                    state_attr('weather.forecast_home', 'wind_speed_unit') }}
+                    {% set s = state_attr('sensor.wind_speed_level',
+                    'speed') %} {% set unit =
+                    state_attr('sensor.wind_speed_level', 'unit') %} Wind:
+                    {{ s }} {{ unit }}
                   secondary: >
-                    {% set s = states('sensor.forecast_wind_speed') | float(0)
-                    %} {% set d = states('sensor.forecast_wind_direction') |
-                    float(0) %} {% if s < 5 %}
-                      Calm - Smooth air
-                    {% elif s < 20 %}
-                      Breezy - Light gusts
-                    {% elif s < 40 %}
-                      Windy - Secure items
-                    {% elif s < 60 %}
-                      Strong - Use caution
+                    {% set level = states('sensor.wind_speed_level') %} {%
+                    set s = state_attr('sensor.wind_speed_level', 'speed') |
+                    float(none) %} {% set dir_label =
+                    states('sensor.wind_direction_level') %} {% set dir_deg
+                    = state_attr('sensor.wind_direction_level', 'bearing') |
+                    float(none) %} {% if level in ['unavailable','unknown']
+                    or s is none %}
+                      Wind data unavailable
                     {% else %}
-                      Gale - Stay indoors
-                    {% endif %} ({{ d | round(0) }}°)
-                  color: >
-                    {% set s = states('sensor.forecast_wind_speed') | float(0)
-                    %} {% if s < 5 %}
-                      green
-                    {% elif s < 20 %}
-                      yellow
-                    {% elif s < 40 %}
-                      orange
-                    {% elif s < 60 %}
-                      red
-                    {% else %}
-                      purple
+                      {% if level == 'Calm' %}
+                        Calm - Smooth air
+                      {% elif level == 'Breezy' %}
+                        Breezy - Light gusts
+                      {% elif level == 'Windy' %}
+                        Windy - Secure items
+                      {% elif level == 'Strong' %}
+                        Strong - Use caution
+                      {% else %}
+                        Gale - Stay indoors
+                      {% endif %}
+                      {% if dir_label not in ['unavailable','unknown'] and dir_deg is not none %}
+                        · {{ dir_label }} ({{ dir_deg | round(0) }}°)
+                      {% endif %}
                     {% endif %}
+                  color: "{{ states('sensor.wind_speed_color') }}"
                   features_position: bottom
   - title: Lunar
     icon: m3of:moon-stars
     card:
       type: vertical-stack
       cards:
-        - type: custom:streamline-card
-          template: title_subtitle_card
-          variables:
-            - title: Lunar Cycle & Visibility
-            - subtitle: >-
-                {% set rise = states('sensor.your_city_moon_rise') %}{% set
-                set_ = states('sensor.your_city_moon_set') %}{% set next_full
-                = states('sensor.your_city_next_full_moon') %}{% set phase =
-                states('sensor.your_city_moon_phase') or 'Unknown' %}{% set
-                phase_emoji = {'New Moon':'🌑','Waxing Crescent':'🌒','First
-                Quarter':'🌓','Waxing Gibbous':'🌔','Full Moon':'🌕','Waning
-                Gibbous':'🌖','Last Quarter':'🌗','Waning Crescent':'🌘'} %}{%
-                set emoji = phase_emoji.get(phase,'🌙') %}{% if rise not in
-                ['unknown','unavailable','none',''] and set_ not in
-                ['unknown','unavailable','none',''] %}{{ emoji }} {{ phase |
-                title }} – rises {{ as_local(as_datetime(rise)).strftime('%I:%M
-                %p') }}, sets {{ as_local(as_datetime(set_)).strftime('%I:%M
-                %p') }}, next 🌕 {{
-                as_local(as_datetime(next_full)).strftime('%a, %b %d') }}.{%
-                else %}🌙 Moon data unavailable{% endif %}
         - type: custom:lunar-phase-card
-          entity: ""
-          12hr_format: true
-          calendar_modal: false
+          entity: zone.home
+          12hr_format: false
+          calendar_modal: true
           compact_view: true
           default_card: base
           hide_buttons: false
-          mile_unit: false
+          mile_unit: true
           moon_position: left
           number_decimals: 2
           selected_language: en
-          show_background: false
+          show_background: true
           southern_hemisphere: false
           use_custom: false
-          use_default: true
-          use_entity: false
+          use_default: false
+          use_entity: true
           graph_config:
             graph_type: default
-            y_ticks: false
-            x_ticks: false
+            y_ticks: true
+            x_ticks: true
             show_time: true
-            show_Temp: true
+            show_current: true
             show_highest: true
             y_ticks_position: left
             y_ticks_step_size: 30
             time_step_size: 30
           font_customize:
-            header_font_size: medium
+            header_font_size: x-large
             header_font_style: capitalize
-            label_font_size: small
+            header_font_color: ""
+            label_font_size: auto
             label_font_style: none
             label_font_color: ""
             hide_label: false
-          latitude: xxx
-          longitude: yyy
+          latitude: 45.3914672
+          longitude: -122.78688778406244
           location:
-            city: ""
-            country: New Zealand
-          custom_background: >-
-            https://cdn.jsdelivr.net/gh/ngocjohn/lunar-phase-card@1.7.3/background/moon_bg_2.png
+            city: Tualatin
+            country: United States
+          theme:
+            selected_theme: Material You
+          hide_items:
+            - altitudeDegrees
+            - azimuthDegress
+            - moonAge
+            - distance
+        - type: custom:sky-tonight-card
+          showSun: false
+          showBelowHorizon: false
+          showConfiguration: false
   - title: Radar
     icon: mdi:radar
     card:
