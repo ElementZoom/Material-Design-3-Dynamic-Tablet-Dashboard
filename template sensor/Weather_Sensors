@@ -1,0 +1,538 @@
+  - trigger:
+      - trigger: event
+        event_type: bubble_card_update_modules
+    sensor:
+      - name: "Bubble Card Modules"
+        state: "saved"
+        icon: "mdi:puzzle"
+        attributes:
+          modules: "{{ trigger.event.data.modules }}"
+          last_updated: "{{ trigger.event.data.last_updated }}"
+          
+  - trigger:
+      - platform: time_pattern
+        minutes: "/15"
+      - platform: homeassistant
+        event: start
+    sensor:
+      - name: "Hourly Weather Data"
+        unique_id: hourly_weather_data_forecast_home
+        state: >
+          {% if forecast['weather.forecast_home'].forecast[0].temperature is defined
+                and forecast['weather.forecast_home'].forecast | length > 0 %}
+            {{ forecast['weather.forecast_home'].forecast[0].datetime }}
+          {% else %}
+            unknown
+          {% endif %}
+        attributes:
+          forecast_data: >
+            {% if forecast['weather.forecast_home'].forecast is defined
+                  and forecast['weather.forecast_home'].forecast | length > 0 %}
+              {{ forecast['weather.forecast_home'].forecast[0] }}
+            {% else %}
+              {}
+            {% endif %}
+
+      - name: "Daily Weather Data"
+        unique_id: daily_weather_data_forecast_home
+        state: >
+          {% if forecast_daily['weather.forecast_home'].forecast[0].temperature is defined
+                and forecast_daily['weather.forecast_home'].forecast | length > 0 %}
+            {{ forecast_daily['weather.forecast_home'].forecast[0].datetime }}
+          {% else %}
+            unknown
+          {% endif %}
+        attributes:
+          forecast_data: >
+            {% if forecast_daily['weather.forecast_home'].forecast is defined
+                  and forecast_daily['weather.forecast_home'].forecast | length > 0 %}
+              {{ forecast_daily['weather.forecast_home'].forecast[0] }}
+            {% else %}
+              {}
+            {% endif %}
+
+      - name: "Hourly Forecasts (Full Hourly Forecast)"
+        unique_id: hourly_forecasts_full_hourly_forecast
+        state: >
+          {% if forecast['weather.forecast_home'].forecast is defined
+                and forecast['weather.forecast_home'].forecast | length > 0 %}
+            {{ as_local(strptime(forecast['weather.forecast_home'].forecast[0].datetime,
+                                 '%Y-%m-%dT%H:%M:%S%z')) }}
+          {% else %}
+            unknown
+          {% endif %}
+        attributes:
+          forecasts: >
+            {% if forecast['weather.forecast_home'].forecast is defined
+                  and forecast['weather.forecast_home'].forecast | length > 0 %}
+              {{ forecast['weather.forecast_home'].forecast }}
+            {% else %}
+              []
+            {% endif %}
+
+      # Forecast UV Index
+      - name: "Forecast UV Index"
+        unique_id: forecast_uv_index
+        state: >
+          {% set data = state_attr('sensor.hourly_forecasts_full_hourly_forecast', 'forecasts') %}
+          {% if data and data[0] is defined %}
+            {{ data[0].uv_index }}
+          {% else %}
+            unknown
+          {% endif %}
+        unit_of_measurement: "UV"
+
+      # Forecast Cloud Coverage
+      - name: "Forecast Cloud Coverage"
+        unique_id: forecast_cloud_coverage
+        state: >
+          {% set data = state_attr('sensor.hourly_forecasts_full_hourly_forecast', 'forecasts') %}
+          {% if data and data[0] is defined %}
+            {{ data[0].cloud_coverage }}
+          {% else %}
+            unknown
+          {% endif %}
+        unit_of_measurement: "%"
+
+      # Forecast Temperature 
+      - name: "Forecast Temperature"
+        unique_id: forecast_temperature
+        state: >
+          {% set data = state_attr('sensor.hourly_forecasts_full_hourly_forecast', 'forecasts') %}
+          {% if data and data[0] is defined %}
+            {{ data[0].temperature }}
+          {% else %}
+            unknown
+          {% endif %}
+        unit_of_measurement: >
+          {% set data = state_attr('sensor.hourly_forecasts_full_hourly_forecast', 'forecasts') %}
+          {% if data and data[0] is defined %}
+            {{ data[0].temperature_unit }}
+          {% else %}
+            unknown
+          {% endif %}
+
+      # Forecast Wind Speed (mph)
+      - name: "Forecast Wind Speed"
+        unique_id: forecast_wind_speed
+        state: >
+          {% set data = state_attr('sensor.hourly_forecasts_full_hourly_forecast', 'forecasts') %}
+          {% if data and data[0] is defined %}
+            {{ data[0].wind_speed }}
+          {% else %}
+            unknown
+          {% endif %}
+        unit_of_measurement: >
+          {% set data = state_attr('sensor.hourly_forecasts_full_hourly_forecast', 'forecasts') %}
+          {% if data and data[0] is defined %}
+            {{ data[0].wind_speed_unit }}
+          {% else %}
+            unknown
+          {% endif %}
+          
+      - name: "Forecast Wind Direction"
+        unique_id: forecast_wind_direction
+        unit_of_measurement: "°"
+        state: >
+          {{ state_attr('weather.forecast_home', 'wind_bearing') }}
+          
+      
+
+    action:
+      - action: weather.get_forecasts
+        target:
+          entity_id: weather.forecast_home
+        data:
+          type: hourly
+        response_variable: forecast
+      - action: weather.get_forecasts
+        target:
+          entity_id: weather.forecast_home
+        data:
+          type: daily
+        response_variable: forecast_daily
+        
+
+        
+
+  - sensor:
+      - name: "Temperature Limits"
+        unique_id: temp_limits
+        state: "set"
+        attributes:
+          unit: >
+            {{ state_attr('weather.forecast_home', 'temperature_unit') or '°F' }}
+
+          # Comfort thresholds
+          cold: >
+            {% if state_attr('weather.forecast_home', 'temperature_unit') == "°F" %} 41 {% else %} 5 {% endif %}
+          cool: >
+            {% if state_attr('weather.forecast_home', 'temperature_unit') == "°F" %} 59 {% else %} 15 {% endif %}
+          mild: >
+            {% if state_attr('weather.forecast_home', 'temperature_unit') == "°F" %} 77 {% else %} 25 {% endif %}
+          warm: >
+            {% if state_attr('weather.forecast_home', 'temperature_unit') == "°F" %} 90 {% else %} 32 {% endif %}
+          hot: 999
+
+          # UI COLOR THRESHOLDS
+          color_1: >
+            {% if state_attr('weather.forecast_home', 'temperature_unit') == "°F" %} 61 {% else %} 16 {% endif %}
+          color_2: >
+            {% if state_attr('weather.forecast_home', 'temperature_unit') == "°F" %} 64 {% else %} 18 {% endif %}
+          color_3: >
+            {% if state_attr('weather.forecast_home', 'temperature_unit') == "°F" %} 72 {% else %} 22 {% endif %}
+          color_4: >
+            {% if state_attr('weather.forecast_home', 'temperature_unit') == "°F" %} 75 {% else %} 24 {% endif %}
+          color_5: >
+            {% if state_attr('weather.forecast_home', 'temperature_unit') == "°F" %} 81 {% else %} 27 {% endif %}
+            
+  - sensor:
+      - name: "Precipitation Limits"
+        unique_id: precip_limits
+        state: "set"
+        attributes:
+          unit: >
+            {{ state_attr('weather.forecast_home', 'precipitation_unit')  }}
+
+          # Category thresholds based on total in next 24h
+          light: >
+            {% if state_attr('weather.forecast_home', 'precipitation_unit') == 'in' %}
+              0.1
+            {% else %}
+              2.5
+            {% endif %}
+          moderate: >
+            {% if state_attr('weather.forecast_home', 'precipitation_unit') == 'in' %}
+              0.3
+            {% else %}
+              7.6
+            {% endif %}
+          heavy: >
+            {% if state_attr('weather.forecast_home', 'precipitation_unit') == 'in' %}
+              1.4
+            {% else %}
+              35
+            {% endif %}
+          # Optional ceiling if you want it
+          very_heavy: 999
+          desc_drizzle: >
+              {% set u = state_attr('weather.forecast_home', 'precipitation_unit') %}
+              {% if u == 'in' %}
+                0.04        {# ~1 mm #}
+              {% elif u == 'mm' %}
+                1
+              {% else %}
+                none
+              {% endif %}
+          desc_moderate: >
+            {% set u = state_attr('weather.forecast_home', 'precipitation_unit') %}
+            {% if u == 'in' %}
+              0.2         {# ~5 mm #}
+            {% elif u == 'mm' %}
+              5
+            {% else %}
+              none
+            {% endif %}
+          desc_heavy: >
+            {% set u = state_attr('weather.forecast_home', 'precipitation_unit') %}
+            {% if u == 'in' %}
+              0.8         {# ~20 mm #}
+            {% elif u == 'mm' %}
+              20
+            {% else %}
+              none
+            {% endif %}
+          desc_intense: 999
+
+# ============================================================= #
+# AQI                                                           #
+# ============================================================= #
+
+# AQI LIMIT CONSTANTS (like temperature_limits, etc.)
+  - sensor:
+      - name: "AQI Limits"
+        unique_id: aqi_limits
+        state: "ok"
+        attributes:
+          good: 50
+          moderate: 100
+          unhealthy: 150
+          very_unhealthy: 200
+          hazardous: 300
+          color_good: "green"
+          color_moderate: "yellow"
+          color_unhealthy: "orange"
+          color_very_unhealthy: "red"
+          color_hazardous: "purple"
+          color_extreme: "brown"
+          
+          
+  - sensor:
+      - name: "Air Quality Level"
+        unique_id: air_quality_level
+        state: >
+          {% set raw = states('sensor.location__air_quality_index') %}
+          {% set invalid = ['unknown','unavailable','none',''] %}
+  
+          {# If the source sensor is truly unavailable #}
+          {% if raw in invalid %}
+            unavailable
+          {% else %}
+            {# Strict numeric parsing #}
+            {% set aqi = raw | float(none) %}
+            {% if aqi is none %}
+              unknown
+            {% else %}
+              {% set L = states.sensor.aqi_limits.attributes %}
+              {% if not L %}
+                unknown
+              {% else %}
+                {% set good = L.good | float(none) %}
+                {% set moderate = L.moderate | float(none) %}
+                {% set unhealthy = L.unhealthy | float(none) %}
+                {% set very_unhealthy = L.very_unhealthy | float(none) %}
+                {% set hazardous = L.hazardous | float(none) %}
+  
+                {% if good is none or moderate is none or unhealthy is none or very_unhealthy is none or hazardous is none %}
+                  unknown
+                {% else %}
+                  {% if aqi <= good %}
+                    Good
+                  {% elif aqi <= moderate %}
+                    Moderate
+                  {% elif aqi <= unhealthy %}
+                    Unhealthy
+                  {% elif aqi <= very_unhealthy %}
+                    Very Unhealthy
+                  {% elif aqi <= hazardous %}
+                    Hazardous
+                  {% else %}
+                    Extreme
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endif %}
+        attributes:
+          aqi: >
+            {% set raw = states('sensor.location__air_quality_index') %}
+            {% set invalid = ['unknown','unavailable','none',''] %}
+            {{ raw if raw not in invalid else none }}
+          pollutant: "{{ states('sensor.location__dominant_pollutant') }}"
+          
+  - sensor:
+      - name: "Air Quality Color"
+        unique_id: air_quality_color
+        state: >
+          {% set level = states('sensor.air_quality_level') %}
+          {% set L = states.sensor.aqi_limits.attributes %}
+  
+          {% if not L %}
+            grey
+          {% elif level in ['unavailable','unknown','none',''] %}
+            grey
+          {% else %}
+            {% if level == 'Good' %}
+              {{ L.color_good }}
+            {% elif level == 'Moderate' %}
+              {{ L.color_moderate }}
+            {% elif level == 'Unhealthy' %}
+              {{ L.color_unhealthy }}
+            {% elif level == 'Very Unhealthy' %}
+              {{ L.color_very_unhealthy }}
+            {% elif level == 'Hazardous' %}
+              {{ L.color_hazardous }}
+            {% elif level == 'Extreme' %}
+              {{ L.color_extreme }}
+            {% else %}
+              grey
+            {% endif %}
+          {% endif %}
+
+# ============================================================= #
+# WIND                                                          #
+# ============================================================= #
+
+  - sensor:
+      - name: "Wind Speed Limits"
+        unique_id: wind_speed_limits
+        state: >
+          {% set u = state_attr('weather.forecast_home', 'wind_speed_unit') %}
+          {% if u in ['km/h', 'mph'] %}
+            ok
+          {% else %}
+            ERROR
+          {% endif %}
+        attributes:
+          unit: "{{ state_attr('weather.forecast_home', 'wind_speed_unit') }}"
+  
+          # Wind thresholds by actual unit reported by weather entity
+          calm: >
+            {% set u = state_attr('weather.forecast_home', 'wind_speed_unit') %}
+            {% if u == 'mph' %}
+              3
+            {% elif u == 'km/h' %}
+              5
+            {% else %}
+              none
+            {% endif %}
+  
+          breezy: >
+            {% set u = state_attr('weather.forecast_home', 'wind_speed_unit') %}
+            {% if u == 'mph' %}
+              12
+            {% elif u == 'km/h' %}
+              20
+            {% else %}
+              none
+            {% endif %}
+  
+          windy: >
+            {% set u = state_attr('weather.forecast_home', 'wind_speed_unit') %}
+            {% if u == 'mph' %}
+              25
+            {% elif u == 'km/h' %}
+              40
+            {% else %}
+              none
+            {% endif %}
+  
+          strong: >
+            {% set u = state_attr('weather.forecast_home', 'wind_speed_unit') %}
+            {% if u == 'mph' %}
+              37
+            {% elif u == 'km/h' %}
+              60
+            {% else %}
+              none
+            {% endif %}
+  
+          # "Gale" threshold is universal — anything above "strong"
+          gale: 999
+  
+          # Colors per band (unit-independent)
+          color_calm: "green"
+          color_breezy: "yellow"
+          color_windy: "orange"
+          color_strong: "red"
+          color_gale: "purple"
+          color_extreme: "purple"
+
+  - sensor:
+      - name: "Wind Direction Level"
+        unique_id: wind_direction_level
+        state: >
+          {% set raw = states('sensor.forecast_wind_direction') %}
+          {% set invalid = ['unknown','unavailable','none',''] %}
+  
+          {% if raw in invalid %}
+            unavailable
+          {% else %}
+            {% set d = raw | float(none) %}
+            {% if d is none %}
+              unknown
+            {% else %}
+              {# Normalize to 0–360 #}
+              {% set d = d % 360 %}
+  
+              {# 16-point compass: 22.5° per sector, centered on N at 0° #}
+              {% set dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S',
+                             'SSW','SW','WSW','W','WNW','NW','NNW'] %}
+              {% set idx = ((d + 11.25) / 22.5) | int %}
+              {{ dirs[idx % 16] }}
+            {% endif %}
+          {% endif %}
+        attributes:
+          bearing: >
+            {% set raw = states('sensor.forecast_wind_direction') %}
+            {% set invalid = ['unknown','unavailable','none',''] %}
+            {% if raw in invalid %}
+              none
+            {% else %}
+              {% set d = raw | float(none) %}
+              {% if d is none %}
+                none
+              {% else %}
+                {{ (d % 360) }}
+              {% endif %}
+            {% endif %}
+  
+          
+  - sensor:
+      - name: "Wind Speed Level"
+        unique_id: wind_speed_level
+        state: >
+          {% set raw = states('sensor.forecast_wind_speed') %}
+          {% set invalid = ['unknown','unavailable','none',''] %}
+  
+          {% if raw in invalid %}
+            unavailable
+          {% else %}
+            {% set s = raw | float(none) %}
+            {% if s is none %}
+              unknown
+            {% else %}
+              {% set L = states.sensor.wind_speed_limits.attributes %}
+              {% if not L %}
+                unknown
+              {% else %}
+                {% set calm = L.calm | float(none) %}
+                {% set breezy = L.breezy | float(none) %}
+                {% set windy = L.windy | float(none) %}
+                {% set strong = L.strong | float(none) %}
+  
+                {% if calm is none or breezy is none or windy is none or strong is none %}
+                  unknown
+                {% else %}
+                  {% if s < calm %}
+                    Calm
+                  {% elif s < breezy %}
+                    Breezy
+                  {% elif s < windy %}
+                    Windy
+                  {% elif s < strong %}
+                    Strong
+                  {% else %}
+                    Gale
+                  {% endif %}
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          {% endif %}
+        attributes:
+          speed: >
+            {% set raw = states('sensor.forecast_wind_speed') %}
+            {% set invalid = ['unknown','unavailable','none',''] %}
+            {{ raw if raw not in invalid else none }}
+          direction: >
+            {% set raw = states('sensor.forecast_wind_direction') %}
+            {% set invalid = ['unknown','unavailable','none',''] %}
+            {{ raw if raw not in invalid else none }}
+          unit: "{{ state_attr('weather.forecast_home', 'wind_speed_unit') }}"
+  
+  - sensor:
+      - name: "Wind Speed Color"
+        unique_id: wind_speed_color
+        state: >
+          {% set level = states('sensor.wind_speed_level') %}
+          {% set L = states.sensor.wind_speed_limits.attributes %}
+  
+          {% if not L %}
+            grey
+          {% elif level in ['unavailable','unknown','none',''] %}
+            grey
+          {% else %}
+            {% if level == 'Calm' %}
+              {{ L.color_calm }}
+            {% elif level == 'Breezy' %}
+              {{ L.color_breezy }}
+            {% elif level == 'Windy' %}
+              {{ L.color_windy }}
+            {% elif level == 'Strong' %}
+              {{ L.color_strong }}
+            {% elif level == 'Gale' %}
+              {{ L.color_gale }}
+            {% else %}
+              grey
+            {% endif %}
+          {% endif %}

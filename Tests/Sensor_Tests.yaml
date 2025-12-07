@@ -1,0 +1,761 @@
+{# Copy into Developer Tools/Template for sensor debugging #}
+
+{# =============================================================== #}
+{# 1. STRICT TEMPERATURE LIMITS TEST — VALIDATES C + F CLASSIFICATION #}
+{# =============================================================== #}
+
+{% set limits = states.sensor.temperature_limits.attributes %}
+
+=== TEMPERATURE LIMITS TEST ===
+{% if not limits %}
+ERROR: temperature_limits attributes not available.
+
+{% else %}
+
+  cold_raw={{ limits.cold }}
+  cool_raw={{ limits.cool }}
+  mild_raw={{ limits.mild }}
+  warm_raw={{ limits.warm }}
+  unit={{ limits.unit }}
+
+  {% set cold_raw = limits.cold %}
+  {% set cool_raw = limits.cool %}
+  {% set mild_raw = limits.mild %}
+  {% set warm_raw = limits.warm %}
+
+  {% if cold_raw is none or cool_raw is none or mild_raw is none or warm_raw is none %}
+ERROR: One or more temperature thresholds are missing:
+cold={{ cold_raw }}, cool={{ cool_raw }}, mild={{ mild_raw }}, warm={{ warm_raw }}
+
+  {% else %}
+
+    {% set cold = cold_raw | float(none) %}
+    {% set cool = cool_raw | float(none) %}
+    {% set mild = mild_raw | float(none) %}
+    {% set warm = warm_raw | float(none) %}
+
+    {% if cold is none or cool is none or mild is none or warm is none %}
+ERROR: One or more thresholds are non-numeric:
+cold={{ cold_raw }}, cool={{ cool_raw }}, mild={{ mild_raw }}, warm={{ warm_raw }}
+
+    {% else %}
+
+Temperature Limits Parsed:
+cold={{ cold }}, cool={{ cool }}, mild={{ mild }}, warm={{ warm }}, unit={{ limits.unit }}
+
+-- Celsius Classification Test (0, 10, 20, 30, 40 °C) --
+{% for t in [0, 10, 20, 30, 40] %}
+T={{ t }}°C →
+  {% if t < cold %}
+    Cold
+  {% elif t < cool %}
+    Cool
+  {% elif t < mild %}
+    Mild
+  {% elif t < warm %}
+    Warm
+  {% else %}
+    Hot
+  {% endif %}
+{% endfor %}
+
+-- Fahrenheit Classification Test (32, 50, 68, 86, 100 °F) --
+{% for t in [32, 50, 68, 86, 100] %}
+T={{ t }}°F →
+  {% if t < cold %}
+    Cold
+  {% elif t < cool %}
+    Cool
+  {% elif t < mild %}
+    Mild
+  {% elif t < warm %}
+    Warm
+  {% else %}
+    Hot
+  {% endif %}
+{% endfor %}
+
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+
+
+{# ============================================================= #}
+{# 2. STRICT PRECIPITATION LIMITS TEST — VALIDATES MM / IN       #}
+{# ============================================================= #}
+
+{% set plimits = states.sensor.precipitation_limits.attributes %}
+
+=== PRECIPITATION LIMITS TEST ===
+{% if not plimits %}
+ERROR: precipitation_limits attributes not available.
+
+{% else %}
+
+Precipitation Limits Raw:
+unit={{ plimits.unit }}
+light_raw={{ plimits.light }}
+moderate_raw={{ plimits.moderate }}
+heavy_raw={{ plimits.heavy }}
+very_heavy_raw={{ plimits.very_heavy }}
+
+  {% set light_raw = plimits.light %}
+  {% set moderate_raw = plimits.moderate %}
+  {% set heavy_raw = plimits.heavy %}
+  {% set very_heavy_raw = plimits.very_heavy %}
+
+  {% if light_raw is none or moderate_raw is none or heavy_raw is none or very_heavy_raw is none %}
+ERROR: One or more precipitation thresholds are missing.
+(light={{ light_raw }}, moderate={{ moderate_raw }}, heavy={{ heavy_raw }}, very_heavy={{ very_heavy_raw }})
+
+  {% else %}
+
+    {% set light = light_raw | float(none) %}
+    {% set moderate = moderate_raw | float(none) %}
+    {% set heavy = heavy_raw | float(none) %}
+    {% set very_heavy = very_heavy_raw | float(none) %}
+
+    {% if light is none or moderate is none or heavy is none or very_heavy is none %}
+ERROR: One or more precipitation thresholds are non-numeric.
+(light={{ light_raw }}, moderate={{ moderate_raw }}, heavy={{ heavy_raw }}, very_heavy={{ very_heavy_raw }})
+
+    {% else %}
+
+Precipitation Limits Parsed:
+light={{ light }}, moderate={{ moderate }}, heavy={{ heavy }}, very_heavy={{ very_heavy }}, unit={{ plimits.unit }}
+
+Sample classification using current unit:
+{% set samples = [0, light - 0.1, light + 0.1, moderate + 0.1, heavy + 0.1, very_heavy + 0.1] %}
+{% for r in samples %}
+  Total={{ r | round(2) }} {{ plimits.unit or '' }} →
+  {% if r == 0 %}
+    None
+  {% elif r < light %}
+    Below "Light" threshold
+  {% elif r < moderate %}
+    Light
+  {% elif r < heavy %}
+    Moderate
+  {% elif r < very_heavy %}
+    Heavy
+  {% else %}
+    Very Heavy+
+  {% endif %}
+{% endfor %}
+
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+
+
+{# ============================================================= #}
+{# 3. FORECAST SENSORS QUICK CHECK                               #}
+{# ============================================================= #}
+
+=== FORECAST SENSORS QUICK CHECK ===
+
+Forecast UV Index: {{ states('sensor.forecast_uv_index') }}
+Forecast Cloud Coverage: {{ states('sensor.forecast_cloud_coverage') }}
+Forecast Temperature: {{ states('sensor.forecast_temperature') }}
+Forecast Wind Speed: {{ states('sensor.forecast_wind_speed') }}
+
+Hourly Forecasts (first entry from sensor.hourly_forecasts_full_hourly_forecast):
+{% set forecasts = state_attr('sensor.hourly_forecasts_full_hourly_forecast', 'forecasts') %}
+{% if forecasts and forecasts[0] is defined %}
+  {{ forecasts[0] }}
+{% else %}
+  No forecasts available.
+{% endif %}
+
+
+
+{# ============================================================= #}
+{# 4. STRICT NEXT RAIN STRING USING PRECIPITATION LIMITS         #}
+{# ============================================================= #}
+
+=== NEXT RAIN STRING TEST (using precipitation_limits) ===
+
+{% set forecasts = state_attr('sensor.hourly_forecasts_full_hourly_forecast','forecasts') %}
+{% if forecasts %}
+  {% set rain_forecasts = forecasts
+       | selectattr('precipitation','defined')
+       | selectattr('precipitation','gt',0)
+       | list %}
+  {% if rain_forecasts | count > 0 %}
+    {% set next_rain = rain_forecasts | first %}
+    {% set raw_val = next_rain.precipitation %}
+    {% set val = raw_val | float(none) %}
+    {% set limits = states.sensor.precipitation_limits.attributes %}
+    {% set unit = state_attr('weather.forecast_home','precipitation_unit') %}
+
+    {% if not limits %}
+ERROR: precipitation_limits not available for next-rain test.
+
+    {% else %}
+      {% set light = limits.light | float(none) %}
+      {% set moderate = limits.moderate | float(none) %}
+      {% set heavy = limits.heavy | float(none) %}
+
+      {% if val is none or light is none or moderate is none or heavy is none %}
+ERROR: Invalid precipitation or thresholds in next-rain test:
+val={{ raw_val }}, light={{ limits.light }}, moderate={{ limits.moderate }}, heavy={{ limits.heavy }}
+
+      {% else %}
+Next-rain summary:
+val={{ val }} {{ unit }}, datetime={{ next_rain.datetime }}
+
+        {% if val < light %}
+          Light · {{ val | round(1) }} {{ unit }} · {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M %p') }}
+        {% elif val < moderate %}
+          Moderate · {{ val | round(1) }} {{ unit }} · {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M %p') }}
+        {% elif val < heavy %}
+          Heavy · {{ val | round(1) }} {{ unit }} · {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M %p') }}
+        {% else %}
+          Very heavy · {{ val | round(1) }} {{ unit }} · {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M %p') }}
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  {% else %}
+    No rain today.
+  {% endif %}
+{% else %}
+  N/A (no hourly forecasts)
+{% endif %}
+
+
+
+{# ============================================================= #}
+{# 5. STRICT TEMPERATURE COLOR BAND TEST                         #}
+{# ============================================================= #}
+
+=== TEMPERATURE COLOR BAND TEST ===
+
+{% set tlimits = states.sensor.temperature_limits.attributes %}
+
+{% if not tlimits %}
+ERROR: temperature_limits attributes not available for color test.
+
+{% else %}
+
+Temperature Color Raw:
+unit={{ tlimits.unit }}
+color_1_raw={{ tlimits.color_1 }}
+color_2_raw={{ tlimits.color_2 }}
+color_3_raw={{ tlimits.color_3 }}
+color_4_raw={{ tlimits.color_4 }}
+color_5_raw={{ tlimits.color_5 }}
+
+  {% set c1_raw = tlimits.color_1 %}
+  {% set c2_raw = tlimits.color_2 %}
+  {% set c3_raw = tlimits.color_3 %}
+  {% set c4_raw = tlimits.color_4 %}
+  {% set c5_raw = tlimits.color_5 %}
+
+  {% if c1_raw is none or c2_raw is none or c3_raw is none or c4_raw is none or c5_raw is none %}
+ERROR: One or more temperature color thresholds are missing.
+(c1={{ c1_raw }}, c2={{ c2_raw }}, c3={{ c3_raw }}, c4={{ c4_raw }}, c5={{ c5_raw }})
+
+  {% else %}
+
+    {% set c1 = c1_raw | float(none) %}
+    {% set c2 = c2_raw | float(none) %}
+    {% set c3 = c3_raw | float(none) %}
+    {% set c4 = c4_raw | float(none) %}
+    {% set c5 = c5_raw | float(none) %}
+
+    {% if c1 is none or c2 is none or c3 is none or c4 is none or c5 is none %}
+ERROR: One or more color thresholds are non-numeric.
+(c1={{ c1_raw }}, c2={{ c2_raw }}, c3={{ c3_raw }}, c4={{ c4_raw }}, c5={{ c5_raw }})
+
+    {% else %}
+
+Temperature Color Thresholds Parsed:
+unit={{ tlimits.unit }}, c1={{ c1 }}, c2={{ c2 }}, c3={{ c3 }}, c4={{ c4 }}, c5={{ c5 }}
+
+Example color band classification near each band:
+{% set samples = [c1 - 1, c1 + 0.1, c2 + 0.1, c3 + 0.1, c4 + 0.1, c5 + 0.1] %}
+{% for t in samples %}
+  T={{ t | round(1) }} {{ tlimits.unit or '' }} →
+  {% if t < c1 %}
+    Band 1 (coldest color)
+  {% elif t < c2 %}
+    Band 2
+  {% elif t < c3 %}
+    Band 3
+  {% elif t < c4 %}
+    Band 4
+  {% elif t < c5 %}
+    Band 5
+  {% else %}
+    Band 6+ (hottest color)
+  {% endif %}
+{% endfor %}
+
+Current temperature classification:
+{% set raw_current = state_attr('weather.forecast_home', 'temperature') %}
+{% set current = raw_current | float(none) %}
+current_raw={{ raw_current }}
+
+{% if current is none %}
+ERROR: Current temperature is non-numeric: {{ raw_current }}
+{% else %}
+  {% if current < c1 %}
+    Current band: 1
+  {% elif current < c2 %}
+    Current band: 2
+  {% elif current < c3 %}
+    Current band: 3
+  {% elif current < c4 %}
+    Current band: 4
+  {% elif current < c5 %}
+    Current band: 5
+  {% else %}
+    Current band: 6+
+  {% endif %}
+{% endif %}
+
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+
+
+{# ============================================================= #}
+{# 6. AQI LIMITS TEST — VALIDATES THRESHOLDS AND COLOR CONSTANTS #}
+{# ============================================================= #}
+
+{% set A = states.sensor.aqi_limits.attributes %}
+
+=== AQI LIMITS TEST ===
+{% if not A %}
+ERROR: aqi_limits attributes not available.
+
+{% else %}
+
+AQI Limits Raw:
+good_raw={{ A.good }}
+moderate_raw={{ A.moderate }}
+unhealthy_raw={{ A.unhealthy }}
+very_unhealthy_raw={{ A.very_unhealthy }}
+hazardous_raw={{ A.hazardous }}
+color_good_raw={{ A.color_good }}
+color_moderate_raw={{ A.color_moderate }}
+color_unhealthy_raw={{ A.color_unhealthy }}
+color_very_unhealthy_raw={{ A.color_very_unhealthy }}
+color_hazardous_raw={{ A.color_hazardous }}
+color_extreme_raw={{ A.color_extreme }}
+
+  {% set good_raw = A.good %}
+  {% set moderate_raw = A.moderate %}
+  {% set unhealthy_raw = A.unhealthy %}
+  {% set very_unhealthy_raw = A.very_unhealthy %}
+  {% set hazardous_raw = A.hazardous %}
+
+  {% if good_raw is none or moderate_raw is none or unhealthy_raw is none or very_unhealthy_raw is none or hazardous_raw is none %}
+ERROR: One or more numeric AQI thresholds are missing.
+(good={{ good_raw }}, moderate={{ moderate_raw }}, unhealthy={{ unhealthy_raw }}, very_unhealthy={{ very_unhealthy_raw }}, hazardous={{ hazardous_raw }})
+
+  {% else %}
+
+    {% set good = good_raw | float(none) %}
+    {% set moderate = moderate_raw | float(none) %}
+    {% set unhealthy = unhealthy_raw | float(none) %}
+    {% set very_unhealthy = very_unhealthy_raw | float(none) %}
+    {% set hazardous = hazardous_raw | float(none) %}
+
+    {% if good is none or moderate is none or unhealthy is none or very_unhealthy is none or hazardous is none %}
+ERROR: One or more numeric AQI thresholds are non-numeric.
+(good={{ good_raw }}, moderate={{ moderate_raw }}, unhealthy={{ unhealthy_raw }}, very_unhealthy={{ very_unhealthy_raw }}, hazardous={{ hazardous_raw }})
+
+    {% else %}
+
+AQI Limits Parsed:
+good={{ good }}, moderate={{ moderate }}, unhealthy={{ unhealthy }}, very_unhealthy={{ very_unhealthy }}, hazardous={{ hazardous }}
+
+Example AQI classification:
+{% set samples = [0, 25, 50, 75, 125, 175, 250, 350] %}
+{% for aqi in samples %}
+  AQI={{ aqi }} →
+  {% if aqi <= good %}
+    Good
+  {% elif aqi <= moderate %}
+    Moderate
+  {% elif aqi <= unhealthy %}
+    Unhealthy
+  {% elif aqi <= very_unhealthy %}
+    Very Unhealthy
+  {% elif aqi <= hazardous %}
+    Hazardous
+  {% else %}
+    Extreme
+  {% endif %}
+{% endfor %}
+
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+
+
+{# ============================================================= #}
+{# 7. AIR QUALITY LEVEL TEST — VALIDATES CLASSIFICATION VS LIMITS #}
+{# ============================================================= #}
+
+=== AIR QUALITY LEVEL TEST ===
+
+{% set raw_aqi = states('sensor.tualatin_i_5_roadway_oregon_usa_air_quality_index') %}
+Current raw AQI sensor value: {{ raw_aqi }}
+
+{% set level_state = states('sensor.air_quality_level') %}
+Air Quality Level sensor state: {{ level_state }}
+
+{% set L_aqi = states.sensor.aqi_limits.attributes %}
+{% if not L_aqi %}
+ERROR: aqi_limits not available; cannot validate air_quality_level.
+
+{% else %}
+
+  {% if raw_aqi in ['unknown','unavailable','none',''] %}
+Source AQI unavailable; air_quality_level should be 'unavailable' or 'unknown'.
+
+  {% else %}
+
+    {% set aqi = raw_aqi | float(none) %}
+    {% if aqi is none %}
+ERROR: AQI source is non-numeric: {{ raw_aqi }}
+
+    {% else %}
+
+      {% set good = L_aqi.good | float(none) %}
+      {% set moderate = L_aqi.moderate | float(none) %}
+      {% set unhealthy = L_aqi.unhealthy | float(none) %}
+      {% set very_unhealthy = L_aqi.very_unhealthy | float(none) %}
+      {% set hazardous = L_aqi.hazardous | float(none) %}
+
+      {% if good is none or moderate is none or unhealthy is none or very_unhealthy is none or hazardous is none %}
+ERROR: One or more AQI thresholds invalid in limits.
+(good={{ L_aqi.good }}, moderate={{ L_aqi.moderate }}, unhealthy={{ L_aqi.unhealthy }}, very_unhealthy={{ L_aqi.very_unhealthy }}, hazardous={{ L_aqi.hazardous }})
+
+      {% else %}
+
+        {% set expected =
+          'Good' if aqi <= good
+          else 'Moderate' if aqi <= moderate
+          else 'Unhealthy' if aqi <= unhealthy
+          else 'Very Unhealthy' if aqi <= very_unhealthy
+          else 'Hazardous' if aqi <= hazardous
+          else 'Extreme'
+        %}
+
+Computed expected level from AQI: {{ expected }}
+
+        {% if level_state not in ['unavailable','unknown'] and level_state != expected %}
+ERROR: Mismatch between air_quality_level and expected classification.
+level_state={{ level_state }}, expected={{ expected }}, AQI={{ aqi }}
+        {% endif %}
+
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+
+
+{# ============================================================= #}
+{# 8. AIR QUALITY COLOR TEST — VALIDATES COLOR VS LIMITS & LEVEL #}
+{# ============================================================= #}
+
+=== AIR QUALITY COLOR TEST ===
+
+{% set raw_aqi = states('sensor.tualatin_i_5_roadway_oregon_usa_air_quality_index') %}
+Current raw AQI sensor value: {{ raw_aqi }}
+
+{% set color_state = states('sensor.air_quality_color') %}
+Air Quality Color sensor state: {{ color_state }}
+
+{% set L2 = states.sensor.aqi_limits.attributes %}
+{% if not L2 %}
+ERROR: aqi_limits not available; cannot validate air_quality_color.
+
+{% else %}
+
+  {% if raw_aqi in ['unknown','unavailable','none',''] %}
+Source AQI unavailable; air_quality_color should likely be 'grey'.
+
+  {% else %}
+
+    {% set aqi = raw_aqi | float(none) %}
+    {% if aqi is none %}
+ERROR: AQI source is non-numeric: {{ raw_aqi }}
+
+    {% else %}
+
+      {% set good = L2.good | float(none) %}
+      {% set moderate = L2.moderate | float(none) %}
+      {% set unhealthy = L2.unhealthy | float(none) %}
+      {% set very_unhealthy = L2.very_unhealthy | float(none) %}
+      {% set hazardous = L2.hazardous | float(none) %}
+
+      {% if good is none or moderate is none or unhealthy is none or very_unhealthy is none or hazardous is none %}
+ERROR: One or more AQI thresholds invalid in limits for color test.
+(good={{ L2.good }}, moderate={{ L2.moderate }}, unhealthy={{ L2.unhealthy }}, very_unhealthy={{ L2.very_unhealthy }}, hazardous={{ L2.hazardous }})
+
+      {% else %}
+
+        {% set expected_color =
+          L2.color_good if aqi <= good
+          else L2.color_moderate if aqi <= moderate
+          else L2.color_unhealthy if aqi <= unhealthy
+          else L2.color_very_unhealthy if aqi <= very_unhealthy
+          else L2.color_hazardous if aqi <= hazardous
+          else L2.color_extreme
+        %}
+
+Computed expected color: {{ expected_color }}
+
+        {% if color_state not in ['grey','unavailable','unknown'] and color_state != expected_color %}
+ERROR: Mismatch between air_quality_color and expected color.
+color_state={{ color_state }}, expected={{ expected_color }}, AQI={{ aqi }}
+        {% endif %}
+
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+{# ============================================================= #}
+{# 9. WIND SPEED LIMITS TEST                                     #}
+{# ============================================================= #}
+
+{% set W = states.sensor.wind_speed_limits.attributes %}
+
+=== WIND SPEED LIMITS TEST ===
+{% if not W %}
+ERROR: wind_speed_limits attributes not available.
+
+{% else %}
+
+Wind Speed Limits Raw:
+unit={{ W.unit }}
+calm_raw={{ W.calm }}
+breezy_raw={{ W.breezy }}
+windy_raw={{ W.windy }}
+strong_raw={{ W.strong }}
+gale_raw={{ W.gale }}
+color_calm_raw={{ W.color_calm }}
+color_breezy_raw={{ W.color_breezy }}
+color_windy_raw={{ W.color_windy }}
+color_strong_raw={{ W.color_strong }}
+color_gale_raw={{ W.color_gale }}
+color_extreme_raw={{ W.color_extreme }}
+
+  {% set calm_raw = W.calm %}
+  {% set breezy_raw = W.breezy %}
+  {% set windy_raw = W.windy %}
+  {% set strong_raw = W.strong %}
+
+  {% if calm_raw is none or breezy_raw is none or windy_raw is none or strong_raw is none %}
+ERROR: One or more wind thresholds are missing.
+(calm={{ calm_raw }}, breezy={{ breezy_raw }}, windy={{ windy_raw }}, strong={{ strong_raw }})
+
+  {% else %}
+
+    {% set calm = calm_raw | float(none) %}
+    {% set breezy = breezy_raw | float(none) %}
+    {% set windy = windy_raw | float(none) %}
+    {% set strong = strong_raw | float(none) %}
+
+    {% if calm is none or breezy is none or windy is none or strong is none %}
+ERROR: One or more wind thresholds are non-numeric.
+(calm={{ calm_raw }}, breezy={{ breezy_raw }}, windy={{ windy_raw }}, strong={{ strong_raw }})
+
+    {% else %}
+
+Wind Speed Limits Parsed:
+calm={{ calm }}, breezy={{ breezy }}, windy={{ windy }}, strong={{ strong }}, unit={{ W.unit }}
+
+Example wind classification (using thresholds):
+{% set samples = [0, 3, 10, 30, 50, 80] %}
+{% for s in samples %}
+  Speed={{ s }} {{ W.unit or '' }} →
+  {% if s < calm %}
+    Calm
+  {% elif s < breezy %}
+    Breezy
+  {% elif s < windy %}
+    Windy
+  {% elif s < strong %}
+    Strong
+  {% else %}
+    Gale
+  {% endif %}
+{% endfor %}
+
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+{# ============================================================= #}
+{# 10. WIND SPEED LEVEL TEST — VALIDATES VS LIMITS               #}
+{# ============================================================= #}
+
+=== WIND SPEED LEVEL TEST ===
+
+{% set raw_speed = states('sensor.forecast_wind_speed') %}
+Current raw forecast_wind_speed: {{ raw_speed }}
+
+{% set level_state = states('sensor.wind_speed_level') %}
+Wind Speed Level sensor state: {{ level_state }}
+
+{% set W2 = states.sensor.wind_speed_limits.attributes %}
+{% if not W2 %}
+ERROR: wind_speed_limits not available; cannot validate wind_speed_level.
+
+{% else %}
+
+  {% if raw_speed in ['unknown','unavailable','none',''] %}
+Source wind speed unavailable; wind_speed_level should be 'unavailable' or 'unknown'.
+
+  {% else %}
+
+    {% set s = raw_speed | float(none) %}
+    {% if s is none %}
+ERROR: forecast_wind_speed is non-numeric: {{ raw_speed }}
+
+    {% else %}
+
+      {% set calm = W2.calm | float(none) %}
+      {% set breezy = W2.breezy | float(none) %}
+      {% set windy = W2.windy | float(none) %}
+      {% set strong = W2.strong | float(none) %}
+
+      {% if calm is none or breezy is none or windy is none or strong is none %}
+ERROR: One or more wind thresholds invalid in limits.
+(calm={{ W2.calm }}, breezy={{ W2.breezy }}, windy={{ W2.windy }}, strong={{ W2.strong }})
+
+      {% else %}
+
+        {% set expected =
+          'Calm' if s < calm
+          else 'Breezy' if s < breezy
+          else 'Windy' if s < windy
+          else 'Strong' if s < strong
+          else 'Gale'
+        %}
+
+Computed expected wind level: {{ expected }}
+
+        {% if level_state not in ['unavailable','unknown'] and level_state != expected %}
+ERROR: Mismatch between wind_speed_level and expected classification.
+level_state={{ level_state }}, expected={{ expected }}, speed={{ s }} {{ W2.unit }}
+        {% endif %}
+
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+{# ============================================================= #}
+{# 11. WIND SPEED COLOR TEST — VALIDATES COLOR VS LEVEL & LIMITS #}
+{# ============================================================= #}
+
+=== WIND SPEED COLOR TEST ===
+
+{% set color_state = states('sensor.wind_speed_color') %}
+Wind Speed Color sensor state: {{ color_state }}
+
+{% set level_state = states('sensor.wind_speed_level') %}
+Wind Speed Level sensor state: {{ level_state }}
+
+{% set W3 = states.sensor.wind_speed_limits.attributes %}
+{% if not W3 %}
+ERROR: wind_speed_limits not available; cannot validate wind_speed_color.
+
+{% else %}
+
+  {% if level_state in ['unavailable','unknown','none',''] %}
+Level unavailable; wind_speed_color should likely be 'grey'.
+
+  {% else %}
+
+    {% set expected_color =
+      W3.color_calm if level_state == 'Calm'
+      else W3.color_breezy if level_state == 'Breezy'
+      else W3.color_windy if level_state == 'Windy'
+      else W3.color_strong if level_state == 'Strong'
+      else W3.color_gale if level_state == 'Gale'
+      else 'grey'
+    %}
+
+Computed expected wind color: {{ expected_color }}
+
+    {% if color_state not in ['grey','unavailable','unknown'] and color_state != expected_color %}
+ERROR: Mismatch between wind_speed_color and expected color.
+color_state={{ color_state }}, expected={{ expected_color }}, level={{ level_state }}
+    {% endif %}
+
+  {% endif %}
+{% endif %}
+
+
+{# ============================================================= #}
+{# 12. WIND DIRECTION LEVEL TEST — VALIDATES COMPASS MAPPING     #}
+{# ============================================================= #}
+
+=== WIND DIRECTION LEVEL TEST ===
+
+{% set raw_dir = states('sensor.forecast_wind_direction') %}
+Current raw forecast_wind_direction: {{ raw_dir }}
+
+{% set level_state = states('sensor.wind_direction_level') %}
+Wind Direction Level sensor state: {{ level_state }}
+
+{% set bearing_attr = state_attr('sensor.wind_direction_level', 'bearing') %}
+
+Wind Direction Level bearing attribute (raw): {{ bearing_attr }}
+
+{% set invalid = ['unknown','unavailable','none',''] %}
+
+{% if raw_dir in invalid %}
+Source wind direction unavailable; wind_direction_level should be 'unavailable' or 'unknown'.
+
+{% else %}
+
+  {% set d = raw_dir | float(none) %}
+  {% if d is none %}
+ERROR: forecast_wind_direction is non-numeric: {{ raw_dir }}
+
+  {% else %}
+    {# Normalize degrees to 0–360 #}
+    {% set d_norm = d % 360 %}
+
+    {# 16-point compass: 22.5° per sector, centered on N at 0° #}
+    {% set dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S',
+                   'SSW','SW','WSW','W','WNW','NW','NNW'] %}
+    {% set idx = ((d_norm + 11.25) / 22.5) | int %}
+    {% set expected_dir = dirs[idx % 16] %}
+
+Computed expected direction label: {{ expected_dir }}
+Normalized degrees: {{ d_norm }}
+
+    {# Compare state vs expected label #}
+    {% if level_state not in ['unavailable','unknown'] and level_state != expected_dir %}
+ERROR: Mismatch between wind_direction_level state and expected label.
+level_state={{ level_state }}, expected={{ expected_dir }}, raw_degrees={{ d }}, norm_degrees={{ d_norm }}
+    {% endif %}
+
+    {# Compare bearing attribute vs normalized degrees #}
+    {% set b = bearing_attr | float(none) %}
+    {% if b is none %}
+WARNING: wind_direction_level.bearing is not numeric or missing: {{ bearing_attr }}
+    {% else %}
+      {% if (b - d_norm) | abs > 0.5 %}
+ERROR: Bearing attribute does not match normalized direction.
+bearing={{ b }}, expected_norm={{ d_norm }}
+      {% endif %}
+    {% endif %}
+
+  {% endif %}
+{% endif %}
