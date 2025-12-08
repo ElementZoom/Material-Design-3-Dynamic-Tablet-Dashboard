@@ -133,8 +133,9 @@ Card Related Stuffs:
 - [Button-Card](https://github.com/custom-cards/button-card)
 - [Calendar Card Pro](https://github.com/alexpfau/calendar-card-pro)
 - [LLM Vision Card](https://github.com/valentinfrlch/llmvision-card)
+- [Mediocre Hass Media Player Cards](https://github.com/antontanderup/mediocre-hass-media-player-cards)
 - [Mini-Graph-Card](https://github.com/kalkih/mini-graph-card)
-- [Mushroomn](https://github.com/piitaya/lovelace-mushroom)
+- [Mushroom](https://github.com/piitaya/lovelace-mushroom)
 - [Navbar Card](https://github.com/joseluis9595/lovelace-navbar-card)
 - [Simple Swipe Card](https://github.com/nutteloost/simple-swipe-card)
 - [Simple Tabs Card](https://github.com/agoberg85/home-assistant-simple-tabs)
@@ -146,7 +147,7 @@ Weather Related:
 - [Lunar Phase Card](https://github.com/ngocjohn/lunar-phase-card)
 - [Lunar Phase Integration](https://github.com/ngocjohn/lunar-phase)
 - [World's Air Quality Index](https://www.home-assistant.io/integrations/waqi/)
-- [Weather Card Extended](https://github.com/Thyraz/weather-forecast-extended) - new in v3.3.0
+- [Weather Card Extended](https://github.com/Thyraz/weather-forecast-extended)
 - [Clock Weather Card HUI Icons](https://github.com/pkissling/clock-weather-card)
 
 Theming / ETC:
@@ -168,8 +169,8 @@ Theming / ETC:
 
 # Installation
 
-- I recommend you to save all of the [streamline_templates](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/streamline_templates%20collection) I've created and to remove the one you don't end up using.
-- Choose which card that you want to adapt to your installation by clicking the hyperlink provided in the description above.
+- Save all (optional) of the [streamline_templates](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/streamline_templates%20collection) I've created and to remove the one you don't end up using.
+- Choose which card / visuals that you like to be added to your installation by clicking the hyperlink provided in the description above.
 - Install the required HACS components (such as simple swipe card, stack-in-card, popup-card, etc. - see your setup for what’s needed).
 - To unlock the full functionality (like weather icons, notification counts, and more), you’ll need to add the corresponding [sensors](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/tree/main/template%20sensor) to your config.
 - For the Hue scene, you'll need to have the automation, scripts, input boolean, input text, and input number in your system that you can find in [hue asset folder](https://github.com/ElementZoom/Material-Design-3-Dynamic-Mobile-Dashboard/tree/main/hue%20asset). For the images, you can get them from [here](https://github.com/Hypfer/hass-scene_presets/blob/master/custom_components/scene_presets/assets/Readme.md).
@@ -189,7 +190,6 @@ This project builds upon the work of:
 - Nerwyn – [Material You Theme](https://github.com/Nerwyn/material-you-theme) & [Material You Utilities](https://github.com/Nerwyn/material-you-utilities)
 - [MySmartHome](https://www.youtube.com/@My_Smart_Home) - for the new tabs button, button cards styling, sliders, etc
 - Other community members who kindly shared their cards
-- [Background Creator](https://www.pexels.com/photo/a-blurry-background-7640905)
 
 # 💖 Support My Work  
 
