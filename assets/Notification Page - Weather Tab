@@ -4,6 +4,83 @@ active-background: var(--md-sys-color-tertiary)
 active-text-color: var(--md-sys-color-on-tertiary)
 text-color: var(--primary-text-color)
 tabs:
+  - title: Volcano
+    icon: m3of:mountain-steam
+    conditions:
+      - condition: template
+        template: |
+          {{ states('sensor.volcano_rotorua') | float(0) > 0 }}
+    card:
+      type: markdown
+      content: >
+        {{ state_attr('sensor.volcano_taupo', 'activity') | default('No
+        warnings') }}
+
+
+        _Issued: {{
+          as_datetime(state_attr('sensor.volcano_taupo', 'feed_last_update_successful')).astimezone().strftime('%I:%M%p %A, %d %b')
+        }}_
+      text_only: true
+  - title: Earthquake
+    icon: m3of:earthquake
+    conditions:
+      - condition: template
+        template: >
+          {{ states('sensor.geonet_nz_quakes_37_6421739_175_527482') | float(0)
+          > 0 }}
+    card:
+      type: vertical-stack
+      cards:
+        - type: custom:streamline-card
+          template: title_card
+          variables:
+            - title: Latest Earthquake
+        - type: markdown
+          content: >
+
+            {% set sensor = states.geo_location |
+            selectattr('attributes.source', 'defined') |
+            selectattr('attributes.source', 'eq', 'geonetnz_quakes') |
+            sort(attribute='last_updated', reverse=true) | list | first %}
+
+            {% if sensor %}
+
+            **Locality:** {{ sensor.attributes.locality }}  
+
+            **Magnitude:** {{ sensor.attributes.magnitude | round(2) }}
+
+            **Depth:** {{ sensor.attributes.depth }} km  
+
+            **Time:** {{ as_timestamp(sensor.attributes.time) |
+            timestamp_custom('%a, %b %-d at %I:%M %p') }}  
+
+            {% else %}
+
+            No recent earthquakes detected
+
+            {% endif %}
+  - title: Warning
+    icon: m3of:warning
+    conditions:
+      - condition: template
+        template: >
+          {{ states('sensor.home_metservice_weather_warnings') not in
+          ['unavailable', 'unknown'] }}
+    card:
+      type: vertical-stack
+      cards:
+        - type: custom:streamline-card
+          template: title_card
+          variables:
+            - title: Weather Warning
+        - type: markdown
+          content: >2-
+
+              {{ state_attr('sensor.home_metservice_weather_warnings', 'warnings') | default('No warnings') }}
+
+            _Issued: {{
+            states.sensor.home_metservice_weather_warnings.last_changed.strftime('%I:%M%p
+            %A, %d %b') }}_
   - title: Forecast
     icon: mdi:weather-partly-cloudy
     card:
@@ -15,53 +92,48 @@ tabs:
             - title: Weather Forecast
             - subtitle: >-
                 {% set forecasts =
-                state_attr('sensor.met_no_hourly_forecasts_full_hourly_forecast','forecasts')
+                state_attr('sensor.google_weather_hourly_forecasts_full_hourly_forecast','forecasts')
                 %}{% if forecasts %}{% set rain_forecasts = forecasts |
                 selectattr('precipitation','defined') |
                 selectattr('precipitation','gt',0) | list %}{% if rain_forecasts
                 | count > 0 %}{% set next_rain = rain_forecasts | first %}{% set
                 val = next_rain.precipitation | float %}{% if val < 2.5 %}🌦️
-                Light · {{ val | round(1) }} {{
-                state_attr('weather.forecast_home', 'precipitation_unit') }} ·
-                {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
+                Light · {{ val | round(1) }} {{ state_attr('weather.home',
+                'precipitation_unit') }} · {{
+                as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
                 %p') }}{% elif val < 7.6 %}🌧️ Moderate · {{ val | round(1) }}
-                {{ state_attr('weather.forecast_home', 'precipitation_unit') }}
-                · {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at
-                %I:%M %p') }}{% elif val < 35 %}⛈️ Heavy · {{ val | round(1) }}
-                {{ state_attr('weather.forecast_home', 'precipitation_unit') }}
-                · {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at
-                %I:%M %p') }}{% else %}⛈️ Very heavy · {{ val | round(1) }} {{
-                state_attr('weather.forecast_home', 'precipitation_unit') }} ·
-                {{ as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
+                {{ state_attr('weather.home', 'precipitation_unit') }} · {{
+                as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
+                %p') }}{% elif val < 35 %}⛈️ Heavy · {{ val | round(1) }} {{
+                state_attr('weather.home', 'precipitation_unit') }} · {{
+                as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
+                %p') }}{% else %}⛈️ Very heavy · {{ val | round(1) }} {{
+                state_attr('weather.home', 'precipitation_unit') }} · {{
+                as_datetime(next_rain.datetime).strftime('%a, %b %d at %I:%M
                 %p') }}{% endif %}{% else %}🌤️ No rain today{% endif %}{% else
                 %}🌤️ N/A{% endif %}
         - type: vertical-stack
           cards:
             - type: custom:weather-forecast-extended-card
-              entity: weather.forecast_home
+              entity: weather.home
         - type: horizontal-stack
           cards:
             - type: custom:mushroom-template-card
               entity: sensor.daily_weather_data_met_no
               icon: mdi:thermometer
               primary: >
-                {% set current = state_attr('weather.forecast_home',
-                'temperature') %}
+                {% set current = state_attr('weather.home', 'temperature') %}
 
-                Temp: {{ current }} {{       state_attr('weather.forecast_home',
+                Temp: {{ current }} {{ state_attr('weather.home',
                 'temperature_unit') }}
-              secondary: >
-                {% set forecast = state_attr('sensor.daily_weather_data_met_no',
-                'forecast_data') %} {% if forecast is defined %}
-                  {% set low = forecast.templow if forecast.templow is defined else 'N/A' %}
-                  {% set high = forecast.temperature if forecast.temperature is defined else 'N/A' %}
-                  Low: {{ low }} {{       state_attr('weather.forecast_home', 'temperature_unit') }} - High: {{ high }} {{       state_attr('weather.forecast_home', 'temperature_unit') }}
-                {% else %}
-                  Low: N/A - High: N/A
-                {% endif %}
+              secondary: >-
+                High: {{ states('sensor.home_max_temperature_24h') }} {{
+                state_attr('weather.home','temperature_unit') }} - Low: {{
+                states('sensor.home_min_temperature_24h') }} {{
+                state_attr('weather.home','temperature_unit') }}
               color: >
-                {% set current = state_attr('weather.forecast_home',
-                'temperature') | float(0) %} {% if current < 16 %}
+                {% set current = state_attr('weather.home', 'temperature') |
+                float(0) %} {% if current < 16 %}
                   #CEB2F5
                 {% elif current < 18 %}
                   #5EBDEE
@@ -77,14 +149,14 @@ tabs:
               features_position: bottom
               multiline_secondary: true
             - type: custom:mushroom-template-card
-              entity: sensor.your_city_college_new_zealand_air_quality_index
+              entity: sensor.your_city_air_quality_index
               icon: mdi:leaf
               primary: Air Quality
               secondary: >-
                 {% set aqi =
-                states('sensor.your_city_college_new_zealand_air_quality_index')
+                states('sensor.your_city_air_quality_index')
                 %} {% set pollutant =
-                states('sensor.your_city_college_new_zealand_dominant_pollutant')
+                states('sensor.your_city_dominant_pollutant')
                 %} {% if aqi not in ['unknown','unavailable','none',''] %}
                   {% set aqi = aqi | int %}
                   {% set level = ('Good' if aqi <= 50 else 'Moderate' if aqi <= 100 else 'Unhealthy' if aqi <= 150 else 'Very Unhealthy' if aqi <= 200 else 'Hazardous') %}
@@ -94,7 +166,7 @@ tabs:
                 {% endif %}
               color: >
                 {% set aqi =
-                states('sensor.your_city_college_new_zealand_air_quality_index')
+                states('sensor.your_city_air_quality_index')
                 %} {% if aqi not in ['unknown','unavailable','none',''] %}
                   {% set aqi = aqi | int %}
                   {% if aqi <= 50 %} green
@@ -120,7 +192,7 @@ tabs:
             - title: Rainfall & Temperature Forecast
             - subtitle: >-
                 {% set forecasts =
-                state_attr('sensor.met_no_hourly_forecasts_full_hourly_forecast','forecasts')
+                state_attr('sensor.google_weather_hourly_forecasts_full_hourly_forecast','forecasts')
                 %}{% if forecasts %}{% set values = forecasts |
                 map(attribute='precipitation') | map('float') | list %}{% set
                 total = values | sum %}{% set peak = values | max %}{% set
@@ -132,11 +204,11 @@ tabs:
                 total < 35 %}{% set category = 'Heavy' %}{% set emoji = '⛈️'
                 %}{% else %}{% set category = 'Very heavy' %}{% set emoji = '🌊'
                 %}{% endif %}{{ emoji }} Rainfall: {{ total | round(1) }} {{
-                state_attr('weather.forecast_home', 'precipitation_unit') }} ({{
-                category }}), peaking {{ peak | round(1) }} {{
-                state_attr('weather.forecast_home', 'precipitation_unit') }}/hr
-                on {{ as_datetime(peak_entry.datetime).strftime('%a, %b %d at
-                %I:%M %p') }}.{% endif %}{% else %}🌤️ Rainfall: N/A{% endif %}
+                state_attr('weather.home', 'precipitation_unit') }} ({{ category
+                }}), peaking {{ peak | round(1) }} {{ state_attr('weather.home',
+                'precipitation_unit') }}/hr on {{
+                as_datetime(peak_entry.datetime).strftime('%a, %b %d at %I:%M
+                %p') }}.{% endif %}{% else %}🌤️ Rainfall: N/A{% endif %}
         - type: vertical-stack
           cards:
             - type: custom:apexcharts-card
@@ -172,7 +244,7 @@ tabs:
                     opposite: true
                     decimalsInFloat: 0
               series:
-                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                - entity: sensor.google_weather_hourly_forecasts_full_hourly_forecast
                   name: Rain
                   type: column
                   yaxis_id: rain
@@ -195,7 +267,7 @@ tabs:
                         fillColor: color
                       };
                     });
-                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                - entity: sensor.google_weather_hourly_forecasts_full_hourly_forecast
                   name: Temp
                   type: line
                   curve: smooth
@@ -253,8 +325,8 @@ tabs:
                   entity: sensor.forecast_temperature
                   icon: mdi:thermometer
                   primary: >
-                    Temp: {{ states('sensor.forecast_temperature') }} {{      
-                    state_attr('weather.forecast_home', 'temperature_unit') }}
+                    Temp: {{ states('sensor.forecast_temperature') }} {{
+                    state_attr('weather.home', 'temperature_unit') }}
                   secondary: >
                     {% set t = states('sensor.forecast_temperature') | float(0)
                     %} {% if t < 5 %}
@@ -269,8 +341,8 @@ tabs:
                       Hot - Avoid heat
                     {% endif %}
                   color: >
-                    {% set current = state_attr('weather.forecast_home',
-                    'temperature') | float(0) %} {% if current < 16 %}
+                    {% set current = state_attr('weather.home', 'temperature') |
+                    float(0) %} {% if current < 16 %}
                       #CEB2F5
                     {% elif current < 18 %}
                       #5EBDEE
@@ -296,7 +368,7 @@ tabs:
             - title: UV Index & Cloud Coverage Forecast
             - subtitle: >-
                 {% set forecasts =
-                state_attr('sensor.met_no_hourly_forecasts_full_hourly_forecast','forecasts')
+                state_attr('sensor.google_weather_hourly_forecasts_full_hourly_forecast','forecasts')
                 %}{% if forecasts %}{% set uv_values = forecasts |
                 map(attribute='uv_index') | map('float') | list %}{% set peak_uv
                 = uv_values | max %}{% set peak_entry = forecasts |
@@ -357,7 +429,7 @@ tabs:
                     min: 0
                     max: 100
               series:
-                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                - entity: sensor.google_weather_hourly_forecasts_full_hourly_forecast
                   name: UV Index
                   type: line
                   curve: smooth
@@ -369,7 +441,7 @@ tabs:
                       if (f.uv_index == null) return null;
                       return { x: new Date(f.datetime).getTime(), y: f.uv_index };
                     }).filter(x => x !== null);
-                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                - entity: sensor.google_weather_hourly_forecasts_full_hourly_forecast
                   name: Cloud Coverage
                   type: area
                   yaxis_id: cloud
@@ -456,7 +528,7 @@ tabs:
             - title: Wind Speed & Direction Forecast
             - subtitle: >-
                 {% set forecasts =
-                state_attr('sensor.met_no_hourly_forecasts_full_hourly_forecast','forecasts')
+                state_attr('sensor.google_weather_hourly_forecasts_full_hourly_forecast','forecasts')
                 %}{% if forecasts %}{% set speeds = forecasts |
                 map(attribute='wind_speed') | map('float') | list %}{% set peak
                 = speeds | max %}{% set peak_entry = forecasts |
@@ -477,8 +549,8 @@ tabs:
                 %}{% elif peak < 75 %}{% set category = 'Strong gale' %}{% set
                 emoji = '🌪️' %}{% else %}{% set category = 'Storm' %}{% set
                 emoji = '🌀' %}{% endif %}{{ emoji }} Winds: {{ peak | round(1)
-                }} {{ state_attr('weather.forecast_home', 'wind_speed_unit') }}
-                ({{ category }}), mostly from {{ direction }}, peaking {{
+                }} {{ state_attr('weather.home', 'wind_speed_unit') }} ({{
+                category }}), mostly from {{ direction }}, peaking {{
                 as_datetime(peak_entry.datetime).strftime('%a, %b %d at %I:%M
                 %p') }}.{% else %}🌤️ Winds: N/A{% endif %}
         - type: vertical-stack
@@ -515,7 +587,7 @@ tabs:
                     min: 0
                     max: 360
               series:
-                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                - entity: sensor.google_weather_hourly_forecasts_full_hourly_forecast
                   name: Speed
                   type: line
                   curve: smooth
@@ -528,7 +600,7 @@ tabs:
                       speed = Math.round(speed * 10) / 10; // round to 1 decimal place
                       return { x: new Date(f.datetime).getTime(), y: speed };
                     });
-                - entity: sensor.met_no_hourly_forecasts_full_hourly_forecast
+                - entity: sensor.google_weather_hourly_forecasts_full_hourly_forecast
                   name: Direction
                   type: line
                   curve: smooth
@@ -547,7 +619,7 @@ tabs:
                   icon: mdi:weather-windy
                   primary: >
                     Wind: {{ states('sensor.forecast_wind_speed') }} {{
-                    state_attr('weather.forecast_home', 'wind_speed_unit') }}
+                    state_attr('weather.home', 'wind_speed_unit') }}
                   secondary: >
                     {% set s = states('sensor.forecast_wind_speed') | float(0)
                     %} {% set d = states('sensor.forecast_wind_direction') |
@@ -576,6 +648,37 @@ tabs:
                       purple
                     {% endif %}
                   features_position: bottom
+  - title: Radar
+    icon: m3of:radar
+    card:
+      type: vertical-stack
+      cards:
+        - type: custom:streamline-card
+          template: title_subtitle_card
+          variables:
+            - title: Radar
+            - subtitle: >-
+                {% set w = states.weather.home.attributes %}🌡️ {{ w.temperature
+                }}{{ w.temperature_unit }} 💧 Humidity: {{ w.humidity }}% 👁️
+                Visibility: {{ w.visibility }}km ☁️ Clouds: {{ w.cloud_coverage
+                | round }}% 💨 Wind: {{ w.wind_speed }} {{ w.wind_speed_unit }}
+                🌤️ UV index: {{ w.uv_index }}
+        - type: custom:mod-card
+          card:
+            type: iframe
+            url: >-
+              https://embed.windy.com/embed2.html?lat=lat_coordinates5&lon=lon_coordinates6&width=800&height=600
+          style: |
+            ha-card {
+              padding: 0;
+              height: 350px !important;   /* fix height */
+              width: 100% !important;
+              overflow: hidden;
+            }
+            iframe {
+              width: 100% !important;
+              height: 100% !important;
+            }
   - title: Lunar
     icon: m3of:moon-stars
     card:
@@ -634,45 +737,10 @@ tabs:
             label_font_style: none
             label_font_color: ""
             hide_label: false
-          latitude: xxx
-          longitude: yyy
+          latitude: -37.6421739
+          longitude: 175.527482
           location:
             city: ""
             country: New Zealand
           custom_background: >-
             https://cdn.jsdelivr.net/gh/ngocjohn/lunar-phase-card@1.7.3/background/moon_bg_2.png
-  - title: Radar
-    icon: mdi:radar
-    card:
-      type: vertical-stack
-      cards:
-        - type: custom:streamline-card
-          template: title_subtitle_card
-          variables:
-            - title: Radar
-            - subtitle: >-
-                {% set weather = states.weather.forecast_home.attributes %}{%
-                set temp = weather.temperature %}{% set temp_unit =
-                weather.temperature_unit %}{% set humidity = weather.humidity
-                %}{% set cloud = weather.cloud_coverage %}{% set uv =
-                weather.uv_index %}{% set pressure = weather.pressure %}{% set
-                wind_speed = weather.wind_speed %}{% set wind_unit =
-                weather.wind_speed_unit %}🌡️ {{ temp }}{{ temp_unit }} 💧
-                Humidity: {{ humidity }}% ☁️ Clouds: {{ cloud | round }}% 💨
-                Wind: {{ wind_speed }} {{ wind_unit }} 🌤️ UV index: {{ uv }}
-        - type: custom:mod-card
-          card:
-            type: iframe
-            url: >-
-              https://embed.windy.com/embed2.html?lat=xxx&lon=yyy&width=800&height=600
-          style: |
-            ha-card {
-              padding: 0;
-              height: 600px !important;   /* fix height */
-              width: 100% !important;
-              overflow: hidden;
-            }
-            iframe {
-              width: 100% !important;
-              height: 100% !important;
-            }
