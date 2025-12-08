@@ -20,7 +20,7 @@ cards:
       flex-wrap: wrap
       font-size: 0.9em
       line-height: 1.2em
-      margin: 6px 0 12px 0
+      margin: 6px 0 20px 0
       width: 100%
     buttons:
       - layout: name
@@ -31,12 +31,14 @@ cards:
             flex-shrink: 0
           name:
             color: var(--primary-text-color)
+        tap_action:
+          action: none
       - layout: name|icon
-        entity: weather.forecast_home
+        entity: weather.home
         name: >-
-          {{ state_attr('weather.forecast_home', 'temperature') }} {{
-          state_attr('weather.forecast_home', 'temperature_unit') }}, {{
-          states('weather.forecast_home') | title }}
+          {{ state_attr('weather.home', 'temperature') }} {{
+          state_attr('weather.home', 'temperature_unit') }}, {{
+          states('weather.home') | title }}
         icon: "{{ states('sensor.weather_condition_icon') }}"
         tap_action:
           action: navigate
@@ -62,11 +64,13 @@ cards:
             flex-shrink: 0
           name:
             color: var(--primary-text-color)
+        tap_action:
+          action: none
       - layout: name
-        entity: weather.forecast_home
+        entity: weather.home
         name: >-
-          {{ state_attr('weather.forecast_home', 'wind_speed') }} {{
-          state_attr('weather.forecast_home', 'wind_speed_unit') }}
+          {{ state_attr('weather.home', 'wind_speed') }} {{
+          state_attr('weather.home', 'wind_speed_unit') }}
         tap_action:
           action: navigate
           navigation_path: /tablet-dashboard/notifications
@@ -89,16 +93,13 @@ cards:
             flex-shrink: 0
           name:
             color: var(--primary-text-color)
+        tap_action:
+          action: none
       - layout: name
-        entity: weather.forecast_home
+        entity: weather.home
         name: >-
-          {% set forecast = state_attr('sensor.daily_weather_data_met_no',
-          'forecast_data') %} {% if forecast is defined and forecast.temperature
-          is defined %}
-            {{ forecast.temperature }} {{ state_attr('weather.forecast_home', 'temperature_unit') }}🔺
-          {% else %}
-            N/A {{ state_attr('weather.forecast_home', 'temperature_unit') }}🔺
-          {% endif %}
+          {{ states('sensor.home_max_temperature_24h') }} {{
+          state_attr('weather.home', 'temperature_unit') }}🔻
         tap_action:
           action: navigate
           navigation_path: /tablet-dashboard/notifications
@@ -121,16 +122,13 @@ cards:
             flex-shrink: 0
           name:
             color: var(--primary-text-color)
+        tap_action:
+          action: none
       - layout: name
-        entity: weather.forecast_home
+        entity: weather.home
         name: >-
-          {% set forecast = state_attr('sensor.daily_weather_data_met_no',
-          'forecast_data') %} {% if forecast is defined and forecast.temperature
-          is defined %}
-            {{ forecast.templow }} {{ state_attr('weather.forecast_home', 'temperature_unit') }}🔻
-          {% else %}
-            N/A {{ state_attr('weather.forecast_home', 'temperature_unit') }}🔻
-          {% endif %}
+          {{ states('sensor.home_min_temperature_24h') }} {{
+          state_attr('weather.home', 'temperature_unit') }}🔻
         tap_action:
           action: navigate
           navigation_path: /tablet-dashboard/notifications
