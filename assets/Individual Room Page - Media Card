@@ -1,5 +1,0 @@
-type: custom:streamline-card
-template: media_player_card
-variables:
-  entity: media_player.living_room_tv
-  name: Living Room TV
