@@ -3,9 +3,12 @@ A modern Home Assistant dashboard built on Material Design 3 (MD3) principles, f
 
 This comprehensive dashboard unifies control and monitoring for **lights, switches, temperature and humidity sensors, rainfall, wind, UV index, radar, weather forecasts, alarms, Hue scenes, cameras, heat pumps, door and window sensors, and irrigation control** - all presented in one cohesive, visually refined interface designed for both functionality and aesthetic harmony.
 
-[_The v4.0.0_](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/releases/tag/v.4.0.0) major update introduces a significantly more modular system across most cards, making customization far easier than before. Previously, I had to manually adjust large portions of the dashboard to fit their setup. Thanks to the new streamline card architecture, much of the backend complexity has been consolidated. You can now map your entities directly through the UI, reducing setup time and improving flexibility. You can check all the [streamline_templates](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/streamline_templates%20collection) I've used in the dashboard.
+[_v4.2.0 release_](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/releases/tag/v4.2.0) focuses on visual flexibility and customization. With full dark and light mode support, refreshed wallpapers, and improved color logic across buttons and chip cards, the dashboard now adapts more naturally to different themes. We’ve also expanded streamline_templates to give you more control over icons and states when customizing your setup.
 
-In addition to this core upgrade, the update also includes several quality-of-life improvements: a new media player on the overview page, refined layout adjustments for cleaner organization, and expanded use of pop-up cards to keep the interface tidy and intuitive.
+I have also readded the [_full dashboard yaml_](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/dashboard.yaml), one of the most requested feature over the communities.
+
+<img width="1920" height="1080" alt="Full Dashboard Showcase" src="https://github.com/user-attachments/assets/754c076b-2f06-488c-bba4-43b94b49f962" />
+
 
 # ✨ Features
 
@@ -41,7 +44,8 @@ Finally, the main page includes four [live camera feeds](https://github.com/Elem
 
 **Weather Forecast and Notifications Page - Individual Room Page**
 
-<img width="1920" height="782" alt="2" src="https://github.com/user-attachments/assets/55bd537a-e4e4-43d5-bf9b-5b26c210539a" />
+<img width="1920" height="770" alt="Full Dashboard Showcase" src="https://github.com/user-attachments/assets/baeff431-5a6f-474c-83b0-bf3752d16943" />
+
 
 **Weather - Notification page** combines all my weather information and notifications in one place for quick status updates and alerts.
 
@@ -50,15 +54,7 @@ On the notifications side, I use a variety of conditional cards powered by [time
 The weather section is designed to be clean and informative. Certain cards - like weather warnings, earthquake alerts, and volcano warnings - remain hidden unless there’s an active event (depending on your local integration). The rest of the display includes [detailed weather data](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Notification%20Page%20-%20Weather%20Tab), rainfall, UV index, wind conditions, lunar information, and a live radar map, giving me a complete view of current and upcoming conditions.
 
 
-**Individual room page** provides detailed controls and status information specific to that space. At the top, it displays the [current temperature, room presence, and the last seen timestamp](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Individual%20Room%20Page%20-%20Room%20Summary) from the occupancy sensor.
-
-Below that, there are [light controls](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Individual%20Room%20Page%20-%20Lights%20%26%20Switch%2C%20including%20navigation%20and%20script), including both slider and button cards, allowing for easy brightness adjustment and quick toggling.
-
-Next to the lighting section, there’s a [Climate Control panel](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Individual%20Room%20Page%20-%20Climate%20Card) that lets me manage the room’s temperature settings, select operation modes, and view the thermostat’s daily runtime. It also shows the current humidity level for that room, including how long the runtime of the climate for the day.
-
-On the right side, two conditional cards appear only when a [door or window is open](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Individual%20Room%20Page%20-%20Open%20Door%20and%20Open%20Windows), helping highlight important changes at a glance.
-
-Finally, a [Media Card](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Individual%20Room%20Page%20-%20Media%20Card) sits inside the pop up card, providing quick access to audio or video playback within the room.
+**Individual room page** provides detailed controls and status information specific to that space. You can check the room example [here](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/Individual%20Page%20Example). It has buttons to control automation, boolean on the top, lights control, climate controls, and door/window status.
 
 ***
 
@@ -169,20 +165,20 @@ Theming / ETC:
 
 # Installation
 
-- Save all (optional) of the [streamline_templates](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/streamline_templates%20collection) I've created and to remove the one you don't end up using.
-- Choose which card / visuals that you like to be added to your installation by clicking the hyperlink provided in the description above.
+**For new user:**
+- Copy all the code from [_full dashboard yaml_](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/dashboard.yaml) to a new dashboard raw configuration editor to jumpstart your experience.
 - Install the required HACS components (such as simple swipe card, stack-in-card, popup-card, etc. - see your setup for what’s needed).
-- To unlock the full functionality (like weather icons, notification counts, and more), you’ll need to add the corresponding [sensors](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/tree/main/template%20sensor) to your config.
+- To unlock the full functionality (like weather icons, notification counts, and more), you’ll need to add the corresponding [sensors](https://github.com/ElementZoom/Material-Design-3-Dynamic-Mobile-Dashboard/tree/main/template%20sensor) to your config.
 - For the Hue scene, you'll need to have the automation, scripts, input boolean, input text, and input number in your system that you can find in [hue asset folder](https://github.com/ElementZoom/Material-Design-3-Dynamic-Mobile-Dashboard/tree/main/hue%20asset). For the images, you can get them from [here](https://github.com/Hypfer/hass-scene_presets/blob/master/custom_components/scene_presets/assets/Readme.md).
-- Apply the MD3 theme and select your preferred colors. It is accessible from Overview page > More > Theme Icon
+- Apply the MD3 theme and select your preferred colors. It is accessible from Overview page > More > Bucket Fill Icon
+- Apply [wallpaper](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/tree/main/wallpaper) (optional)
+- Set the companion app to full screen (optional)
 
-<img width="1393" height="839" alt="image" src="https://github.com/user-attachments/assets/2392b080-0671-42ac-bc3c-930f0ff4246d" />
-
-- Select the Transparent option in Card Type to get the wide-system transparent cards
-  
-<img width="556" height="326" alt="image" src="https://github.com/user-attachments/assets/19d19eb5-558c-40fe-ba6e-dd186c2af7b4" />
-
-- Enjoy your personalized dynamic tablet dashboard! 🎉
+**For existing user:**
+- Review the [streamline_template](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/assets/streamline_templates%20collection) to see if you want to add / modify the previous version to the new version.
+- Choose which card / visuals that you like to be added to your installation by clicking the hyperlink provided in the description above.
+- Apply [wallpaper](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/tree/main/wallpaper) (optional)
+- Set the companion app to full screen (optional)
 
 # 📚 Credits
 
@@ -194,7 +190,6 @@ This project builds upon the work of:
 # 💖 Support My Work  
 
 If you want to hire me to make your personal dashboard, you can hit me up on one of these social media platforms below:
-- [Discord](https://discord.gg/5tVugEbd)
 - Email at  _reynaldi.sutrisno.rs16@gmail.com_
 - [Reddit](https://www.reddit.com/u/ElementZoom/s/dr4NN0mTtj)
 - [Facebook](https://www.facebook.com/profile.php?id=61578092475703)
