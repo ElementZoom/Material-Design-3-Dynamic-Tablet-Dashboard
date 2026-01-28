@@ -1,0 +1,382 @@
+type: vertical-stack
+cards:
+  - type: custom:bubble-card
+    card_type: pop-up
+    hash: "#living-area"
+    name: Living Area
+    styles: |-
+      #root {
+              height: unset !important;
+              transition: transform var(--md-sys-motion-expressive-spatial-default) !important;
+            }
+            .bubble-pop-up-container {
+              padding-bottom: 64px !important;
+            }
+    button_type: state
+    entity: sensor.living_room_temperature
+    show_icon: true
+    icon: m3of:chair
+    close_action:
+      action: navigate
+      navigation_path: /tablet-dashboard/overview
+    sub_button:
+      main: []
+      bottom: []
+    width_desktop: 1080px
+  - type: custom:paper-buttons-row
+    styles:
+      gap: 8px
+      justify-content: flex-start
+      overflow: scroll
+      margin: 12px 0 12px -18px
+      padding-left: 18px
+      width: 100%
+    extra_styles: |
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    buttons:
+      - entity: binary_sensor.presence_active_la
+        state_icons:
+          "on": m3of:sensor-occupied
+          "off": m3o:sensors-krx-off
+        layout: icon_name
+        name: Presence Sensor
+        tap_action:
+          action: call-service
+          service: script.toggle_presence_sensor_la
+        styles:
+          name:
+            color: grey
+          button:
+            padding: 12px
+            width: 76px
+            height: 76px
+            flex-basis: 1
+            flex-shrink: 0
+            display: flex
+            background-color: var(--popupBG)
+            border-radius: 24px
+            color: var(--white)
+          icon:
+            "--mdc-icon-size": 26px
+            color: grey
+        state_styles:
+          "on":
+            icon:
+              color: var(--primary-text-color)
+            name:
+              color: var(--primary-text-color)
+      - entity: input_boolean.movie_mode
+        state_icons:
+          "on": mdi:movie-open
+          "off": mdi:movie-off-outline
+        layout: icon_name
+        name: Movie Mode
+        tap_action:
+          action: call-service
+          service: input_boolean.toggle
+          target:
+            entity_id: input_boolean.movie_mode
+        styles:
+          name:
+            color: grey
+          button:
+            padding: 12px
+            width: 76px
+            height: 76px
+            flex-basis: 1
+            flex-shrink: 0
+            display: flex
+            background-color: var(--popupBG)
+            border-radius: 24px
+            color: var(--white)
+          icon:
+            "--mdc-icon-size": 26px
+            color: grey
+        state_styles:
+          "on":
+            icon:
+              color: var(--primary-text-color)
+            name:
+              color: var(--primary-text-color)
+  - type: horizontal-stack
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:vertical-stack-in-card
+            cards:
+              - type: conditional
+                conditions:
+                  - condition: and
+                    conditions:
+                      - condition: state
+                        entity: input_boolean.other_lights_la
+                        state: "off"
+                      - condition: state
+                        entity: input_boolean.kitchen_la
+                        state: "off"
+                      - condition: state
+                        entity: input_boolean.media_la
+                        state: "off"
+                card:
+                  type: vertical-stack
+                  cards:
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:streamline-card
+                          template: title_card
+                          variables:
+                            title: Lights
+                        - type: custom:streamline-card
+                          template: room_nav_boolean_chip_card
+                          variables:
+                            button_one_icon: m3of:lightbulb
+                            button_two_icon: mdi:countertop
+                            button_three_icon: m3of:tv
+                            button_one: input_boolean.other_lights_la
+                            button_two: input_boolean.kitchen_la
+                            button_three: input_boolean.media_la
+                            alignment: end
+                            margin_top: 1.6em
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:streamline-card
+                          template: material_light_slider_card
+                          variables:
+                            entity: light.lights_ktc
+                        - type: custom:streamline-card
+                          template: material_light_slider_card
+                          variables:
+                            entity: light.lights_dt
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:streamline-card
+                          template: material_custom_dual_icon_button_card
+                          variables:
+                            entity: switch.kitchen_cabinet_led
+                            icon_on: mdi:led-strip-variant
+                            icon_off: mdi:led-strip-variant-off
+                        - type: custom:streamline-card
+                          template: material_custom_dual_icon_button_card
+                          variables:
+                            entity: switch.table_top_light
+                            icon_on: mdi:countertop
+                            icon_off: mdi:countertop-outline
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:streamline-card
+                          template: material_custom_dual_icon_button_card
+                          variables:
+                            entity: switch.table_top_led
+                            icon_on: mdi:led-strip-variant
+                            icon_off: mdi:led-strip-variant-off
+                        - type: custom:streamline-card
+                          template: material_light_slider_card
+                          variables:
+                            entity: light.lights_sofa
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: input_boolean.other_lights_la
+                    state: "on"
+                card:
+                  type: vertical-stack
+                  cards:
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:streamline-card
+                          template: title_card
+                          variables:
+                            title: Other Lights
+                        - type: custom:streamline-card
+                          template: room_nav_boolean_chip_card
+                          variables:
+                            button_one_icon: m3of:lightbulb
+                            button_two_icon: mdi:countertop
+                            button_three_icon: m3of:tv
+                            button_one: input_boolean.other_lights_la
+                            button_two: input_boolean.kitchen_la
+                            button_three: input_boolean.media_la
+                            alignment: end
+                            margin_top: 1.6em
+                    - type: custom:streamline-card
+                      template: material_light_slider_card
+                      variables:
+                        entity: light.light_scr
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:streamline-card
+                          template: material_custom_icon_button_card
+                          variables:
+                            entity: switch.patio_main_switch_la
+                            icon: mdi:outdoor-lamp
+                        - type: custom:streamline-card
+                          template: material_custom_icon_button_card
+                          variables:
+                            entity: switch.patio_side_switch_la
+                            icon: mdi:outdoor-lamp
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: input_boolean.kitchen_la
+                    state: "on"
+                card:
+                  type: vertical-stack
+                  cards:
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:streamline-card
+                          template: title_card
+                          variables:
+                            title: Rangehood
+                        - type: custom:streamline-card
+                          template: room_nav_boolean_chip_card
+                          variables:
+                            button_one_icon: m3of:lightbulb
+                            button_two_icon: mdi:countertop
+                            button_three_icon: m3of:tv
+                            button_one: input_boolean.other_lights_la
+                            button_two: input_boolean.kitchen_la
+                            button_three: input_boolean.media_la
+                            alignment: end
+                            margin_top: 1.6em
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:streamline-card
+                          template: select_card
+                          variables:
+                            entity: select.kitchen_rangehood_light_level
+                            name: Light Level
+                            icon: m3of:lightbulb
+                        - type: custom:streamline-card
+                          template: select_card
+                          variables:
+                            entity: select.kitchen_rangehood_fan_speed
+                            name: Fan Speed
+                            icon: mdi:fan
+              - type: conditional
+                conditions:
+                  - condition: state
+                    entity: input_boolean.media_la
+                    state: "on"
+                card:
+                  type: vertical-stack
+                  cards:
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:streamline-card
+                          template: title_card
+                          variables:
+                            title: Media
+                        - type: custom:streamline-card
+                          template: room_nav_boolean_chip_card
+                          variables:
+                            button_one_icon: m3of:lightbulb
+                            button_two_icon: mdi:countertop
+                            button_three_icon: m3of:tv
+                            button_one: input_boolean.other_lights_la
+                            button_two: input_boolean.kitchen_la
+                            button_three: input_boolean.media_la
+                            alignment: end
+                            margin_top: 1.6em
+                    - type: custom:streamline-card
+                      template: media_player_card
+                      variables:
+                        entity: media_player.living_room_tv
+                        name: Living Room TV
+      - type: vertical-stack
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:streamline-card
+                template: title_card
+                variables:
+                  title: Climate Control
+              - type: custom:mushroom-chips-card
+                chips:
+                  - type: template
+                    entity: sensor.living_area_humidity
+                    icon: mdi:water-percent
+                    content: >-
+                      {% set hum = states('sensor.living_area_humidity') |
+                      float(0) %} {{ hum }}% - {% if hum < 31 %}
+                        Dry
+                      {% elif hum < 51 %}
+                        Good
+                      {% else %}
+                        Humid
+                      {% endif %}
+                    icon_color: >-
+                      {% set hum = states('sensor.living_area_humidity') |
+                      float(0) %} {% if hum < 31 %}
+                        #99332d
+                      {% elif hum < 51 %}
+                        #228B22
+                      {% else %}
+                        #99332d
+                      {% endif %}
+                alignment: end
+                card_mod:
+                  style: |
+                    ha-card {
+                      margin-top: 1.6em
+                    }
+          - type: custom:material-climate-card
+            entity: climate.living_room
+            increase_temp: 1
+            decrease_temp: 1
+            use_material_color: true
+            use_default_icon: true
+            fix_temperature: auto
+            name: " "
+          - type: conditional
+            conditions:
+              - condition: numeric_state
+                entity: sensor.climate_runtime_living_room
+                above: 0
+            card:
+              type: custom:mushroom-template-card
+              primary: Climate Runtime
+              secondary: >-
+                {% set val = states('sensor.climate_runtime_living_room') |
+                float(0) %} {% set hours = val | int %} {% set minutes = ((val -
+                hours) * 60) | round(0) | int %} {{ hours }}h {{ minutes }}m
+              icon: mdi:chart-areaspline
+              entity: sensor.climate_runtime_living_room
+              icon_color: >-
+                {% set val = states('sensor.climate_runtime_living_room') |
+                float(0) %} {% if val > 4 %}
+                  red
+                {% elif val > 2 %}
+                  orange
+                {% else %}
+                  green
+                {% endif %}
+      - type: conditional
+        conditions:
+          - condition: or
+            conditions:
+              - condition: state
+                entity: group.windows_la
+                state: "on"
+              - condition: state
+                entity: group.doors_la
+                state: "on"
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:streamline-card
+              template: open_doors_card
+              variables:
+                title: Doors
+                door_1: binary_sensor.main_sliding_door_sensor_la_contact
+                door_2: binary_sensor.side_sliding_door_sensor_la_contact
+            - type: custom:streamline-card
+              template: open_windows_card
+              variables:
+                - title: Windows
+                - window_1: binary_sensor.left_tv_window_sensor_la_contact
+                - window_2: binary_sensor.right_tv_window_sensor_la_contact
+                - window_3: binary_sensor.left_sofa_window_sensor_la_contact
+                - window_4: binary_sensor.right_sofa_window_sensor_la_contact
