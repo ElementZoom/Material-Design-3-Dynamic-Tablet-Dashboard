@@ -1,67 +1,79 @@
 type: vertical-stack
 cards:
   - type: custom:mushroom-title-card
-    title: |
-      {% set time = now().hour %} {% if time >= 18 %}
-        🌙 Good Evening,
-      {% elif time >= 12 %}
-        ☀️ Good Afternoon,
-      {% elif time >= 5 %}
-        🌅 Good Morning !
-      {% else %}
-        🌌 Welcome !
-      {% endif %}
     alignment: start
-    subtitle: |
-      Today is {{ now().strftime('%a %b %-d - %-I:%M %p') }}
+    title: |
+      {{ now().strftime('%a %b %-d - %-I:%M %p') }}
+    uix:
+      style: |
+        ha-card {
+
+          animation: fadeInDown 1.0s ease-out;
+        }
+        @keyframes fadeInDown {
+          from {
+            opacity: 0;
+            transform: translateY(-8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
   - type: custom:paper-buttons-row
     styles:
       justify-content: flex-start
       flex-wrap: wrap
       font-size: 0.9em
       line-height: 1.2em
-      margin: 6px 0 20px 0
+      margin: 6px 0 2px 0
       width: 100%
     buttons:
-      - layout: name
-        name: Outside is
-        styles:
-          button:
-            flex-basis: 1
-            flex-shrink: 0
-          name:
-            color: var(--primary-text-color)
-        tap_action:
-          action: none
       - layout: name|icon
         entity: weather.home
         name: >-
-          {{ state_attr('weather.home', 'temperature') }} {{
-          state_attr('weather.home', 'temperature_unit') }}, {{
-          states('weather.home') | title }}
-        icon: "{{ states('sensor.weather_condition_icon') }}"
+          {% set temp = state_attr('weather.home', 'temperature') %} {% set unit
+          = state_attr('weather.home', 'temperature_unit') %} {% set condition =
+          states('weather.forecast_home') | title %} {% if
+          is_state('binary_sensor.outdoor_rain_sensor_water_leak', 'on') %}
+            {{ temp }} {{ unit }}, Raining
+          {% else %}
+            {{ temp }} {{ unit }}, {{ condition }}
+          {% endif %}
+        icon: >-
+          {% if is_state('binary_sensor.outdoor_rain_sensor_water_leak', 'on')
+          %}
+            mdi:weather-pouring
+          {% else %}
+            {{ states('sensor.weather_condition_icon') }}
+          {% endif %}
         tap_action:
           action: navigate
           navigation_path: /tablet-dashboard/notifications
         styles:
           icon:
-            color: var(--md-sys-color-on-primary)
+            color: var(--md-sys-color-primary)
           name:
-            color: var(--md-sys-color-on-primary)
+            color: var(--md-sys-color-primary)
             font-weight: bold
           button:
             padding: 2px 8px
-            background-color: var(--md-sys-color-primary)
+            background-color: >-
+              color-mix(in srgb, var(--md-sys-color-on-primary) 25%,
+              transparent)
             border-radius: 24px
             flex-basis: 1
             flex-shrink: 0
             display: flex
+            animation: slideInLeft 0.3s ease-out 0.5s both
+            transition: all 0.3s ease
       - layout: name
-        name: · Wind
+        name: ·
         styles:
           button:
             flex-basis: 1
             flex-shrink: 0
+            animation: fadeIn 0.8s ease-out 1.1s both
           name:
             color: var(--primary-text-color)
         tap_action:
@@ -69,79 +81,202 @@ cards:
       - layout: name
         entity: weather.home
         name: >-
-          {{ state_attr('weather.home', 'wind_speed') }} {{
-          state_attr('weather.home', 'wind_speed_unit') }}
+          {% set forecast =
+          state_attr('sensor.daily_weather_data_google_weather',
+          'forecast_data') %}  {% if forecast is defined and
+          forecast.temperature is defined %}
+            {{ forecast.temperature | round(0) | int }}°🔺 / {{ forecast.templow | round(0) | int }}° {{ state_attr('weather.home', 'temperature_unit') }}🔻
+          {% else %}
+            N/A {{ state_attr('weather.home', 'temperature_unit') }}
+          {% endif %}
         tap_action:
           action: navigate
           navigation_path: /tablet-dashboard/notifications
         styles:
           name:
-            color: var(--md-sys-color-on-primary)
+            color: var(--md-sys-color-primary)
             font-weight: bold
           button:
             padding: 2px 8px
-            background-color: var(--md-sys-color-primary)
+            background-color: >-
+              color-mix(in srgb, var(--md-sys-color-on-primary) 25%,
+              transparent)
             border-radius: 24px
             flex-basis: 1
             flex-shrink: 0
             display: flex
-      - layout: name
-        name: · High
-        styles:
-          button:
-            flex-basis: 1
-            flex-shrink: 0
-          name:
-            color: var(--primary-text-color)
-        tap_action:
-          action: none
-      - layout: name
-        entity: weather.home
-        name: >-
-          {{ states('sensor.home_max_temperature_24h') }} {{
-          state_attr('weather.home', 'temperature_unit') }}🔻
-        tap_action:
-          action: navigate
-          navigation_path: /tablet-dashboard/notifications
-        styles:
-          name:
-            color: var(--md-sys-color-on-primary)
-            font-weight: bold
-          button:
-            padding: 2px 8px
-            background-color: var(--md-sys-color-primary)
-            border-radius: 24px
-            flex-basis: 1
-            flex-shrink: 0
-            display: flex
-      - layout: name
-        name: Low
-        styles:
-          button:
-            flex-basis: 1
-            flex-shrink: 0
-          name:
-            color: var(--primary-text-color)
-        tap_action:
-          action: none
-      - layout: name
-        entity: weather.home
-        name: >-
-          {{ states('sensor.home_min_temperature_24h') }} {{
-          state_attr('weather.home', 'temperature_unit') }}🔻
-        tap_action:
-          action: navigate
-          navigation_path: /tablet-dashboard/notifications
-        styles:
-          name:
-            color: var(--md-sys-color-on-primary)
-            font-weight: bold
-          button:
-            padding: 2px 8px
-            background-color: var(--md-sys-color-primary)
-            border-radius: 24px
-            flex-basis: 1
-            flex-shrink: 0
-            display: flex
+            animation: slideInLeft 0.3s ease-out 0.9s both
+            transition: all 0.3s ease
+    uix:
+      style: |
+        ha-card {
+          overflow: visible !important;
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes slideInLeft {
+          from {
+            opacity: 1;
+            transform: translateX(-8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+  - type: custom:button-card
+    show_entity_picture: false
+    show_icon: false
+    show_label: true
+    entity: |
+      [[[ return user.name == "Rey" ? "person.rey" : "person.christina";
+            ]]]
+    name: |
+      [[[
+        const hour = new Date().getHours();
+        let greeting = "";
+        if (hour >= 22 || hour < 5) greeting = "🌘✨ Night";
+        else if (hour >= 18) greeting = "🌙 Evening";
+        else if (hour >= 12) greeting = "🌤️ Afternoon";
+        else greeting = "☕ Morning";
+        const name = user.name == "Rey" ? "Rey" : "Christina";
+        return `${greeting}, ${name}!`;
+      ]]]
+    label: |
+      [[[
+        const s = entity.state;
+        if (s === "home") return "Home";
+        return "Away";
+      ]]]
+    tap_action:
+      action: navigate
+      navigation_path: /tablet-dashboard/timeline
+    styles:
+      card:
+        - padding: 12px -2px 12px 12px
+        - background: none
+        - box-shadow: none
+      grid:
+        - grid-template-areas: "\"pic n one\" \"pic l one\""
+        - grid-template-rows: min-content min-content
+        - grid-template-columns: 50px 1fr 150px
+      name:
+        - justify-self: start
+        - align-self: center
+        - font-size: 15px
+        - padding-left: 15px
+      label:
+        - justify-self: start
+        - align-self: start
+        - font-size: 12px
+        - color: var(--contrast14)
+        - padding-left: 15px
+    custom_fields:
+      pic:
+        card:
+          type: custom:button-card
+          entity: >
+            [[[ return user.name == "Rey" ? "person.rey" : "person.christina";
+            ]]]
+          show_name: false
+          show_entity_picture: true
+          tap_action:
+            action: navigate
+            navigation_path: /tablet-dashboard/timeline
+          styles:
+            card:
+              - position: relative
+              - overflow: visible
+            entity_picture:
+              - width: 40px
+              - height: 40px
+              - border-radius: 12px
+              - z-index: 1
+              - filter: |
+                  [[[
+                    const activeZones = ['home'];
+                    const state = states[entity.entity_id]?.state;
+                    return activeZones.includes(state)
+                      ? 'none'
+                      : 'grayscale(100%) brightness(70%)';
+                  ]]]
+              - opacity: |
+                  [[[
+                    const activeZones = ['home'];
+                    const state = states[entity.entity_id]?.state;
+                    return activeZones.includes(state) ? '1' : '0.7';
+                  ]]]
+            img_cell:
+              - background-color: var(--contrast1)
+              - width: 40px
+              - height: 40px
+              - border-radius: 12px
+              - overflow: visible
+      one:
+        card:
+          type: custom:button-card
+          entity: >
+            [[[ return user.name == "Rey" ? "person.christina" : "person.rey";
+            ]]]
+          show_name: false
+          show_entity_picture: true
+          tap_action:
+            action: more-info
+          state:
+            - value: not_home
+              styles:
+                entity_picture:
+                  - filter: grayscale(100%)
+                  - opacity: 0.5
+          styles:
+            card:
+              - position: relative
+              - overflow: visible
+            entity_picture:
+              - width: 40px
+              - height: 40px
+              - border-radius: 12px
+              - z-index: 1
+              - filter: |
+                  [[[
+                    const activeZones = ['home'];
+                    const state = states[entity.entity_id]?.state;
+                    return activeZones.includes(state)
+                      ? 'none'
+                      : 'grayscale(100%) brightness(70%)';
+                  ]]]
+              - opacity: |
+                  [[[
+                    const activeZones = ['home'];
+                    const state = states[entity.entity_id]?.state;
+                    return activeZones.includes(state) ? '1' : '0.7';
+                  ]]]
+            img_cell:
+              - background-color: var(--contrast1)
+              - width: 40px
+              - height: 40px
+              - border-radius: 12px
+              - overflow: visible
+    uix:
+      style: |
+        ha-card {
+          animation: slideDown 0.5s ease-out 0.6s both;
+        }
+        @keyframes slideDown {
+          from { 
+            opacity: 1;
+            transform: translateY(-4px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
 view_layout:
   grid-area: greeting
