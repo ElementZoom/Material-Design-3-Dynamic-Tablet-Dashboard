@@ -11,223 +11,539 @@ cards:
               max-height: 100% !important;
               transition: transform var(--md-sys-motion-expressive-spatial-default) !important;
             }
+            .bubble-header-container {
+              --bubble-button-background-color: var(--md-sys-color-on-secondary);
+              --bubble-button-icon-background-color: var(--md-sys-color-on-secondary);
+            }
             .bubble-pop-up-container {
               padding-bottom: 64px !important;
-
             }
-    bg_color: var(--card-background-color)
+    bg_color: var(--md-sys-color-on-primary)
+    bg_opacity: "50"
     button_type: name
-  - type: horizontal-stack
-    cards:
-      - type: custom:mushroom-template-card
-        icon: m3of:table-restaurant
-        primary: Dining
-        secondary: "{{ states('input_text.dining_table_dynamic_scene_active') }}"
-        tap_action:
-          action: call-service
-          service: script.toggle_or_apply_dynamic_scene
-          data:
-            room_lights:
-              - light.light_one_dt
-              - light.light_two_dt
-              - light.light_three_dt
-              - light.light_one_ktc_dt
-              - light.light_two_ktc_dt
-              - light.light_three_ktc_dt
-            presence_automation:
-              - automation.room_presence_dining_table
-            room_boolean: input_boolean.dining_table_dynamic_scene
-            room_scene_tracker: input_text.dining_table_dynamic_scene_active
-        color: |-
-          {% if states('input_text.dining_table_dynamic_scene_active') != '' %}
-            #d53e4f
-          {% else %}
-            #aaaaaa
-          {% endif %}
-        features_position: bottom
-      - type: custom:mushroom-template-card
-        icon: m3of:chair
-        primary: Sofa
-        tap_action:
-          action: call-service
-          service: script.toggle_or_apply_dynamic_scene
-          data:
-            room_lights:
-              - light.light_one_sofa
-              - light.light_two_sofa
-              - light.light_three_sofa
-              - light.light_four_sofa
-            presence_automation:
-              - automation.room_presence_sofa
-              - automation.sofa_sensor_workaround
-            room_boolean: input_boolean.sofa_dynamic_scene
-            room_scene_tracker: input_text.sofa_dynamic_scene_active
-        secondary: "{{ states('input_text.sofa_dynamic_scene_active') }}"
-        color: |-
-          {% if states('input_text.sofa_dynamic_scene_active') != '' %}
-            #fc8d59
-          {% else %}
-            #aaaaaa
-          {% endif %}
-        features_position: bottom
-  - type: horizontal-stack
-    cards:
-      - type: custom:mushroom-template-card
+    sub_button:
+      main: []
+      bottom: []
+    slider_fill_orientation: left
+    slider_value_position: right
+  - type: custom:simple-tabs
+    pre-load: true
+    active-background: var(--md-sys-color-primary)
+    active-text-color: var(--md-sys-color-on-primary)
+    text-color: var(--primary-text-color)
+    tabs:
+      - title: Living Area
+        icon: mdi:sofa
+        id: living
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:streamline-card
+              template: title_card
+              variables:
+                title: Area
+                title_font_size: 20px
+            - type: horizontal-stack
+              cards:
+                - type: custom:mushroom-template-card
+                  icon: m3of:table-restaurant
+                  primary: Dining
+                  secondary: "{{ states('input_text.dining_table_dynamic_scene_active') }}"
+                  tap_action:
+                    action: call-service
+                    service: script.toggle_or_apply_dynamic_scene
+                    data:
+                      room_lights:
+                        - light.light_one_dt
+                        - light.light_two_dt
+                        - light.light_three_dt
+                        - light.light_one_ktc_dt
+                        - light.light_two_ktc_dt
+                        - light.light_three_ktc_dt
+                      presence_automation:
+                        - automation.room_presence_dining_table
+                      room_boolean: input_boolean.dining_table_dynamic_scene
+                      room_scene_tracker: input_text.dining_table_dynamic_scene_active
+                  color: >-
+                    {% if states('input_text.dining_table_dynamic_scene_active')
+                    != '' %}
+                      #f6bd60
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+                - type: custom:mushroom-template-card
+                  icon: mdi:sofa
+                  primary: Sofa
+                  secondary: "{{ states('input_text.sofa_dynamic_scene_active') }}"
+                  tap_action:
+                    action: call-service
+                    service: script.toggle_or_apply_dynamic_scene
+                    data:
+                      room_lights:
+                        - light.light_one_sofa
+                        - light.light_two_sofa
+                        - light.light_three_sofa
+                        - light.light_four_sofa
+                      presence_automation:
+                        - automation.room_presence_sofa
+                        - automation.sofa_sensor_workaround
+                      room_boolean: input_boolean.sofa_dynamic_scene
+                      room_scene_tracker: input_text.sofa_dynamic_scene_active
+                  color: >-
+                    {% if states('input_text.sofa_dynamic_scene_active') != ''
+                    %}
+                      #f7ede2
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+                - type: custom:mushroom-template-card
+                  icon: mdi:countertop
+                  primary: Kitchen
+                  secondary: "{{ states('input_text.kitchen_dynamic_scene_active') }}"
+                  tap_action:
+                    action: call-service
+                    service: script.toggle_or_apply_dynamic_scene
+                    data:
+                      room_lights:
+                        - light.light_one_ktc
+                        - light.light_two_ktc
+                      presence_automation:
+                        - automation.room_presence_kitchen
+                      room_boolean: input_boolean.kitchen_dynamic_scene
+                      room_scene_tracker: input_text.kitchen_dynamic_scene_active
+                  color: >-
+                    {% if states('input_text.kitchen_dynamic_scene_active') !=
+                    '' %}
+                      #f5cac3
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+            - type: horizontal-stack
+              cards:
+                - type: custom:mushroom-template-card
+                  icon: mdi:cookie
+                  primary: Scullery
+                  secondary: "{{ states('input_text.scullery_dynamic_scene_active') }}"
+                  tap_action:
+                    action: call-service
+                    service: script.toggle_or_apply_dynamic_scene
+                    data:
+                      room_lights:
+                        - light.light_scr
+                      presence_automation:
+                        - automation.room_presence_scullery
+                      room_boolean: input_boolean.scullery_dynamic_scene
+                      room_scene_tracker: input_text.scullery_dynamic_scene_active
+                  color: >-
+                    {% if states('input_text.scullery_dynamic_scene_active') !=
+                    '' %}
+                      #84a59d
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+                - type: custom:mushroom-template-card
+                  icon: mdi:image-frame
+                  primary: Hallway
+                  secondary: "{{ states('input_text.hallway_dynamic_scene_active') }}"
+                  tap_action:
+                    action: call-service
+                    service: script.toggle_or_apply_dynamic_scene
+                    data:
+                      room_lights:
+                        - light.light_one_hw
+                        - light.light_two_hw
+                        - light.light_three_hw
+                        - light.light_four_hw
+                        - light.light_five_hw
+                        - light.light_six_hw
+                      presence_automation:
+                        - automation.room_presence_hallway
+                      room_boolean: input_boolean.hallway_dynamic_scene
+                      room_scene_tracker: input_text.hallway_dynamic_scene_active
+                  color: >-
+                    {% if states('input_text.hallway_dynamic_scene_active') !=
+                    '' %}
+                      #f28482
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+      - title: Bedroom
         icon: m3of:bed
-        primary: Master
-        tap_action:
-          action: call-service
-          service: script.toggle_or_apply_dynamic_scene
-          data:
-            room_lights:
-              - light.light_one_mbr
-              - light.light_two_mbr
-            presence_automation: automation.room_presence_master_bedroom
-            room_boolean: input_boolean.master_bedroom_dynamic_scene
-            room_scene_tracker: input_text.master_bedroom_dynamic_scene_active
-        secondary: "{{ states('input_text.master_bedroom_dynamic_scene_active') }}"
-        color: >-
-          {% if states('input_text.master_bedroom_dynamic_scene_active') != ''
-          %}
-            #fee08b
-          {% else %}
-            #aaaaaa
-          {% endif %}
-        features_position: bottom
-      - type: custom:mushroom-template-card
-        icon: m3of:stroller
-        primary: Baby
-        tap_action:
-          action: call-service
-          service: script.toggle_or_apply_dynamic_scene
-          data:
-            room_lights:
-              - light.light_one_br
-              - light.light_two_br
-              - light.ava_bed_led
-              - light.iyla_bed_led
-            presence_automation: automation.room_presence_baby_room
-            room_boolean: input_boolean.baby_room_dynamic_scene
-            room_scene_tracker: input_text.baby_room_dynamic_scene_active
-        secondary: "{{ states('input_text.baby_room_dynamic_scene_active') }}"
-        color: |-
-          {% if states('input_text.baby_room_dynamic_scene_active') != '' %}
-            #e6f598
-          {% else %}
-            #aaaaaa
-          {% endif %}
-        features_position: bottom
-  - type: horizontal-stack
-    cards:
-      - type: custom:mushroom-template-card
-        icon: m3of:person-3
-        primary: Single
-        tap_action:
-          action: perform-action
-          data:
-            room_lights:
-              - light.light_one_sgr
-              - light.light_two_sgr
-            presence_automation: automation.room_presence_single_guest_room
-            room_boolean: input_boolean.single_guest_room_dynamic_scene
-            room_scene_tracker: input_text.single_guest_room_dynamic_scene_active
-          perform_action: script.toggle_or_apply_dynamic_scene
-          target: {}
-        secondary: "{{ states('input_text.single_guest_room_dynamic_scene_active') }}"
-        color: >-
-          {% if states('input_text.single_guest_room_dynamic_scene_active') !=
-          '' %}
-            #d0e0e3
-          {% else %}
-            #aaaaaa
-          {% endif %}
-        features_position: bottom
-      - type: custom:mushroom-template-card
-        icon: m3of:groups-2
-        primary: Multiple
-        tap_action:
-          action: perform-action
-          data:
-            room_lights:
-              - light.light_one_mgr
-              - light.light_two_mgr
-            presence_automation: automation.room_presence_multiple_guest_room
-            room_boolean: input_boolean.multiple_guest_room_dynamic_scene
-            room_scene_tracker: input_text.multiple_guest_room_dynamic_scene_active
-          perform_action: script.toggle_or_apply_dynamic_scene
-          target: {}
-        secondary: "{{ states('input_text.multiple_guest_room_dynamic_scene_active') }}"
-        color: >-
-          {% if states('input_text.multiple_guest_room_dynamic_scene_active') !=
-          '' %}
-            #000000
-          {% else %}
-            #aaaaaa
-          {% endif %}
-        features_position: bottom
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:streamline-card
+              template: title_card
+              variables:
+                title: Area
+                title_font_size: 20px
+            - type: horizontal-stack
+              cards:
+                - type: custom:mushroom-template-card
+                  icon: m3of:bed
+                  primary: Master
+                  secondary: >-
+                    {{ states('input_text.master_bedroom_dynamic_scene_active')
+                    }}
+                  tap_action:
+                    action: call-service
+                    service: script.toggle_or_apply_dynamic_scene
+                    data:
+                      room_lights:
+                        - light.light_one_mbr
+                        - light.light_two_mbr
+                      presence_automation: automation.room_presence_master_bedroom
+                      room_boolean: input_boolean.master_bedroom_dynamic_scene
+                      room_scene_tracker: input_text.master_bedroom_dynamic_scene_active
+                  color: >-
+                    {% if
+                    states('input_text.master_bedroom_dynamic_scene_active') !=
+                    '' %}
+                      #cdb4db
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+                - type: custom:mushroom-template-card
+                  icon: mdi:wardrobe
+                  primary: Wardrobe
+                  secondary: "{{ states('input_text.wardrobe_dynamic_scene_active') }}"
+                  tap_action:
+                    action: call-service
+                    service: script.toggle_or_apply_dynamic_scene
+                    data:
+                      room_lights:
+                        - light.light_one_wr
+                        - light.light_two_wr
+                      presence_automation: automation.room_presence_wardrobe
+                      room_boolean: input_boolean.wardrobe_dynamic_scene
+                      room_scene_tracker: input_text.wardrobe_dynamic_scene_active
+                  color: >-
+                    {% if states('input_text.wardrobe_dynamic_scene_active') !=
+                    '' %}
+                      #ffc8dd
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+            - type: horizontal-stack
+              cards:
+                - type: custom:mushroom-template-card
+                  icon: m3of:stroller
+                  primary: Baby
+                  tap_action:
+                    action: call-service
+                    service: script.toggle_or_apply_dynamic_scene
+                    data:
+                      room_lights:
+                        - light.light_one_br
+                        - light.light_two_br
+                        - light.ava_bed_led
+                        - light.iyla_bed_led
+                      presence_automation: automation.room_presence_baby_room
+                      room_boolean: input_boolean.baby_room_dynamic_scene
+                      room_scene_tracker: input_text.baby_room_dynamic_scene_active
+                  secondary: "{{ states('input_text.baby_room_dynamic_scene_active') }}"
+                  color: >-
+                    {% if states('input_text.baby_room_dynamic_scene_active') !=
+                    '' %}
+                      #ffafcc
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+                - type: custom:mushroom-template-card
+                  icon: m3of:person-3
+                  primary: Single
+                  tap_action:
+                    action: perform-action
+                    data:
+                      room_lights:
+                        - light.light_one_sgr
+                        - light.light_two_sgr
+                        - light.bed_led_sgr
+                      presence_automation: automation.room_presence_single_guest_room
+                      room_boolean: input_boolean.single_guest_room_dynamic_scene
+                      room_scene_tracker: input_text.single_guest_room_dynamic_scene_active
+                    perform_action: script.toggle_or_apply_dynamic_scene
+                    target: {}
+                  secondary: >-
+                    {{
+                    states('input_text.single_guest_room_dynamic_scene_active')
+                    }}
+                  color: >-
+                    {% if
+                    states('input_text.single_guest_room_dynamic_scene_active')
+                    != '' %}
+                      #bde0fe
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+                - type: custom:mushroom-template-card
+                  icon: m3of:groups-2
+                  primary: Multiple
+                  tap_action:
+                    action: perform-action
+                    data:
+                      room_lights:
+                        - light.light_one_mgr
+                        - light.light_two_mgr
+                        - light.bed_led_mgr
+                      presence_automation: automation.room_presence_multiple_guest_room
+                      room_boolean: input_boolean.multiple_guest_room_dynamic_scene
+                      room_scene_tracker: input_text.multiple_guest_room_dynamic_scene_active
+                    perform_action: script.toggle_or_apply_dynamic_scene
+                    target: {}
+                  secondary: >-
+                    {{
+                    states('input_text.multiple_guest_room_dynamic_scene_active')
+                    }}
+                  color: >-
+                    {% if
+                    states('input_text.multiple_guest_room_dynamic_scene_active')
+                    != '' %}
+                      #a2d2ff
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+        badge: ""
+        id: bedroom
+      - title: Bathroom
+        icon: m3of:water-drop
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:streamline-card
+              template: title_card
+              variables:
+                title: Area
+                title_font_size: 20px
+            - type: custom:mushroom-template-card
+              icon: m3of:bed
+              primary: Master Bathroom
+              secondary: "{{ states('input_text.master_bathroom_dynamic_scene_active') }}"
+              tap_action:
+                action: call-service
+                service: script.toggle_or_apply_dynamic_scene
+                data:
+                  room_lights:
+                    - light.light_one_mbrt
+                    - light.light_two_mbrt
+                    - light.vanity_led_mbrt
+                  presence_automation: automation.room_presence_master_bathroom
+                  room_boolean: input_boolean.master_bathroom_dynamic_scene
+                  room_scene_tracker: input_text.master_bathroom_dynamic_scene_active
+              color: >-
+                {% if states('input_text.master_bathroom_dynamic_scene_active')
+                != '' %}
+                  #ffa69e
+                {% else %}
+                  #aaaaaa
+                {% endif %}
+              vertical: true
+            - type: horizontal-stack
+              cards:
+                - type: custom:mushroom-template-card
+                  icon: m3of:faucet
+                  primary: Vanity
+                  secondary: >-
+                    {{
+                    states('input_text.guest_bathroom_vanity_dynamic_scene_active')
+                    }}
+                  tap_action:
+                    action: call-service
+                    service: script.toggle_or_apply_dynamic_scene
+                    data:
+                      room_lights:
+                        - light.light_one_gbrv
+                        - light.light_two_gbrv
+                        - light.vanity_led_gbrv
+                      presence_automation:
+                        - automation.room_presence_guest_bathroom_vanity
+                      room_boolean: input_boolean.guest_bathroom_vanity_dynamic_scene
+                      room_scene_tracker: input_text.guest_bathroom_vanity_dynamic_scene_active
+                  color: >-
+                    {% if
+                    states('input_text.guest_bathroom_vanity_dynamic_scene_active')
+                    != '' %}
+                      #faf3dd
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+                - type: custom:mushroom-template-card
+                  icon: mdi:shower
+                  primary: Bathing
+                  secondary: >-
+                    {{
+                    states('input_text.guest_bathroom_bathing_dynamic_scene_active')
+                    }}
+                  tap_action:
+                    action: call-service
+                    service: script.toggle_or_apply_dynamic_scene
+                    data:
+                      room_lights:
+                        - light.light_one_gbrb
+                        - light.light_two_gbrb
+                      presence_automation: automation.room_presence_guest_bathroom_bathing
+                      room_boolean: input_boolean.guest_bathroom_bathing_dynamic_scene
+                      room_scene_tracker: input_text.guest_bathroom_bathing_dynamic_scene_active
+                  color: >-
+                    {% if
+                    states('input_text.guest_bathroom_bathing_dynamic_scene_active')
+                    != '' %}
+                      #b8f2e6
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+                - type: custom:mushroom-template-card
+                  icon: m3of:water-drop
+                  primary: Toilet
+                  secondary: >-
+                    {{
+                    states('input_text.guest_bathroom_toilet_dynamic_scene_active')
+                    }}
+                  tap_action:
+                    action: call-service
+                    service: script.toggle_or_apply_dynamic_scene
+                    data:
+                      room_lights:
+                        - light.light_gbrt
+                      presence_automation: automation.room_presence_guest_bathroom_toilet
+                      room_boolean: input_boolean.guest_bathroom_toilet_dynamic_scene
+                      room_scene_tracker: input_text.guest_bathroom_toilet_dynamic_scene_active
+                  color: >-
+                    {% if
+                    states('input_text.guest_bathroom_toilet_dynamic_scene_active')
+                    != '' %}
+                      #aed9e0
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+      - title: Outdoor
+        icon: mdi:light-flood-down
+        id: outdoor
+        card:
+          type: vertical-stack
+          cards:
+            - type: custom:streamline-card
+              template: title_card
+              variables:
+                title: Area
+                title_font_size: 20px
+            - type: horizontal-stack
+              cards:
+                - type: custom:mushroom-template-card
+                  icon: mdi:garage-variant
+                  primary: Garage
+                  secondary: >-
+                    {{ states('input_text.garage_outdoor_dynamic_scene_active')
+                    }}
+                  tap_action:
+                    action: perform-action
+                    data:
+                      room_lights:
+                        - light.light_one_outdoor_grg
+                        - light.light_two_outdoor_grg
+                      presence_automation: automation.outdoor_presence_driveway
+                      room_boolean: input_boolean.garage_outdoor_dynamic_scene
+                      room_scene_tracker: input_text.garage_outdoor_dynamic_scene_active
+                    perform_action: script.toggle_or_apply_dynamic_scene
+                    target: {}
+                  color: >-
+                    {% if
+                    states('input_text.garage_outdoor_dynamic_scene_active') !=
+                    '' %}
+                      #e76f51
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+                - type: custom:mushroom-template-card
+                  icon: hue:wall-appear
+                  primary: Wall
+                  secondary: "{{ states('input_text.wall_dynamic_scene_active') }}"
+                  tap_action:
+                    action: perform-action
+                    data:
+                      room_lights:
+                        - light.left_porch_light_drw
+                        - light.right_porch_light_drw
+                        - light.side_porch_light_drw
+                        - light.wall_light_one_grg
+                        - light.wall_light_two_grg
+                      presence_automation: automation.outdoor_presence_driveway
+                      room_boolean: input_boolean.wall_dynamic_scene
+                      room_scene_tracker: input_text.wall_dynamic_scene_active
+                    perform_action: script.toggle_or_apply_dynamic_scene
+                    target: {}
+                  color: >-
+                    {% if states('input_text.wall_dynamic_scene_active') != ''
+                    %}
+                      #f4a261
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
+                - type: custom:mushroom-template-card
+                  icon: mdi:home-roof
+                  primary: Roof
+                  secondary: "{{ states('input_text.roof_dynamic_scene_active') }}"
+                  tap_action:
+                    action: perform-action
+                    data:
+                      room_lights:
+                        - light.light_one_left_roof_drw
+                        - light.light_two_left_roof_drw
+                        - light.light_one_ceiling_porch_drw
+                        - light.light_two_ceiling_porch__drw
+                        - light.light_one_right_roof_drw
+                        - light.light_two_right_roof_drw
+                      presence_automation: automation.outdoor_presence_driveway
+                      room_boolean: input_boolean.roof_dynamic_scene
+                      room_scene_tracker: input_text.roof_dynamic_scene_active
+                    perform_action: script.toggle_or_apply_dynamic_scene
+                    target: {}
+                  color: >-
+                    {% if states('input_text.roof_dynamic_scene_active') != ''
+                    %}
+                      #e76f51
+                    {% else %}
+                      #aaaaaa
+                    {% endif %}
+                  vertical: true
   - type: custom:streamline-card
     template: title_card
     variables:
       title: Scenes Control
+      title_font_size: 20px
   - type: horizontal-stack
     cards:
-      - type: custom:mushroom-number-card
-        entity: input_number.dynamic_scene_brightness
-        name: Brightness
-        icon: mdi:brightness-6
-        display_mode: slider
-        fill_container: true
-        card_mod:
-          style:
-            .: |
-              ha-state-icon {
-                color: var(--md-sys-color-secondary);
-              }
-            mushroom-shape-icon$: |
-              .shape {
-                --shape-color: var(--md-sys-color-on-secondary) !important;
-              }
-            mushroom-number-value-control$: |
-              mushroom-slider {
-                --main-color: var(--md-sys-color-on-secondary) !important;
-                --bg-color: var(--md-sys-color-secondary) !important;
-              }
-      - type: custom:mushroom-number-card
-        entity: input_number.dynamic_scene_interval
-        name: Interval
-        icon: mdi:timer
-        display_mode: slider
-        fill_container: true
-        card_mod:
-          style:
-            .: |
-              ha-state-icon {
-                color: var(--md-sys-color-secondary);
-              }
-            mushroom-shape-icon$: |
-              .shape {
-                --shape-color: var(--md-sys-color-on-secondary) !important;
-              }
-            mushroom-number-value-control$: |
-              mushroom-slider {
-                --main-color: var(--md-sys-color-on-secondary) !important;
-                --bg-color: var(--md-sys-color-secondary) !important;
-              }
-  - type: custom:bubble-card
-    card_type: separator
-    styles: |-
-      .bubble-icon,
-      .bubble-name {
-        display: none;
-      }
-      .bubble-line {
-        margin-right: 0;
-        height: 4px;
-        max-width: 32px;
-        opacity: 1;
-        background: var(--md-sys-color-on-surface-variant);
-      }
-      .bubble-separator {
-        height: min-content !important;
-        justify-content: center;
-      }
+      - type: custom:streamline-card
+        template: number_slider_card
+        variables:
+          entity: input_number.dynamic_scene_brightness
+          name: Brightness
+          icon: mdi:brightness-6
+      - type: custom:streamline-card
+        template: number_slider_card
+        variables:
+          entity: input_number.dynamic_scene_interval
+          name: Interval
+          icon: mdi:timer
+  - type: custom:mushroom-entity-card
+    entity: input_boolean.dynamic_scene_stop
+    name: Stop Scenes
+    icon: mdi:stop-circle
+    tap_action:
+      action: toggle
+    fill_container: true
