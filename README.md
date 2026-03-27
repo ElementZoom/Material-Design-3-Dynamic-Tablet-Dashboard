@@ -7,7 +7,7 @@ This comprehensive dashboard unifies control and monitoring for **lights, switch
 
 I have also readded the [_full dashboard yaml_](https://github.com/ElementZoom/Material-Design-3-Dynamic-Tablet-Dashboard/blob/main/dashboard.yaml), one of the most requested feature over the communities.
 
-<img width="1458" height="867" alt="Screenshot 2026-03-28 082122" src="https://github.com/user-attachments/assets/c4f590c9-deb2-4d18-a81a-e77a2d19f4b7" />
+<img width="1458" height="867" alt="Screenshot 2026-03-28 082122" src="https://github.com/user-attachments/assets/34129f9d-7969-4fe6-beb5-659630e26f48" />
 
 # ✨ Features
 
@@ -27,7 +27,7 @@ Several cards are inspired by the incredible work of others in the Home Assistan
 
 **Overview Page**
 
-<img width="1450" height="857" alt="Screenshot 2026-03-28 082710" src="https://github.com/user-attachments/assets/a0331aff-e8bd-42fa-8366-dffd0ba34832" />
+<img width="1450" height="857" alt="Screenshot 2026-03-28 082710" src="https://github.com/user-attachments/assets/0f9c1833-d01f-457b-b6f2-00df7bd5af01" />
 
 
 **Page Description**
@@ -84,7 +84,7 @@ The weather section is designed to be clean and informative. Certain cards - lik
 **Individual Room Page**
 <img width="1455" height="876" alt="Screenshot 2026-03-28 082134" src="https://github.com/user-attachments/assets/ae7378cc-ecf3-41f2-9347-20f360b30854" />
 <img width="1450" height="856" alt="Screenshot 2026-03-28 084440" src="https://github.com/user-attachments/assets/6d2e1c16-c095-4893-8440-293337b2a046" />
-<img width="1461" height="856" alt="Screenshot 2026-03-28 093857" src="https://github.com/user-attachments/assets/508f8e8e-01c4-45a0-adf2-224c22f92fcc" />
+<img width="1461" height="856" alt="Screenshot 2026-03-28 093857" src="https://github.com/user-attachments/assets/42bc44ff-3a62-47dc-ab7b-3843936f19b0" />
 
 **Individual room page** provides detailed controls and status information specific to that room. It can show live camera, light, button, and all the other things that we can manipulate in the room.
 
@@ -118,7 +118,8 @@ All of this comes together thanks to the incredible work of the Hypfer - the mai
 
 **Camera Page - Alarm Page**
 
-<img width="1460" height="883" alt="Screenshot 2026-03-28 101230" src="https://github.com/user-attachments/assets/2b72d7b8-fa98-403a-8980-e86d6f440401" />
+<img width="1445" height="878" alt="Screenshot 2026-03-28 082256" src="https://github.com/user-attachments/assets/9c6e3d49-577b-4fa4-85bb-4e9f667f989f" />
+<img width="1460" height="883" alt="Screenshot 2026-03-28 101230" src="https://github.com/user-attachments/assets/c221b23f-586d-4eb1-83f4-690fdd44b57c" />
 
 
 **Page Description**
