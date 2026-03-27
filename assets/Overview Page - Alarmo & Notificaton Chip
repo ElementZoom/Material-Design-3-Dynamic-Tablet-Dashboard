@@ -1,105 +1,730 @@
-type: custom:mushroom-chips-card
-chips:
-  - type: conditional
-    conditions:
-      - entity: alarm_control_panel.alarmo
-        state: triggered
-    chip:
-      type: template
-      entity: alarm_control_panel.alarmo
-      content: Triggered
-      tap_action:
-        action: navigate
-        navigation_path: /tablet-dashboard/alarmo
-      icon: mdi:bell-ring
-      icon_color: "#d14f3a"
-  - type: conditional
-    conditions:
-      - entity: alarm_control_panel.alarmo
-        state: armed_away
-    chip:
-      type: template
-      entity: alarm_control_panel.alarmo
-      content: Armed away
-      tap_action:
-        action: navigate
-        navigation_path: /tablet-dashboard/alarmo
-      icon: mdi:shield-lock
-      icon_color: "#69ac5a"
-  - type: conditional
-    conditions:
-      - entity: alarm_control_panel.alarmo
-        state: arming
-    chip:
-      type: template
-      entity: alarm_control_panel.alarmo
-      content: Arming
-      tap_action:
-        action: navigate
-        navigation_path: /tablet-dashboard/alarmo
-      icon: mdi:shield
-      icon_color: "#efa340"
-  - type: conditional
-    conditions:
-      - entity: alarm_control_panel.alarmo
-        state: pending
-    chip:
-      type: template
-      entity: alarm_control_panel.alarmo
-      content: Pending
-      tap_action:
-        action: navigate
-        navigation_path: /tablet-dashboard/alarmo
-      icon: mdi:shield-outline
-      icon_color: "#efa340"
-  - type: conditional
-    conditions:
-      - entity: alarm_control_panel.alarmo
-        state: disarmed
-    chip:
-      type: template
-      entity: alarm_control_panel.alarmo
-      tap_action:
-        action: navigate
-        navigation_path: /tablet-dashboard/alarmo
-      icon: mdi:shield-off
- 
-  - type: template
-    entity: sensor.active_notification_count
-    icon: mdi:bell
-    tap_action:
-      action: navigate
-      navigation_path: /tablet-dashboard/notifications
-    hold_action:
-      action: none
-    card_mod:
-      style: >
-        ha-card {
-          position: relative;
-        } {% set notifications = states('sensor.active_notification_count') |
-        int %}
-
-        {% if notifications > 0 %}
-
-        ha-card:after {
-          content: "{{ notifications }}";
-          position: absolute;
-          top: -2px;
-          right: 0px;
-          background-color: var(--md-sys-color-primary);
-          color: var(--md-sys-color-surface-variant);
-          border-radius: 50%;
-          width: 16px;
-          height: 16px;
-          font-size: 10px;
-          line-height: 16px;
-          text-align: center;
-          display: inline-block;
-          font-weight: bold;
-        } {% endif %}
-alignment: end
-card_mod:
+type: custom:mod-card
+uix:
   style: |
     ha-card {
-      margin-top: 1.7em
+
+      animation: fadeInRight 0.5s ease-out 0.5s;
     }
+    @keyframes fadeInRight {
+      from {
+        opacity: 1;
+        transform: translateX(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+card:
+  type: custom:vertical-stack-in-card
+  cards:
+    - type: conditional
+      conditions:
+        - condition: state
+          entity: media_player.spotify_reynaldi_sutrisno
+          state: playing
+      card:
+        type: custom:simple-swipe-card
+        auto_hide_pagination: 0
+        auto_height: true
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: horizontal-stack
+                cards:
+                  - type: custom:streamline-card
+                    template: title_card
+                    variables:
+                      title: Music Player
+                      title_font_size: 20px
+                  - type: custom:mushroom-chips-card
+                    chips:
+                      - type: conditional
+                        conditions:
+                          - entity: alarm_control_panel.alarmo
+                            state: triggered
+                        chip:
+                          type: template
+                          entity: alarm_control_panel.alarmo
+                          content: Triggered
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/alarmo
+                          icon: mdi:bell-ring
+                          icon_color: "#d14f3a"
+                      - type: conditional
+                        conditions:
+                          - entity: alarm_control_panel.alarmo
+                            state: armed_away
+                        chip:
+                          type: template
+                          entity: alarm_control_panel.alarmo
+                          content: Armed
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/alarmo
+                          icon: mdi:shield-lock
+                          icon_color: "#69ac5a"
+                      - type: conditional
+                        conditions:
+                          - entity: alarm_control_panel.alarmo
+                            state: arming
+                        chip:
+                          type: template
+                          entity: alarm_control_panel.alarmo
+                          content: Arming
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/alarmo
+                          icon: mdi:shield
+                          icon_color: "#efa340"
+                      - type: conditional
+                        conditions:
+                          - entity: alarm_control_panel.alarmo
+                            state: pending
+                        chip:
+                          type: template
+                          entity: alarm_control_panel.alarmo
+                          content: Pending
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/alarmo
+                          icon: mdi:shield-outline
+                          icon_color: "#efa340"
+                      - type: conditional
+                        conditions:
+                          - entity: alarm_control_panel.alarmo
+                            state: disarmed
+                        chip:
+                          type: template
+                          entity: alarm_control_panel.alarmo
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/alarmo
+                          icon: mdi:shield-off
+                      - type: conditional
+                        conditions:
+                          - condition: numeric_state
+                            entity: sensor.geonet_nz_quakes_37_6421739_175_527482
+                            above: 0
+                        chip:
+                          type: template
+                          entity: geonet.
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/notifications
+                          icon: mdi:earth
+                          icon_color: >
+                            {% set mag =
+                            state_attr('sensor.geonet_nz_quakes_37_6421739_175_527482',
+                            'magnitude') | float(0) %} {% if mag >= 6.0 %}
+                            #D32F2F {% elif mag >= 5.0 %} #F4511E {% elif mag >=
+                            4.0 %} #FB8C00 {% elif mag >= 3.0 %} #F9A825 {% elif
+                            mag >= 2.0 %} #FBC02D {% else %} #388E3C {% endif %}
+                      - type: conditional
+                        conditions:
+                          - condition: numeric_state
+                            entity: sensor.volcano_rotorua
+                            above: 0
+                        chip:
+                          type: template
+                          entity: sensor.volcano_rotorua
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/notifications
+                          icon: >
+                            {{ state_attr('sensor.volcano_rotorua', 'icon') or
+                            'mdi:image-filter-hdr' }}
+                          icon_color: >
+                            {% set level = states('sensor.volcano_rotorua') |
+                            int %}
+
+                            {% if level == 5 %} red
+
+                            {% elif level == 4 %} deep-orange
+
+                            {% elif level == 3 %} orange
+
+                            {% elif level == 2 %} amber
+
+                            {% elif level == 1 %} yellow
+
+                            {% else %} green
+
+                            {% endif %}
+                      - type: conditional
+                        conditions:
+                          - condition: state
+                            entity: sensor.home_metservice_weather_warnings
+                            state_not: unknown
+                        chip:
+                          type: template
+                          entity: sensor.home_metservice_weather_warnings
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/notifications
+                          icon: mdi:alert
+                          icon_color: orange
+                      - type: template
+                        entity: sensor.active_notification_count
+                        icon: mdi:bell
+                        tap_action:
+                          action: navigate
+                          navigation_path: /tablet-dashboard/notifications
+                        hold_action:
+                          action: none
+                        uix:
+                          style: >
+                            ha-card {
+                              position: relative;
+                            }
+
+
+                            {% set notifications =
+                            states('sensor.active_notification_count') | int %}
+
+                            {% if notifications > 0 %}
+
+                            ha-card:after {
+                              content: "{{ notifications }}";
+                              position: absolute;
+                              top: -3px;
+                              right: -3px;
+                              background-color: color-mix(in srgb, var(--md-sys-color-on-primary) 50%, transparent);
+                              color: var(--md-sys-color-primary);
+                              border-radius: 50%;
+                              width: 16px;
+                              height: 16px;
+                              font-size: 10px;
+                              line-height: 16px;
+                              text-align: center;
+                              display: inline-block;
+                              font-weight: bold;
+                            } {% endif %}
+                    alignment: end
+                    uix:
+                      style: |
+                        ha-card {
+                          position: absolute;
+                          top: 20px;
+                          right: 5px;
+                        }
+              - type: custom:mediocre-massive-media-player-card
+                entity_id: media_player.spotify_reynaldi_sutrisno
+                use_art_colors: true
+                mode: panel
+                action:
+                  tap_action:
+                    action: url
+                    url_path: spotify://home
+                options:
+                  show_volume_step_buttons: true
+              - type: custom:mushroom-chips-card
+                chips:
+                  - type: template
+                    tap_action:
+                      action: url
+                      url_path: " intent:#Intent;launchFlags=0x10000000;component=com.spotify.music/.MainActivity;end"
+                    icon: mdi:spotify
+                    content: Open Spotify
+                    uix:
+                      style:
+                        .: |
+                          ha-card {
+                            --text-color: {{ 'var(--md-sys-color-on-primary)' }};
+                            --color: {{ 'var(--md-sys-color-on-primary)' }};
+                            --chip-background: {{ 'var(--md-sys-color-primary)' }};
+              - type: custom:streamline-card
+                template: spacer_card
+                variables:
+                  padding: 20px
+          - type: vertical-stack
+            cards:
+              - type: horizontal-stack
+                cards:
+                  - type: custom:streamline-card
+                    template: title_navigation_card
+                    title_font_size: 20px
+                    variables:
+                      title: Calendar
+                      navigation_path: /tablet-dashboard/calendar
+                  - type: custom:mushroom-chips-card
+                    chips:
+                      - type: conditional
+                        conditions:
+                          - entity: alarm_control_panel.alarmo
+                            state: triggered
+                        chip:
+                          type: template
+                          entity: alarm_control_panel.alarmo
+                          content: Triggered
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/alarmo
+                          icon: mdi:bell-ring
+                          icon_color: "#d14f3a"
+                      - type: conditional
+                        conditions:
+                          - entity: alarm_control_panel.alarmo
+                            state: armed_away
+                        chip:
+                          type: template
+                          entity: alarm_control_panel.alarmo
+                          content: Armed
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/alarmo
+                          icon: mdi:shield-lock
+                          icon_color: "#69ac5a"
+                      - type: conditional
+                        conditions:
+                          - entity: alarm_control_panel.alarmo
+                            state: arming
+                        chip:
+                          type: template
+                          entity: alarm_control_panel.alarmo
+                          content: Arming
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/alarmo
+                          icon: mdi:shield
+                          icon_color: "#efa340"
+                      - type: conditional
+                        conditions:
+                          - entity: alarm_control_panel.alarmo
+                            state: pending
+                        chip:
+                          type: template
+                          entity: alarm_control_panel.alarmo
+                          content: Pending
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/alarmo
+                          icon: mdi:shield-outline
+                          icon_color: "#efa340"
+                      - type: conditional
+                        conditions:
+                          - entity: alarm_control_panel.alarmo
+                            state: disarmed
+                        chip:
+                          type: template
+                          entity: alarm_control_panel.alarmo
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/alarmo
+                          icon: mdi:shield-off
+                      - type: conditional
+                        conditions:
+                          - condition: numeric_state
+                            entity: sensor.geonet_nz_quakes_37_6421739_175_527482
+                            above: 0
+                        chip:
+                          type: template
+                          entity: geonet.
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/notifications
+                          icon: mdi:earth
+                          icon_color: >
+                            {% set mag =
+                            state_attr('sensor.geonet_nz_quakes_37_6421739_175_527482',
+                            'magnitude') | float(0) %} {% if mag >= 6.0 %}
+                            #D32F2F {% elif mag >= 5.0 %} #F4511E {% elif mag >=
+                            4.0 %} #FB8C00 {% elif mag >= 3.0 %} #F9A825 {% elif
+                            mag >= 2.0 %} #FBC02D {% else %} #388E3C {% endif %}
+                      - type: conditional
+                        conditions:
+                          - condition: numeric_state
+                            entity: sensor.volcano_rotorua
+                            above: 0
+                        chip:
+                          type: template
+                          entity: sensor.volcano_rotorua
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/notifications
+                          icon: >
+                            {{ state_attr('sensor.volcano_rotorua', 'icon') or
+                            'mdi:image-filter-hdr' }}
+                          icon_color: >
+                            {% set level = states('sensor.volcano_rotorua') |
+                            int %}
+
+                            {% if level == 5 %} red
+
+                            {% elif level == 4 %} deep-orange
+
+                            {% elif level == 3 %} orange
+
+                            {% elif level == 2 %} amber
+
+                            {% elif level == 1 %} yellow
+
+                            {% else %} green
+
+                            {% endif %}
+                      - type: conditional
+                        conditions:
+                          - condition: state
+                            entity: sensor.home_metservice_weather_warnings
+                            state_not: unknown
+                        chip:
+                          type: template
+                          entity: sensor.home_metservice_weather_warnings
+                          tap_action:
+                            action: navigate
+                            navigation_path: /tablet-dashboard/notifications
+                          icon: mdi:alert
+                          icon_color: orange
+                      - type: template
+                        entity: sensor.active_notification_count
+                        icon: mdi:bell
+                        tap_action:
+                          action: navigate
+                          navigation_path: /tablet-dashboard/notifications
+                        hold_action:
+                          action: none
+                        uix:
+                          style: >
+                            ha-card {
+                              position: relative;
+                            } {% set notifications =
+                            states('sensor.active_notification_count') | int %}
+
+                            {% if notifications > 0 %}
+
+                            ha-card:after {
+                              content: "{{ notifications }}";
+                              position: absolute;
+                              top: -3px;
+                              right: -3px;
+                              background-color: var(--md-sys-color-primary);
+                              color: var(--md-sys-color-surface-variant);
+                              border-radius: 50%;
+                              width: 16px;
+                              height: 16px;
+                              font-size: 10px;
+                              line-height: 16px;
+                              text-align: center;
+                              display: inline-block;
+                              font-weight: bold;
+                            } {% endif %}
+                    alignment: end
+                    uix:
+                      style: |
+                        ha-card {
+                          position: absolute;
+                          top: 20px;
+                          right: 5px;
+                        }
+              - entities:
+                  - entity: calendar.christina
+                    accent_color: "#ff6a6a"
+                  - entity: calendar.reynaldi_sutrisno_rs16_gmail_com
+                    accent_color: "#71c8fe"
+                  - entity: calendar.house_maintenance
+                    accent_color: "#d3f37f"
+                  - entity: calendar.new_zealand_holidays
+                    accent_color: "#f9da4e"
+                days_to_show: 6
+                compact_events_to_show: 6
+                background_color: transparent
+                vertical_line_width: 5px
+                event_spacing: 6px
+                first_day_of_week: monday
+                show_week_numbers: iso
+                week_number_color: var(--md-sys-color-primary)
+                week_number_background_color: var(--md-sys-color-on-primary)
+                month_separator_width: 1px
+                month_separator_color: var(--md-sys-color-primary)
+                today_indicator: pulse
+                today_indicator_position: 10% 50%
+                today_indicator_color: var(--md-sys-color-primary)
+                weekday_font_size: 12px
+                month_font_size: 10px
+                show_countdown: true
+                show_progress_bar: true
+                progress_bar_color: var(--md-sys-color-primary)
+                weather:
+                  position: event
+                  date:
+                    show_conditions: true
+                    show_high_temp: true
+                    show_low_temp: false
+                    icon_size: 14px
+                    font_size: 12px
+                    color: var(--primary-text-color)
+                  event:
+                    show_conditions: true
+                    show_temp: true
+                    icon_size: 14px
+                    font_size: 12px
+                    color: var(--primary-text-color)
+                  entity: weather.home
+                tap_action:
+                  action: navigate
+                  navigation_path: /tablet-dashboard/calendar
+                type: custom:calendar-card-pro
+                height: 435px
+              - type: vertical-stack
+                cards:
+                  - type: custom:streamline-card
+                    template: title_navigation_card
+                    variables:
+                      title: Backyard
+                      navigation_path: /tablet-dashboard/camera
+                      title_font_size: 20px
+                  - type: custom:streamline-card
+                    template: camera_rtsp_with_chips_card
+                    variables:
+                      camera_url: >-
+                        ffmpeg:rtsp://username:password$@192.168.1.148/h264Preview_01_main#video=copy#audio=opus
+                      entity_id_light_one: switch.patio_main_switch_la
+                      light_one_icon: m3of:lightbulb
+                view_layout:
+                  grid-area: camera4
+    - type: conditional
+      conditions:
+        - condition: state
+          entity: media_player.spotify_reynaldi_sutrisno
+          state_not: playing
+      card:
+        type: vertical-stack
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:streamline-card
+                template: title_navigation_card
+                variables:
+                  title: Calendar
+                  navigation_path: /tablet-dashboard/calendar
+                  title_font_size: 20px
+              - type: custom:mushroom-chips-card
+                chips:
+                  - type: conditional
+                    conditions:
+                      - entity: alarm_control_panel.alarmo
+                        state: triggered
+                    chip:
+                      type: template
+                      entity: alarm_control_panel.alarmo
+                      content: Triggered
+                      tap_action:
+                        action: navigate
+                        navigation_path: /tablet-dashboard/alarmo
+                      icon: mdi:bell-ring
+                      icon_color: "#d14f3a"
+                  - type: conditional
+                    conditions:
+                      - entity: alarm_control_panel.alarmo
+                        state: armed_away
+                    chip:
+                      type: template
+                      entity: alarm_control_panel.alarmo
+                      content: Armed
+                      tap_action:
+                        action: navigate
+                        navigation_path: /tablet-dashboard/alarmo
+                      icon: mdi:shield-lock
+                      icon_color: "#69ac5a"
+                  - type: conditional
+                    conditions:
+                      - entity: alarm_control_panel.alarmo
+                        state: arming
+                    chip:
+                      type: template
+                      entity: alarm_control_panel.alarmo
+                      content: Arming
+                      tap_action:
+                        action: navigate
+                        navigation_path: /tablet-dashboard/alarmo
+                      icon: mdi:shield
+                      icon_color: "#efa340"
+                  - type: conditional
+                    conditions:
+                      - entity: alarm_control_panel.alarmo
+                        state: pending
+                    chip:
+                      type: template
+                      entity: alarm_control_panel.alarmo
+                      content: Pending
+                      tap_action:
+                        action: navigate
+                        navigation_path: /tablet-dashboard/alarmo
+                      icon: mdi:shield-outline
+                      icon_color: "#efa340"
+                  - type: conditional
+                    conditions:
+                      - entity: alarm_control_panel.alarmo
+                        state: disarmed
+                    chip:
+                      type: template
+                      entity: alarm_control_panel.alarmo
+                      tap_action:
+                        action: navigate
+                        navigation_path: /tablet-dashboard/alarmo
+                      icon: mdi:shield-off
+                  - type: conditional
+                    conditions:
+                      - condition: numeric_state
+                        entity: sensor.geonet_nz_quakes_37_6421739_175_527482
+                        above: 0
+                    chip:
+                      type: template
+                      entity: geonet.
+                      tap_action:
+                        action: navigate
+                        navigation_path: /tablet-dashboard/notifications
+                      icon: mdi:earth
+                      icon_color: >
+                        {% set mag =
+                        state_attr('sensor.geonet_nz_quakes_37_6421739_175_527482',
+                        'magnitude') | float(0) %} {% if mag >= 6.0 %} #D32F2F
+                        {% elif mag >= 5.0 %} #F4511E {% elif mag >= 4.0 %}
+                        #FB8C00 {% elif mag >= 3.0 %} #F9A825 {% elif mag >= 2.0
+                        %} #FBC02D {% else %} #388E3C {% endif %}
+                  - type: conditional
+                    conditions:
+                      - condition: numeric_state
+                        entity: sensor.volcano_rotorua
+                        above: 0
+                    chip:
+                      type: template
+                      entity: sensor.volcano_rotorua
+                      tap_action:
+                        action: navigate
+                        navigation_path: /tablet-dashboard/notifications
+                      icon: >
+                        {{ state_attr('sensor.volcano_rotorua', 'icon') or
+                        'mdi:image-filter-hdr' }}
+                      icon_color: |
+                        {% set level = states('sensor.volcano_rotorua') | int %}
+                        {% if level == 5 %} red
+                        {% elif level == 4 %} deep-orange
+                        {% elif level == 3 %} orange
+                        {% elif level == 2 %} amber
+                        {% elif level == 1 %} yellow
+                        {% else %} green
+                        {% endif %}
+                  - type: conditional
+                    conditions:
+                      - condition: state
+                        entity: sensor.home_metservice_weather_warnings
+                        state_not: unknown
+                    chip:
+                      type: template
+                      entity: sensor.home_metservice_weather_warnings
+                      tap_action:
+                        action: navigate
+                        navigation_path: /tablet-dashboard/notifications
+                      icon: mdi:alert
+                      icon_color: orange
+                  - type: template
+                    entity: sensor.active_notification_count
+                    icon: mdi:bell
+                    tap_action:
+                      action: navigate
+                      navigation_path: /tablet-dashboard/notifications
+                    hold_action:
+                      action: none
+                    uix:
+                      style: >
+                        ha-card {
+                          position: relative;
+                        } {% set notifications =
+                        states('sensor.active_notification_count') | int %}
+
+                        {% if notifications > 0 %}
+
+                        ha-card:after {
+                          content: "{{ notifications }}";
+                          position: absolute;
+                          top: -2px;
+                          right: 0px;
+                          background-color: var(--md-sys-color-on-primary);
+                          color: var(--md-sys-color-primary);
+                          border-radius: 50%;
+                          width: 16px;
+                          height: 16px;
+                          font-size: 10px;
+                          line-height: 16px;
+                          text-align: center;
+                          display: inline-block;
+                          font-weight: bold;
+                        } {% endif %}
+                alignment: end
+                uix:
+                  style: |
+                    ha-card {
+                      position: absolute;
+                      top: 20px;
+                      right: 5px;
+                    }
+          - entities:
+              - entity: calendar.christina
+                accent_color: "#ff6a6a"
+              - entity: calendar.reynaldi_sutrisno_rs16_gmail_com
+                accent_color: "#71c8fe"
+              - entity: calendar.house_maintenance
+                accent_color: "#d3f37f"
+              - entity: calendar.new_zealand_holidays
+                accent_color: "#f9da4e"
+            days_to_show: 6
+            compact_events_to_show: 6
+            background_color: transparent
+            vertical_line_width: 5px
+            event_spacing: 6px
+            first_day_of_week: monday
+            show_week_numbers: iso
+            week_number_color: var(--md-sys-color-primary)
+            week_number_background_color: var(--md-sys-color-on-primary)
+            month_separator_width: 1px
+            month_separator_color: var(--md-sys-color-primary)
+            today_indicator: pulse
+            today_indicator_position: 10% 50%
+            today_indicator_color: var(--md-sys-color-primary)
+            weekday_font_size: 12px
+            month_font_size: 10px
+            show_countdown: true
+            show_progress_bar: true
+            progress_bar_color: var(--md-sys-color-primary)
+            weather:
+              position: event
+              date:
+                show_conditions: true
+                show_high_temp: true
+                show_low_temp: false
+                icon_size: 14px
+                font_size: 12px
+                color: var(--primary-text-color)
+              event:
+                show_conditions: true
+                show_temp: true
+                icon_size: 14px
+                font_size: 12px
+                color: var(--primary-text-color)
+              entity: weather.home
+            tap_action:
+              action: navigate
+              navigation_path: /tablet-dashboard/calendar
+            type: custom:calendar-card-pro
+            height: 430px
+          - type: vertical-stack
+            cards:
+              - type: custom:streamline-card
+                template: title_navigation_card
+                variables:
+                  title: Backyard
+                  navigation_path: /tablet-dashboard/camera
+                  title_font_size: 20px
+              - type: custom:streamline-card
+                template: camera_rtsp_with_chips_card
+                variables:
+                  camera_url: >-
+                    ffmpeg:rtsp://username:password$@192.168.1.148/h264Preview_01_main#video=copy#audio=opus
+                  entity_id_light_one: switch.patio_main_switch_la
+                  light_one_icon: m3of:lightbulb
+            view_layout:
+              grid-area: camera4
+view_layout:
+  grid-area: calendar_notification
