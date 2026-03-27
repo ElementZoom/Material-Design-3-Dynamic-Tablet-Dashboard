@@ -1,14 +1,111 @@
-type: custom:streamline-card
-template: room_card
-variables:
-  name: Master
-  icon: m3of:bed
-  entity_id_temperature: sensor.master_bedroom_temperature
-  entity_id_humidity: sensor.master_bedroom_humidity
-  entity_id_ac: climate.master_bedroom
-  entity_id_ac_main: climate.heat_pump
-  entity_id_lights: light.lights_mbr
-  lights_icon: mdi:light-recessed
-  entity_id_windows: group.windows_mbr
-  entity_id_doors: group.doors_mbr
-  navigation_path: /tablet-dashboard/master
+type: custom:vertical-stack-in-card
+cards:
+  - type: conditional
+    conditions:
+      - entity: input_boolean.room_toggle_one
+        state: "on"
+    card:
+      type: horizontal-stack
+      cards:
+        - type: custom:streamline-card
+          template: room_card
+          variables:
+            name: Garage
+            icon: mdi:garage-variant
+            entity_id_temperature: sensor.garage_temperature
+            entity_id_humidity: sensor.garage_humidity
+            entity_id_lights: switch.lights_grg
+            lights_icon: hue:recessed-ceiling
+            lights_count_sensor: sensor.lights_grg_count
+            entity_id_windows: group.windows_grg
+            windows_count_sensor: sensor.windows_grg_count
+            entity_id_doors: group.doors_grg
+            doors_count_sensor: sensor.doors_grg_count
+            navigation_path: /tablet-dashboard/garage/
+        - type: custom:streamline-card
+          template: room_card
+          variables:
+            name: Living Area
+            icon: mdi:sofa
+            entity_id_temperature: sensor.living_room_temperature
+            entity_id_humidity: sensor.living_area_humidity
+            entity_id_ac_main: climate.heat_pump
+            entity_id_ac: climate.living_room
+            entity_id_lights: light.lights_la
+            lights_icon: hue:recessed-ceiling
+            lights_count_sensor: sensor.lights_la_count
+            entity_id_windows: group.windows_la
+            windows_count_sensor: sensor.windows_la_count
+            entity_id_doors: group.doors_la
+            doors_count_sensor: sensor.doors_la_count
+            navigation_path: /tablet-dashboard/living-area/
+  - type: conditional
+    conditions:
+      - condition: state
+        entity: input_boolean.room_toggle_two
+        state: "on"
+    card:
+      type: horizontal-stack
+      cards:
+        - type: custom:streamline-card
+          template: room_card
+          variables:
+            name: Attic
+            icon: mdi:home-roof
+            entity_id_temperature: sensor.attic_temperature
+            entity_id_humidity: sensor.attic_humidity
+            entity_id_lights: switch.light_switch_atc
+            lights_count_sensor: sensor.lights_atc_count
+            lights_icon: hue:recessed-ceiling
+            entity_id_doors: binary_sensor.door_sensor_atc_contact
+            doors_count_sensor: sensor.doors_atc_count
+            navigation_path: /tablet-dashboard/attic
+        - type: custom:streamline-card
+          template: room_card
+          variables:
+            name: Entrance
+            icon: mdi:table-furniture
+            entity_id_temperature: sensor.living_room_temperature
+            entity_id_humidity: sensor.living_area_humidity
+            entity_id_lights: light.lights_etr_all
+            lights_count_sensor: sensor.lights_etr_count
+            lights_icon: mdi:lightbulb-group
+            entity_id_doors: binary_sensor.door_sensor_etr_contact
+            doors_count_sensor: sensor.doors_etr_count
+            navigation_path: /tablet-dashboard/entrance/
+  - type: conditional
+    conditions:
+      - condition: state
+        entity: input_boolean.room_toggle_three
+        state: "on"
+    card:
+      type: horizontal-stack
+      cards:
+        - type: custom:streamline-card
+          template: room_card
+          variables:
+            name: Driveway
+            icon: mdi:car
+            entity_id_temperature: sensor.outdoor_temperature
+            entity_id_humidity: sensor.outdoor_humidity
+            entity_id_lights: group.light_switches_drw
+            lights_count_sensor: sensor.lights_drw_count
+            lights_icon: hue:recessed-ceiling
+            entity_id_doors: group.doors_drw
+            doors_count_sensor: sensor.doors_drw_count
+            navigation_path: /tablet-dashboard/driveway/
+        - type: custom:streamline-card
+          template: room_card
+          variables:
+            name: Patio
+            icon: mdi:grass
+            entity_id_temperature: sensor.outdoor_temperature
+            entity_id_humidity: sensor.outdoor_humidity
+            entity_id_lights: switch.lights_patio
+            lights_count_sensor: sensor.lights_otd_count
+            lights_icon: hue:recessed-ceiling
+            entity_id_doors: group.doors_otd
+            doors_count_sensor: sensor.doors_otd_count
+            navigation_path: /tablet-dashboard/patio/
+view_layout:
+  grid-area: room1
