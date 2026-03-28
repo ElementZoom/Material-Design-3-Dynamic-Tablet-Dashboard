@@ -4783,7 +4783,7 @@ views:
                 ha-card {
                   animation: slideInLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
                 }
-
+            
                 @keyframes slideInLeft {
                   from {
                     opacity: 1;
@@ -4801,15 +4801,39 @@ views:
                   conditions:
                     - condition: state
                       entity: input_boolean.guest_mode
-                      state: 'on'
+                      state: "on"
                   card:
                     type: vertical-stack
                     cards:
-                      - type: custom:streamline-card
-                        template: title_card
-                        variables:
-                          title: WiFi QR Code
-                          title_font_size: 20px
+                      - type: horizontal-stack
+                        cards:
+                          - type: custom:streamline-card
+                            template: title_card
+                            variables:
+                              title: WiFi QR Code
+                              title_font_size: 20px
+                          - type: custom:mushroom-chips-card
+                            chips:
+                              - type: conditional
+                                conditions:
+                                  - condition: state
+                                    entity: input_boolean.guest_mode
+                                    state: "on"
+                                chip:
+                                  type: template
+                                  entity: input_boolean.guest_mode
+                                  icon: mdi:account-group
+                                  tap_action:
+                                    action: toggle
+                            alignment: end
+                            uix:
+                              style:
+                                .: |
+                                  ha-card {
+                                    --text-color: {{ 'var(--md-sys-color-on-primary)' if is_state('input_boolean.guest_mode', 'on') else 'var(--md-sys-color-primary)' }};
+                                    --color: {{ 'var(--md-sys-color-on-primary)' if is_state('input_boolean.guest_mode', 'on') else 'var(--md-sys-color-primary)' }};
+                                    --chip-background: {{ 'var(--md-sys-color-primary)' if is_state('input_boolean.guest_mode', 'on') else 'color-mix(in srgb, var(--md-sys-color-on-primary) 50%, transparent)' }};
+                                    margin-top: 1.6em
                       - type: picture
                         image:
                           media_content_id: /local/QR.jpg
@@ -4822,13 +4846,13 @@ views:
                           conditions:
                             - condition: state
                               entity: input_boolean.rubbish
-                              state: 'on'
+                              state: "on"
                             - condition: state
                               entity: input_boolean.recycle
-                              state: 'on'
+                              state: "on"
                             - condition: state
                               entity: switch.driveway_water_tap
-                              state: 'on'
+                              state: "on"
                       card:
                         type: vertical-stack
                         cards:
@@ -4842,7 +4866,7 @@ views:
                             template: camera_rtsp_with_chips_card
                             variables:
                               camera_url: >-
-                                ffmpeg:rtsp://username:password@192.168.1.245/h265Preview_01_main#video=copy#audio=opus
+                                ffmpeg:rtsp://username:password$@192.168.1.245/h265Preview_01_main#video=copy#audio=opus
                               entity_id_light_one: light.lights_ceiling
                               light_one_icon: hue:recessed-ceiling
                               entity_id_light_two: light.lights_wall
@@ -4853,7 +4877,7 @@ views:
                       conditions:
                         - condition: state
                           entity: group.doors_grg
-                          state: 'on'
+                          state: "on"
                       card:
                         type: vertical-stack
                         cards:
@@ -4905,7 +4929,7 @@ views:
                             template: camera_rtsp_with_chips_card
                             variables:
                               camera_url: >-
-                                ffmpeg:rtsp://username:password@192.168.1.248/h264Preview_01_main#video=copy#audio=opus
+                                ffmpeg:rtsp://username:password$@192.168.1.248/h264Preview_01_main#video=copy#audio=opus
                               entity_id_light_one: switch.light_switch_grg
                               light_one_icon: mdi:garage-variant
                               entity_id_light_two: switch.rear_light_switch_grg
@@ -4920,7 +4944,7 @@ views:
                           below: 40
                         - condition: state
                           entity: sensor.house_maintenance_chip_card
-                          state: 'true'
+                          state: "true"
                         - condition: state
                           entity: sensor.laundry_machine_state
                           state: Delay Run
@@ -4950,16 +4974,14 @@ views:
                               entity: sensor.average_backyard_soil_humidity
                               icon: mdi:water-percent
                               content: >-
-                                {{
-                                states('sensor.average_backyard_soil_humidity')
-                                }}% - 
-
+                                {{ states('sensor.average_backyard_soil_humidity') }}% - 
+            
                                 {% set moisture =
                                 states('sensor.average_backyard_soil_humidity')
-
+            
                                 | float(0) %}
-
-
+            
+            
                                 {% if moisture < 15 %}
                                   very dry
                                 {% elif moisture < 25 %}
@@ -4972,7 +4994,7 @@ views:
                               icon_color: >-
                                 {% set moisture =
                                 states('sensor.average_backyard_soil_humidity')
-
+            
                                 | float(0) %} {% if moisture < 15 %}
                                   #A9A9A9
                                 {% elif moisture < 25 %}
@@ -4988,29 +5010,26 @@ views:
                             conditions:
                               - condition: state
                                 entity: sensor.house_maintenance_chip_card
-                                state: 'true'
+                                state: "true"
                             chip:
                               type: template
                               entity: sensor.house_maintenance_chip_card
-                              icon: >
+                              icon: |
                                 {% if is_state('input_boolean.rubbish', 'on') %}
                                   mdi:trash-can
-                                {% elif is_state('input_boolean.recycle', 'on')
-                                %}
+                                {% elif is_state('input_boolean.recycle', 'on') %}
                                   mdi:recycle
                                 {% else %} {% endif %}
-                              icon_color: >
+                              icon_color: |
                                 {% if is_state('input_boolean.rubbish', 'on') %}
                                   #C41E3A
-                                {% elif is_state('input_boolean.recycle', 'on')
-                                %}
+                                {% elif is_state('input_boolean.recycle', 'on') %}
                                   #50C878
                                 {% else %} {% endif %}
-                              content: >
+                              content: |
                                 {% if is_state('input_boolean.rubbish', 'on') %}
                                   Rubbish Day
-                                {% elif is_state('input_boolean.recycle', 'on')
-                                %}
+                                {% elif is_state('input_boolean.recycle', 'on') %}
                                   Recycle Day
                                 {% else %} {% endif %}      
                               tap_action:
@@ -5050,7 +5069,7 @@ views:
                               tap_action:
                                 action: more-info
                               icon: mdi:tumble-dryer
-                              icon_color: '#880808'
+                              icon_color: "#880808"
                               content: Dryer Running
                         alignment: start
                 - type: conditional
@@ -5101,7 +5120,7 @@ views:
                         bar_width: 60%
                         mushroom:
                           layout: vertical
-                          color: '#b5e0f7'
+                          color: "#b5e0f7"
                     - type: conditional
                       conditions:
                         - condition: state
@@ -5115,7 +5134,7 @@ views:
                         bar_width: 60%
                         mushroom:
                           layout: vertical
-                          color: '#D70040'
+                          color: "#D70040"
                     - type: conditional
                       conditions:
                         - condition: state
@@ -5129,7 +5148,7 @@ views:
                         bar_width: 60%
                         mushroom:
                           layout: vertical
-                          color: '#A020F0'
+                          color: "#A020F0"
                     - type: conditional
                       conditions:
                         - condition: state
@@ -5144,7 +5163,7 @@ views:
                         bar_width: 60%
                         mushroom:
                           layout: vertical
-                          color: '#006d77'
+                          color: "#006d77"
                     - type: conditional
                       conditions:
                         - condition: state
@@ -5159,7 +5178,7 @@ views:
                         bar_width: 60%
                         mushroom:
                           layout: vertical
-                          color: '#83c5be'
+                          color: "#83c5be"
                     - type: conditional
                       conditions:
                         - condition: state
@@ -5174,10 +5193,10 @@ views:
                         bar_width: 60%
                         mushroom:
                           layout: vertical
-                          color: '#edf6f9'
+                          color: "#edf6f9"
                         tap_action:
                           action: navigate
-                          navigation_path: '?tab=right-driveway/mobile-dashboard/irrigation'
+                          navigation_path: "?tab=right-driveway/mobile-dashboard/irrigation"
                     - type: conditional
                       conditions:
                         - condition: state
@@ -5191,14 +5210,38 @@ views:
                         bar_width: 60%
                         mushroom:
                           layout: vertical
-                          color: '#5D3FD3'
+                          color: "#5D3FD3"
                 - type: vertical-stack
                   cards:
-                    - type: custom:streamline-card
-                      template: title_card
-                      variables:
-                        title: Media
-                        title_font_size: 20px
+                    - type: horizontal-stack
+                      cards:
+                        - type: custom:streamline-card
+                          template: title_card
+                          variables:
+                            title: Media
+                            title_font_size: 20px
+                        - type: custom:mushroom-chips-card
+                          chips:
+                            - type: conditional
+                              conditions:
+                                - condition: state
+                                  entity: input_boolean.guest_mode
+                                  state: "off"
+                              chip:
+                                type: template
+                                entity: input_boolean.guest_mode
+                                icon: mdi:account-group
+                                tap_action:
+                                  action: toggle
+                          alignment: end
+                          uix:
+                            style:
+                              .: |
+                                ha-card {
+                                  --text-color: {{ 'var(--md-sys-color-on-primary)' if is_state('input_boolean.guest_mode', 'on') else 'var(--md-sys-color-primary)' }};
+                                  --color: {{ 'var(--md-sys-color-on-primary)' if is_state('input_boolean.guest_mode', 'on') else 'var(--md-sys-color-primary)' }};
+                                  --chip-background: {{ 'var(--md-sys-color-primary)' if is_state('input_boolean.guest_mode', 'on') else 'color-mix(in srgb, var(--md-sys-color-on-primary) 50%, transparent)' }};
+                                  margin-top: 1.6em
                     - type: custom:mushroom-template-card
                       primary: Spotify App
                       secondary: Navigate to Spotify
@@ -5215,9 +5258,9 @@ views:
                     count_entity: switch.towel_switches
                     title: Towel Heating
                     icon: mdi:heating-coil
-                    color: '#bc000a'
+                    color: "#bc000a"
                     background_color: rgba(210, 43, 43, 0.5)
-                    filter_state: 'on'
+                    filter_state: "on"
                 - type: conditional
                   conditions:
                     - condition: numeric_state
@@ -5254,6 +5297,7 @@ views:
                   template: spacer_card
                   variables:
                     padding: 4px
+
       - type: grid
         cards:
           - type: custom:simple-swipe-card
